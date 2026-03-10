@@ -26,10 +26,10 @@ router.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-  secure: true,
-  sameSite: "none",
-  maxAge: 24 * 60 * 60 * 1000
-}
+    secure: true,
+    sameSite: "none",
+    maxAge: 24 * 60 * 60 * 1000
+  }
 }));
 
 // Configure multer for file uploads
@@ -100,8 +100,12 @@ const writeJSON = (filepath, data) => {
 router.post('/admin/login', async (req, res) => {
   try {
     const { username, password } = req.body;
-    const adminData = readJSON('./data/admin.json');
+    const path = require('path');
 
+    const adminData = readJSON(
+      path.join(__dirname, '../data/admin.json')
+    );
+    console.log("Admin file:", adminData);
     // Check username
     if (username !== adminData.username) {
       return res.status(401).json({ success: false, error: 'Invalid credentials' });
@@ -109,7 +113,8 @@ router.post('/admin/login', async (req, res) => {
 
     // Check password
     const passwordMatch = await bcrypt.compare(password, adminData.password);
-
+    console.log("Password entered:", password);
+    console.log("Hash:", adminData.password);
     if (!passwordMatch) {
       return res.status(401).json({ success: false, error: 'Invalid credentials' });
     }
