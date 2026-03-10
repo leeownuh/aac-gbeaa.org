@@ -12,7 +12,10 @@ const dataPath = path.join(__dirname, "data", "article.json");
 let categories = [];
 
 // Middleware
-router.use(cors());
+router.use(cors({
+  origin: true,
+  credentials: true
+}));
 router.use(express.json({ limit: '50mb' }));
 router.use(express.urlencoded({ extended: true, limit: '50mb' }));
 router.use(express.static('.'));
@@ -27,6 +30,7 @@ router.use(session({
   saveUninitialized: false,
   cookie: {
     secure: true,
+    httpOnly: true,
     sameSite: "none",
     maxAge: 24 * 60 * 60 * 1000
   }
@@ -103,9 +107,10 @@ router.post('/admin/login', async (req, res) => {
     const path = require('path');
 
     const adminData = readJSON(
-      path.join(__dirname, '../data/admin.json')
+      path.join(__dirname, 'data/admin.json')
     );
-    console.log("Admin file:", adminData);
+   console.log("Admin path:", path.join(__dirname, 'data/admin.json'));
+console.log("Admin file:", adminData);
     // Check username
     if (username !== adminData.username) {
       return res.status(401).json({ success: false, error: 'Invalid credentials' });
@@ -122,9 +127,6 @@ router.post('/admin/login', async (req, res) => {
     // Create session
     req.session.admin = { username: adminData.username };
 
-    // Optional functions
-    loadGallery();
-    loadCategories();
 
     return res.json({ success: true, message: 'Login successful' });
 
