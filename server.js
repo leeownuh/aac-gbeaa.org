@@ -7,7 +7,7 @@ const session = require('express-session');
 const cors = require('cors');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 const dataPath = path.join(__dirname, "data", "article.json");
 let categories = [];
 
