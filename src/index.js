@@ -15,12 +15,12 @@ const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
 const { logRequest } = require('./middleware/auth');
 const { apiLimiter } = require('./middleware/rateLimiter');
 const apiRoutes = require('../server');
-app.use('/api', apiRoutes);
+
 
 const app = express();
 app.set('trust proxy', 1);
 const server = http.createServer(app);
-
+app.use('/api', apiRoutes);
 const ensureDirectories = () => {
   const dirs = [
     config.paths.data,

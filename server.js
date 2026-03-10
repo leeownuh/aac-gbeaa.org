@@ -26,9 +26,10 @@ router.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: false,
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
-  }
+  secure: true,
+  sameSite: "none",
+  maxAge: 24 * 60 * 60 * 1000
+}
 }));
 
 // Configure multer for file uploads
@@ -97,7 +98,7 @@ const writeJSON = (filepath, data) => {
 // ==================== AUTH ROUTES ====================
 
 // Admin login
-router.post('router.admin/login', async (req, res) => {
+router.post('/admin/login', async (req, res) => {
   try {
     const { username, password } = req.body;
     const adminData = readJSON('./data/admin.json');
@@ -120,7 +121,7 @@ router.post('router.admin/login', async (req, res) => {
 });
 
 // Admin logout
-router.post('router.admin/logout', (req, res) => {
+router.post('/admin/logout', (req, res) => {
   req.session.destroy((err) => {
     if (err) {
       return res.status(500).json({ error: 'Logout failed' });
@@ -130,7 +131,7 @@ router.post('router.admin/logout', (req, res) => {
 });
 
 // Check admin session
-router.get('router.admin/check', (req, res) => {
+router.get('/admin/check', (req, res) => {
   if (req.session && req.session.admin) {
     res.json({ authenticated: true, username: req.session.admin.username });
   } else {
@@ -141,13 +142,13 @@ router.get('router.admin/check', (req, res) => {
 // ==================== ARTICLES ROUTES ====================
 
 // Get all articles
-router.get('router.articles', (req, res) => {
+router.get('/articles', (req, res) => {
   const articles = readJSON(dataPath);
   res.json(articles);
 });
 
 // Get single article
-router.get('router.articles/:id', (req, res) => {
+router.get('/articles/:id', (req, res) => {
   const articles = readJSON(dataPath);
   const article = articles.find(a => a.id === req.params.id);
   if (article) {
@@ -162,7 +163,7 @@ function generateExcerpt(text, length = 150) {
   return text.substring(0, length) + (text.length > length ? "..." : "");
 }
 // Create article// Create article (Only required fields)
-router.post('router.articles', authenticateAdmin, (req, res) => {
+router.post('/articles', authenticateAdmin, (req, res) => {
 
   try {
 
@@ -205,7 +206,7 @@ router.post('router.articles', authenticateAdmin, (req, res) => {
 });
 
 // Update article
-router.put('router.articles/:id', authenticateAdmin, (req, res) => {
+router.put('/articles/:id', authenticateAdmin, (req, res) => {
   try {
     let articles = readJSON(dataPath);
     const index = articles.findIndex(a => a.id === req.params.id);
@@ -234,7 +235,7 @@ router.put('router.articles/:id', authenticateAdmin, (req, res) => {
 });
 
 // Delete article
-router.delete('router.articles/:id', authenticateAdmin, (req, res) => {
+router.delete('/articles/:id', authenticateAdmin, (req, res) => {
   try {
     let articles = readJSON(dataPath);
     const initialLength = articles.length;
@@ -257,13 +258,13 @@ router.delete('router.articles/:id', authenticateAdmin, (req, res) => {
 // ==================== EVENTS ROUTES ====================
 
 // Get all events
-router.get('router.events', (req, res) => {
+router.get('/events', (req, res) => {
   const events = readJSON('./data/events.json');
   res.json(events);
 });
 
 // Get single event
-router.get('router.events/:id', (req, res) => {
+router.get('/events/:id', (req, res) => {
   const events = readJSON('./data/events.json');
   const event = events.find(e => e.id === req.params.id);
   if (event) {
@@ -276,7 +277,7 @@ router.get('router.events/:id', (req, res) => {
 // Create event 
 const { v4: uuidv4 } = require('uuid');
 
-router.post('router.events', authenticateAdmin, upload.single('image'), (req, res) => {
+router.post('/events', authenticateAdmin, upload.single('image'), (req, res) => {
   try {
     const {
       title,
@@ -330,7 +331,7 @@ router.post('router.events', authenticateAdmin, upload.single('image'), (req, re
 });
 
 // Update event
-router.put('router.events/:id', authenticateAdmin, upload.single('image'), (req, res) => {
+router.put('/events/:id', authenticateAdmin, upload.single('image'), (req, res) => {
   try {
     let events = readJSON('./data/events.json');
     const index = events.findIndex(e => e.id === req.params.id);
@@ -364,7 +365,7 @@ router.put('router.events/:id', authenticateAdmin, upload.single('image'), (req,
 });
 
 // Delete event
-router.delete('router.events/:id', authenticateAdmin, (req, res) => {
+router.delete('/events/:id', authenticateAdmin, (req, res) => {
   try {
     let events = readJSON('./data/events.json');
     const initialLength = events.length;
@@ -386,13 +387,13 @@ router.delete('router.events/:id', authenticateAdmin, (req, res) => {
 
 // ==================== GALLERY ROUTES ====================
 // Get categories
-router.get('router.gallery/categories', (req, res) => {
+router.get('/gallery/categories', (req, res) => {
   const gallery = readJSON('./data/gallery.json');
 
   res.json(gallery.categories || []);
 });
 // Get all gallery images
-router.get('router.gallery', (req, res) => {
+router.get('/gallery', (req, res) => {
 
   try {
 
@@ -409,7 +410,7 @@ router.get('router.gallery', (req, res) => {
 
 });
 // Add category
-router.post('router.gallery/categories', authenticateAdmin, (req, res) => {
+router.post('/gallery/categories', authenticateAdmin, (req, res) => {
 
   try {
 
@@ -470,7 +471,7 @@ router.post('router.gallery/categories', authenticateAdmin, (req, res) => {
 
 });
 
-router.post('router.gallery/categories', authenticateAdmin, (req, res) => {
+router.post('/gallery/categories', authenticateAdmin, (req, res) => {
 
   try {
 
@@ -525,7 +526,7 @@ router.post('router.gallery/categories', authenticateAdmin, (req, res) => {
 
 });
 // Count gallery images
-router.get('router.gallery/count', (req, res) => {
+router.get('/gallery/count', (req, res) => {
   try {
     const gallery = readJSON('./data/gallery.json');
 
@@ -538,7 +539,7 @@ router.get('router.gallery/count', (req, res) => {
   }
 });
 // Delete gallery image
-router.delete('router.gallery/:file', authenticateAdmin, (req, res) => {
+router.delete('/gallery/:file', authenticateAdmin, (req, res) => {
 
   try {
 
