@@ -15,7 +15,7 @@ const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
 const { logRequest } = require('./middleware/auth');
 const { apiLimiter } = require('./middleware/rateLimiter');
 const apiRoutes = require('../server');
-
+const cmsRoutes = require('../server');
 
 const app = express();
 app.set('trust proxy', 1);
