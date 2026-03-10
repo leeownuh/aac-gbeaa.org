@@ -6,22 +6,22 @@ const bcrypt = require('bcryptjs');
 const session = require('express-session');
 const cors = require('cors');
 
-const app = express();
+const router = express.Router();
 const PORT = process.env.PORT || 3000;
 const dataPath = path.join(__dirname, "data", "article.json");
 let categories = [];
 
 // Middleware
-app.use(cors());
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ extended: true, limit: '50mb' }));
-app.use(express.static('.'));
+router.use(cors());
+router.use(express.json({ limit: '50mb' }));
+router.use(express.urlencoded({ extended: true, limit: '50mb' }));
+router.use(express.static('.'));
 // Serve static gallery images properly
-app.use('/assets', express.static(path.join(__dirname, 'assets')));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+router.use('/assets', express.static(path.join(__dirname, 'assets')));
+router.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Session configuration
-app.use(session({
+router.use(session({
   secret: 'aac-gbeaaa-secret-key-2025',
   resave: false,
   saveUninitialized: false,
@@ -97,7 +97,7 @@ const writeJSON = (filepath, data) => {
 // ==================== AUTH ROUTES ====================
 
 // Admin login
-app.post('/api/admin/login', async (req, res) => {
+router.post('router.admin/login', async (req, res) => {
   try {
     const { username, password } = req.body;
     const adminData = readJSON('./data/admin.json');
@@ -120,7 +120,7 @@ app.post('/api/admin/login', async (req, res) => {
 });
 
 // Admin logout
-app.post('/api/admin/logout', (req, res) => {
+router.post('router.admin/logout', (req, res) => {
   req.session.destroy((err) => {
     if (err) {
       return res.status(500).json({ error: 'Logout failed' });
@@ -130,7 +130,7 @@ app.post('/api/admin/logout', (req, res) => {
 });
 
 // Check admin session
-app.get('/api/admin/check', (req, res) => {
+router.get('router.admin/check', (req, res) => {
   if (req.session && req.session.admin) {
     res.json({ authenticated: true, username: req.session.admin.username });
   } else {
@@ -141,13 +141,13 @@ app.get('/api/admin/check', (req, res) => {
 // ==================== ARTICLES ROUTES ====================
 
 // Get all articles
-app.get('/api/articles', (req, res) => {
+router.get('router.articles', (req, res) => {
   const articles = readJSON(dataPath);
   res.json(articles);
 });
 
 // Get single article
-app.get('/api/articles/:id', (req, res) => {
+router.get('router.articles/:id', (req, res) => {
   const articles = readJSON(dataPath);
   const article = articles.find(a => a.id === req.params.id);
   if (article) {
@@ -162,7 +162,7 @@ function generateExcerpt(text, length = 150) {
   return text.substring(0, length) + (text.length > length ? "..." : "");
 }
 // Create article// Create article (Only required fields)
-app.post('/api/articles', authenticateAdmin, (req, res) => {
+router.post('router.articles', authenticateAdmin, (req, res) => {
 
   try {
 
@@ -205,7 +205,7 @@ app.post('/api/articles', authenticateAdmin, (req, res) => {
 });
 
 // Update article
-app.put('/api/articles/:id', authenticateAdmin, (req, res) => {
+router.put('router.articles/:id', authenticateAdmin, (req, res) => {
   try {
     let articles = readJSON(dataPath);
     const index = articles.findIndex(a => a.id === req.params.id);
@@ -234,7 +234,7 @@ app.put('/api/articles/:id', authenticateAdmin, (req, res) => {
 });
 
 // Delete article
-app.delete('/api/articles/:id', authenticateAdmin, (req, res) => {
+router.delete('router.articles/:id', authenticateAdmin, (req, res) => {
   try {
     let articles = readJSON(dataPath);
     const initialLength = articles.length;
@@ -257,13 +257,13 @@ app.delete('/api/articles/:id', authenticateAdmin, (req, res) => {
 // ==================== EVENTS ROUTES ====================
 
 // Get all events
-app.get('/api/events', (req, res) => {
+router.get('router.events', (req, res) => {
   const events = readJSON('./data/events.json');
   res.json(events);
 });
 
 // Get single event
-app.get('/api/events/:id', (req, res) => {
+router.get('router.events/:id', (req, res) => {
   const events = readJSON('./data/events.json');
   const event = events.find(e => e.id === req.params.id);
   if (event) {
@@ -276,7 +276,7 @@ app.get('/api/events/:id', (req, res) => {
 // Create event 
 const { v4: uuidv4 } = require('uuid');
 
-app.post('/api/events', authenticateAdmin, upload.single('image'), (req, res) => {
+router.post('router.events', authenticateAdmin, upload.single('image'), (req, res) => {
   try {
     const {
       title,
@@ -330,7 +330,7 @@ app.post('/api/events', authenticateAdmin, upload.single('image'), (req, res) =>
 });
 
 // Update event
-app.put('/api/events/:id', authenticateAdmin, upload.single('image'), (req, res) => {
+router.put('router.events/:id', authenticateAdmin, upload.single('image'), (req, res) => {
   try {
     let events = readJSON('./data/events.json');
     const index = events.findIndex(e => e.id === req.params.id);
@@ -364,7 +364,7 @@ app.put('/api/events/:id', authenticateAdmin, upload.single('image'), (req, res)
 });
 
 // Delete event
-app.delete('/api/events/:id', authenticateAdmin, (req, res) => {
+router.delete('router.events/:id', authenticateAdmin, (req, res) => {
   try {
     let events = readJSON('./data/events.json');
     const initialLength = events.length;
@@ -386,13 +386,13 @@ app.delete('/api/events/:id', authenticateAdmin, (req, res) => {
 
 // ==================== GALLERY ROUTES ====================
 // Get categories
-app.get('/api/gallery/categories', (req, res) => {
+router.get('router.gallery/categories', (req, res) => {
   const gallery = readJSON('./data/gallery.json');
 
   res.json(gallery.categories || []);
 });
 // Get all gallery images
-app.get('/api/gallery', (req, res) => {
+router.get('router.gallery', (req, res) => {
 
   try {
 
@@ -409,7 +409,7 @@ app.get('/api/gallery', (req, res) => {
 
 });
 // Add category
-app.post('/api/gallery/categories', authenticateAdmin, (req, res) => {
+router.post('router.gallery/categories', authenticateAdmin, (req, res) => {
 
   try {
 
@@ -470,7 +470,7 @@ app.post('/api/gallery/categories', authenticateAdmin, (req, res) => {
 
 });
 
-app.post('/api/gallery/categories', authenticateAdmin, (req, res) => {
+router.post('router.gallery/categories', authenticateAdmin, (req, res) => {
 
   try {
 
@@ -525,7 +525,7 @@ app.post('/api/gallery/categories', authenticateAdmin, (req, res) => {
 
 });
 // Count gallery images
-app.get('/api/gallery/count', (req, res) => {
+router.get('router.gallery/count', (req, res) => {
   try {
     const gallery = readJSON('./data/gallery.json');
 
@@ -538,7 +538,7 @@ app.get('/api/gallery/count', (req, res) => {
   }
 });
 // Delete gallery image
-app.delete('/api/gallery/:file', authenticateAdmin, (req, res) => {
+router.delete('router.gallery/:file', authenticateAdmin, (req, res) => {
 
   try {
 
@@ -560,17 +560,9 @@ app.delete('/api/gallery/:file', authenticateAdmin, (req, res) => {
 
 // ==================== ERROR HANDLING ====================
 
-app.use((err, req, res, next) => {
+router.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ error: 'Something went wrong!' });
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
-  console.log(`Admin panel: http://localhost:${PORT}/admin/login.html`);
-  console.log(`Default credentials: admin / admin123`);
-
-  const articles = readJSON(dataPath);
-  console.log("Loaded articles:", articles.length);
-});
+module.exports = router;

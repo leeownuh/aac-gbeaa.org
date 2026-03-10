@@ -14,6 +14,9 @@ const routes = require('./routes');
 const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
 const { logRequest } = require('./middleware/auth');
 const { apiLimiter } = require('./middleware/rateLimiter');
+const apiRoutes = require('../server');
+app.use('/api', apiRoutes);
+app.set('trust proxy', 1);
 
 const app = express();
 const server = http.createServer(app);
@@ -91,7 +94,7 @@ const configureMiddleware = () => {
 
 const configureRoutes = () => {
   app.use('/api', routes);
-
+  app.use('/api', cmsRoutes);
   app.get('/', (req, res) => {
     const indexPath = path.resolve('index.html');
     if (fs.existsSync(indexPath)) {
