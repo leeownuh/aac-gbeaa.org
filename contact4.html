@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<!--
+
+******************
+Copyright (c) 2025
+******************
+
+Name: Official The African Apostolic Church - VaApostora VeAfrica Publicity Website
+Version: 1.0.0
+Author: Leona Kokerai - Ownuh
+
+-->
+<!--[if IE 8]> <html lang="en" class="ie8 no-js"> <![endif]-->
+<!--[if IE 9]> <html lang="en" class="ie9 no-js"> <![endif]-->
+<!--[if !IE]>
+-->
+<html class="no-js" lang="en">
+
+<!-- <![endif]-->
+<!-- head -->
+
+<!--/contact.html by Ownuh, Thu, 10 Jul 2025 15:30:22 GMT -->
+
+<head>
+
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <!-- Basic Page Needs
+        ================================================== -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <!-- Specific Meta
+        ================================================== -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="Official The African Apostolic Church - VaApostora VeAfrica Publicity Website">
+    <meta name="keywords"
+        content="HTML5, charity HTML, church, churches, donation, ministry, mosque, ngo, non-profit, prayer, religion, religious">
+    <meta name="author" content="wp-organic">
+    <meta name="MobileOptimized" content="320">
+
+    <!-- Titles
+        ================================================== -->
+    <title>Official The African Apostolic Church - VaApostora VeAfrica Publicity Website</title>
+
+    <!-- Favicons
+        ================================================== -->
+    <link rel="shortcut icon" href="assets/images/favicon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="assets/images/favicon.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="assets/images/favicon.png">
+
+    <!-- Custom Font ( Fontawesome + Falticon + Google Font )
+        ======================================================-->
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Halant:wght@300;400;500;600;700&amp;family=Sora:wght@100..800&amp;display=swap">
+    <link rel="stylesheet" type="text/css" href="assets/library/font-awesome-5.15.4/fontawesome-all.min.css">
+
+    <!-- CSS ( Bootstrap + Owlcarouse + Imagehover + MagnificPopup + MenuMaker + Custom Style )
+        ======================================================================================= -->
+    <link rel="stylesheet" type="text/css" href="assets/library/bootstrap-5.3.2/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="assets/library/animate/animate.min.css">
+    <link rel="stylesheet" type="text/css" href="assets/library/magnific-popup/magnific-popup.css">
+    <link rel="stylesheet" type="text/css" href="assets/library/odometer/odometer.css">
+    <link rel="stylesheet" type="text/css" href="assets/library/swiper/swiper-bundle.css">
+    <link rel="stylesheet" type="text/css" href="assets/library/aos/aos.css">
+
+    <!-- Custom - CSS here -->
+    <link rel="stylesheet" type="text/css" href="assets/style.css">
+
+</head>
+<!-- end head -->
+
+<!-- body start -->
+
+<body>
+
+    <!--  Preloader - When Document load to display
+        =============================================== -->
+    <div id="preloader">
+        <div id="preloader">
+            <div id="loader" class="loader">
+                <div class="loader-container text-center">
+                    <div class="loader-icon"><img src="assets/images/logo/preloader.png" alt="Preloader"></div>
+                    <h6 class="text-center">The African Apostolic Church GBEAAA Province</h6>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header Style Two
+        ===================== -->
+    <header class="transparent-header header-style-2">
+        <div class="tc-header__top d-none d-xxl-block d-xl-block">
+            <div class="container custom-container">
+                <div class="row align-items-center">
+                    <div class="col-lg-6 col-md-12 justify-content-md-center">
+                        <div class="position-relative overflow-hidden top-news">
+                            <div class="swiper-1-vertical"> <div class="swiper-wrapper" id="event-swiper">
+  <!-- Slides will be injected here -->
+</div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-12">
+                        <ul class="tc-header__top-right list-wrap fs-7 fw-normal">
+                            <li>
+                                <i class="size-16" data-feather="phone"></i>
+                                <a href="tel:2295550109"><span class="text-dark">(229) 555-0109</span></a>
+                            </li>
+                            <li>
+                                <i class="size-16" data-feather="map-pin"></i>
+                                <span class="text-dark">8 Jefferson Road, Logan Park,Harare, Zimbabwe.</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const swiperContainer = document.getElementById("event-swiper");
+
+    fetch("data/events.json")
+      .then(res => res.json())
+      .then(events => {
+        const today = new Date().toISOString().split("T")[0];
+
+        const upcomingEvents = events.filter(event => event.date >= today);
+
+        upcomingEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+        upcomingEvents.forEach(event => {
+          const slide = `
+            <div class="swiper-slide">
+              <div class="d-flex fs-7 fw-normal align-items-center justify-content-md-center justify-content-lg-start mb-md-2 mb-lg-0">
+                <span class="me-2 has-dot">
+                  <strong>UPCOMING:</strong> ${event.title}
+                </span>
+                <a href="event-details.html?id=${event.id}" class="d-flex rounded-5 tc-btn-xs">
+                  <span>More Info</span>
+                  <i data-feather="arrow-right" class="size-12"></i>
+                </a>
+              </div>
+            </div>
+          `;
+          swiperContainer.insertAdjacentHTML("beforeend", slide);
+        });
+
+        // Initialize Swiper (only after DOM is ready and content is injected)
+        if (typeof Swiper !== "undefined") {
+          new Swiper(".swiper-1-vertical", {
+            direction: 'vertical',
+            loop: true,
+            autoplay: {
+              delay: 4000,
+              disableOnInteraction: false,
+            },
+            slidesPerView: 1,
+          });
+        }
+
+        if (typeof feather !== "undefined") {
+          feather.replace();
+        }
+      })
+      .catch(err => {
+        console.error("Failed to load events:", err);
+      });
+  });</script>
+
+        <!-- While User Scroll to Dispaly Sticky Header
+            =============================================== -->
+        <div id="sticky-header" class="tc-header__area header-top-2">
+            <div class="container custom-container">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="tgmenu__wrap py-xxl-0 py-xl-0 py-3">
+                            <nav
+                                class="tgmenu__nav d-flex align-items-center justify-content-between justify-content-xxl-between justify-content-xl-evenly">
+                                <div class="logo">
+                                    <a class="d-flex align-items-center" href="index.html">
+                                        <img src="assets/images/logo/logo-1.png"
+                                            alt="The African Apostolic Church - VaApostora VeAfrica">
+                                    </a>
+                                </div>
+                                <div class="tgmenu__navbar-wrap tgmenu__main-menu d-none d-xxl-flex d-xl-flex">
+                                    <!--Main Menu-->
+                                    <ul class="navigation">
+                                        <li><a href="index.html">Home</a></li>
+                                        <li><a href="about-us.html">About Us</a></li>
+                                        <li><a href="events-list.html">Events</a></li>
+                                        <li><a href="blog.html">Blog</a></li>
+                                        <li><a href="gallery.html">Gallery</a></li>
+                                       <li class="menu-item-has-children"><a href="contact.html">Contact</a>
+                                           <ul class="sub-menu">
+                                                <li><a href="contact1.html">America & Europe</a></li>
+                                                <li><a href="contact2.html">Asia & Australia</a></li>
+                                                <li><a href="contact3.html">Dubai</a></li>
+                                                <li><a href="contact4.html">Great Britain</a></li>
+                                            </ul>
+                                        </li> 
+                                        
+                                    </ul>
+                                </div>
+                               
+                                <div
+                                    class="mobile-nav-toggler d-block d-xxl-none d-xl-none d-flex justify-content-center align-items-center justify-content-end">
+                                    <i data-feather="menu"></i>
+                                </div>
+                            </nav>
+                        </div>
+                        <!-- Mobile Menu  -->
+                        <div class="tgmobile__menu">
+                            <nav class="tgmobile__menu-box">
+                                <div class="close-btn"><i class="fas fa-times"></i></div>
+                                <div class="nav-logo">
+                                    <a href="index.html"><img src="assets/images/logo/logo-1.png"
+                                            alt="The African Apostolic Church - VaApostora VeAfrica"></a>
+                                </div>
+                               
+                                <div class="tgmobile__menu-outer">
+                                </div>
+                                <div class="tgmobile__menu-bottom">
+                                    <div class="contact-info">
+                                        <ul class="list-wrap">
+                                            <li><a href="mailto:contact@the-aac-gbeaaa.org">contact@the-aac-gbeaaa.org</a></li>
+                                            <li><a href="tel:2295550109">(229) 555-0109</a></li>
+                                        </ul>
+                                    </div>
+                                    <div class="social-links">
+                                       <ul class="tiny-footer-menu float-end d-none d-xxl-block d-xl-block d-lg-block">
+                                <li><a href="https://www.facebook.com/share/1CCWU9q2Jy/"><i class="fab fa-facebook-f"></i></a></li>
+                                <li><a href="javascript:"><i class="fab fa-instagram"></i></a></li>
+                                <li><a href="https://x.com/MyBackup768079"><i class="fab fa-twitter"></i></a></li>
+                                <li><a href="https://youtube.com/@theafricanapostolicchurch-w6m?si=OroWGEg1q3Mo4lw-"><i class="fab fa-youtube"></i></a></li>
+                                <li><a href="https://www.tiktok.com/@the.african.apost20?_r=1&_t=ZS-94ALmkmZHoC"><i class="fab fa-tiktok"></i></a></li>
+            
+                            </ul>
+                                    </div>
+                                </div>
+                            </nav>
+                        </div>
+                        <div class="tgmobile__menu-backdrop"></div>
+                        <!-- End Mobile Menu -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
+
+        <!-- Quick Contact Us Sidebar
+            ============================= -->
+        <div class="offCanvas__info">
+            <div class="offCanvas__close-icon menu-close">
+                <button><i class="far fa-window-close"></i></button>
+            </div>
+            <div class="offCanvas__logo mb-30">
+                <a href="index.html"><img src="assets/images/logo/logo-1.png"
+                        alt="The African Apostolic Church - VaApostora VeAfrica"></a>
+            </div>
+            <div class="offCanvas__side-info mb-30">
+                <div class="contact-list mb-30">
+                    <h4>Office Address</h4>
+                    <p>
+                        8 Jefferson Road, Logan Park,Harare, Zimbabwe.
+                    </p>
+                </div>
+                <div class="contact-list mb-30">
+                    <h4>Phone Number</h4>
+                    <p>+0989 7876 9865 9</p>
+                    <p>+(090) 8765 86543 85</p>
+                </div>
+                <div class="contact-list mb-30">
+                    <h4>Email Address</h4>
+                    <p>admin@the-aac-gbeaaa.org</p>
+                    <p>admin@the-aac-gbeaaa.org</p>
+                </div>
+            </div>
+            <div class="offCanvas__social-icon mt-30">
+                <a href="javascript:"><i class="fab fa-facebook-f"></i></a>
+                <a href="javascript:"><i class="fab fa-twitter"></i></a>
+                <a href="javascript:"><i class="fab fa-google-plus-g"></i></a>
+                <a href="javascript:"><i class="fab fa-instagram"></i></a>
+            </div>
+        </div>
+        <div class="offCanvas__overly"></div>
+    </header>
+
+    <!-- Content Area
+        ================= -->
+    <main class="fix">
+
+        <!-- Page Header Banner
+            ======================= -->
+        <section class="page-header" data-background="assets/images/home2/hero-2-bg.png">
+            <div class="container">
+                <div class="row">
+                    <h1 class="mb-2 text-white">Contact Us</h1>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Contact Us</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </section>
+
+        <!-- Get In Touch - Section
+            =========================== -->
+
+        <section class="section-padding position-relative">
+            <div class="container">
+                <div class="row">
+                    <!-- District Leadership -->
+                    <div class="col-lg-6 mb-5">
+                        <div class="contact__content">
+                            <div class="section-title mb-4">
+                                <p class="sub-title fs-5">Contact</p>
+                                <h5 class="title fw-normal">Great Britain District Leadership</h5>
+                            </div>
+                            <ul class="list-wrap">
+                                <!-- Chairman -->
+                                <li class="mb-3 d-flex">
+                                    <div class="icon-1"><a href="tel:+447492110525"><i class="size-32"
+                                                data-feather="phone-call"></i></a></div>
+                                    <div class="content ms-3">
+                                        <p class="title fs-7">Chairman</p>
+                                        <a class="fs-5 text-dark" href="tel:+447492110525">Rev. Matsikidze - +44 7492
+                                            110525</a>
+                                    </div>
+                                </li>
+                                <!-- Vice Chairman -->
+                                <li class="mb-3 d-flex">
+                                    <div class="icon-1"><a href="tel:+447308195658"><i class="size-32"
+                                                data-feather="phone-call"></i></a></div>
+                                    <div class="content ms-3">
+                                        <p class="title fs-7">Vice Chairman</p>
+                                        <a class="fs-5 text-dark" href="tel:+447308195658">Rev. Savadye - +44 7308
+                                            195658</a>
+                                    </div>
+                                </li>
+                                <!-- Secretary -->
+                                <li class="mb-3 d-flex">
+                                    <div class="icon-1"><a href="tel:+447757710527"><i class="size-32"
+                                                data-feather="phone-call"></i></a></div>
+                                    <div class="content ms-3">
+                                        <p class="title fs-7">Secretary</p>
+                                        <a class="fs-5 text-dark" href="tel:+447757710527">Secretary Tafireyi - +44 7757
+                                            710527</a>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 mb-4">
+                        <div class="contact__content">
+                            <div class="col-lg-6">
+                                <li class="mb-4">
+                                    <div class="text-box ps-4">
+                                        <h5 class="fw-medium">Weekly Prayers</h5>
+                                        <p class="fs-6 mb-0">
+                                            Join us for spiritual fellowship <br>
+                                            <strong>Saturday (Sabbath):</strong> Sabbath services.
+                                        </p>
+                                    </div>
+                                </li>
+                                <img src="assets/images/contact/contact4.png"
+                                    alt="Dubai Church - The African Apostolic Church"
+                                    class="img-fluid rounded shadow-sm">
+                            </div>
+
+                        </div>
+                    </div>
+                    <!-- Bicester -->
+                    <div class="col-lg-6 mb-5">
+                        <div class="contact__content">
+                            <h5 class="fw-medium mb-3">Bicester</h5>
+                            <ul class="list-wrap">
+                                <li><strong>Rev. Chitsa:</strong> <a href="tel:+447550081167">+44 7550 081167</a></li>
+                                <li><strong>Ev. Mungoni:</strong> <a href="tel:+447488304322">+44 7488 304322</a></li>
+                                <li><strong>Sec. Dube:</strong> <a href="tel:+447902145084">+44 7902 145084</a></li>
+                            </ul>
+                            <p class="mt-3"><strong>Service Address:</strong><br>
+                                Bicester East Community Centre<br>
+                                Keble Road, Oxford, OX26 4TP<br>
+                                <strong>Start time:</strong> 10:30am BST
+                            </p>
+
+                        </div>
+                    </div>
+
+                    <!-- Leicester -->
+                    <div class="col-lg-6 mb-5">
+                        <div class="contact__content">
+                            <h5 class="fw-medium mb-3">Leicester</h5>
+                            <ul class="list-wrap">
+                                <li><strong>Rev. Matsikidze:</strong> <a href="tel:+447492110525">+44 7492 110525</a>
+                                </li>
+                                <li><strong>Ev. Muchareenyi:</strong> <a href="tel:+447909391281">+44 7909 391281</a>
+                                </li>
+                            </ul>
+                            <p class="mt-3"><strong>Service Address:</strong><br>
+                                Leicester Location B<br>
+                                <strong>Start time:</strong> 10:30am BST
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Nottingham -->
+                    <div class="col-lg-6 mb-5">
+                        <div class="contact__content">
+                            <h5 class="fw-medium mb-3">Nottingham</h5>
+                            <ul class="list-wrap">
+                                <li><strong>Rev. Savadye:</strong> <a href="tel:+447308195658">+44 7308 195658</a></li>
+                                <li><strong>Ev. Mukupe:</strong> <a href="tel:+447562915202">+44 7562 915202</a></li>
+                                <li><strong>Sec. Tafireyi:</strong> <a href="tel:+447757710527">+44 7757 710527</a></li>
+                            </ul>
+                            <p class="mt-3"><strong>Service Address:</strong><br>
+                                Polly Bowls Club<br>
+                                10 Unwin Road, Sutton-in-Ashfield<br>
+                                NG17 4HN<br>
+                                <strong>Start time:</strong> 10:30am BST
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Preston -->
+                    <div class="col-lg-6 mb-5">
+                        <div class="contact__content">
+                            <h5 class="fw-medium mb-3">Preston</h5>
+                            <ul class="list-wrap">
+                                <li><strong>Rev. Savadye:</strong> <a href="tel:+447308195658">+44 7308 195658</a></li>
+                                <li><strong>Ev. Muzimba:</strong> <a href="tel:+447943320691">+44 7943 320691</a></li>
+                                <li><strong>Pr. Kunzwa:</strong> <a href="tel:+447450837321">+44 7450 837321</a></li>
+                            </ul>
+                            <p class="mt-3"><strong>Service Address:</strong><br>
+                                Penwortham Community Centre<br>
+                                Kingsford Drive, Penwortham<br>
+                                PR1 9EQ<br>
+                                <strong>Start time:</strong> 10:00am BST
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- Map Section
+            ================ -->
+        <!-- Categories / Filters -->
+        <div class="d-flex flex-wrap gap-2 mb-4">
+            <a href="javascript:" class="btn rounded-5 btn-tag-outline active" data-place="all">
+                <span>View All</span>
+            </a>
+            <a href="javascript:" class="btn rounded-5 btn-tag-outline" data-place="Bicester">
+                <span>Bicester</span>
+            </a>
+            <a href="javascript:" class="btn rounded-5 btn-tag-outline" data-place="Leicester">
+                <span>Leicester</span>
+            </a>
+            <a href="javascript:" class="btn rounded-5 btn-tag-outline" data-place="Nottingham">
+                <span>Nottingham</span>
+            </a>
+        </div>
+
+        <!-- Maps -->
+        <div id="maps-container">
+            <div class="map-item" data-place="Bicester">
+                <iframe
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1230.8309219334653!2d-1.1450404!3d51.903634950000004!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4876e765c0c8a8e9%3A0xa8885e5bca9fd1bc!2sBicester%20East%20Community%20Center%2C%20Bicester%2C%20UK!5e0!3m2!1sen!2sin!4v1757096734418!5m2!1sen!2sin"
+                    width="100%" height="350" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+            </div>
+
+            <div class="map-item" data-place="Leicester" style="display:none;">
+                <iframe
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2393.9463973429065!2d-1.2444702240729393!3d53.12910779095667!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x487996771c2afa95%3A0x18f1f6fd623f8c99!2sPolly%20Bowls%20Club!5e0!3m2!1sen!2sin!4v1757096852601!5m2!1sen!2sin"
+                    width="100%" height="350" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+            </div>
+
+            <div class="map-item" data-place="Nottingham" style="display:none;">
+                <iframe
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d18877.41059887352!2d-2.743180180802789!3d53.74183931544398!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x487b729dc293b927%3A0x57bd6b924de7b9b5!2sPenwortham%20Town%20Council%20and%20Community%20Centre!5e0!3m2!1sen!2sin!4v1757096936139!5m2!1sen!2sin"
+                    width="100%" height="350" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+            </div>
+        </div>
+        <script>
+            const filterButtons = document.querySelectorAll('.btn-tag-outline');
+            const mapItems = document.querySelectorAll('.map-item');
+
+            filterButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Remove active class from all buttons
+                    filterButtons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+
+                    const place = btn.dataset.place;
+
+                    mapItems.forEach(map => {
+                        if (place === 'all') {
+                            map.style.display = 'block';
+                        } else {
+                            map.style.display = map.dataset.place === place ? 'block' : 'none';
+                        }
+                    });
+                });
+            });
+
+        </script
+    </main>
+
+    <!-- Footer Widget Area
+        ======================= -->
+    <footer>
+        <div class="footer-area footer-area-two text-white">
+            <div class="footer-bottom">
+                <div class="container">
+                    <div class="row align-items-center">
+                        <div class="col-12">
+                            <hr>
+                        </div>
+                        <div class="col-lg-5">
+                            <div class="copyright-text">
+                                <p>© 2026 <a class="text-primary" href="index.html">The African Apostolic Church</a> |
+                                    All Rights
+                                    Reserved
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3 col-12 mb-3 mb-xxl-0 mb-xl-0 mb-lg-0">
+                           <ul class="tiny-footer-menu float-end d-none d-xxl-block d-xl-block d-lg-block">
+                                <li><a href="about-us.html" class="fs-7 text-100 text-hover-primary">About Us</a></li>
+                                <li><a href="events-list.html" class="fs-7 text-100 text-hover-primary">Events</a>
+                                </li>
+                                <li><a href="gallery.html" class="fs-7 text-100 text-hover-primary">Gallery</a></li>
+                                <li><a href="blog.html" class="fs-7 text-100 text-hover-primary">Blog</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-lg-4 footer-social ">
+                            <ul class="tiny-footer-menu float-end d-none d-xxl-block d-xl-block d-lg-block">
+                                <li><a href="https://www.facebook.com/share/1CCWU9q2Jy/"><i class="fab fa-facebook-f"></i></a></li>
+                                <li><a href="javascript:"><i class="fab fa-instagram"></i></a></li>
+                                <li><a href="https://x.com/MyBackup768079"><i class="fab fa-twitter"></i></a></li>
+                                <li><a href="https://youtube.com/@theafricanapostolicchurch-w6m?si=OroWGEg1q3Mo4lw-"><i class="fab fa-youtube"></i></a></li>
+                                <li><a href="https://www.tiktok.com/@the.african.apost20?_r=1&_t=ZS-94ALmkmZHoC"><i class="fab fa-tiktok"></i></a></li>
+            
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!--  Back To Top - Button When Document Scroll Down to Display
+        ============================================================== -->
+    <button class="scroll__top scroll-to-target" data-target="html"><i class="fas fa-angle-up"></i></button>
+
+    <!--  Jquery Library Script Files
+        =================================================== -->
+    <script src="assets/library/jquery-3.7.1.min.js"></script>
+        <script src="assets/library/bootstrap-5.3.2/bootstrap.bundle.min.js"></script>
+        <script src="assets/library/magnific-popup/magnific-popup.min.js"></script>
+        <script src="assets/library/odometer/odometer.min.js"></script>
+        <script src="assets/library/jquery.appear/script.js"></script>
+        <script src="assets/library/parallax-scroll/jquery.parallaxScroll.min.js"></script>
+        <script src="assets/library/isotop/isotope.pkgd.min.js"></script>
+        <script src="assets/library/images-loaded/imagesloaded.pkgd.min.js"></script>
+        <script src="assets/library/swiper/swiper-bundle.js"></script>
+        <script src="assets/library/wow/wow.min.js"></script>
+        <script src="assets/library/aos/aos.js"></script>
+        <script src="assets/library/feather/feather.min.js"></script>
+        <script src="assets/library/gsap-3.10.4/gsap.js"></script>
+        <script src="assets/library/gsap-3.10.4/ScrollTrigger.js"></script>
+        <script src="assets/library/gsap-3.10.4/SplitText.js"></script>
+
+        <!--  Custom Script
+        ===================================== -->
+        <script src="assets/script.js"></script>
+
+</body>
+<!-- body end -->
+
+
+<!--/contact.html by Ownuh, Thu, 10 Jul 2025 15:30:22 GMT -->
+
+</html>

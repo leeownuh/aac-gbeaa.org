@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Articles - AAC GBEAAA</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .sidebar-header h2 {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-menu li {
+            margin-bottom: 10px;
+        }
+
+        .nav-menu a {
+            display: block;
+            padding: 12px 15px;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background 0.3s;
+            font-size: 14px;
+        }
+
+        .nav-menu a:hover,
+        .nav-menu a.active {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .logout-btn {
+            margin-top: 30px;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 14px;
+        }
+
+        .main-content {
+            margin-left: 250px;
+            flex: 1;
+            padding: 30px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 28px;
+        }
+
+        .add-btn {
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+
+        .add-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .articles-list {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .article-item {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.2s;
+        }
+
+        .article-item:hover {
+            background: #f9f9f9;
+        }
+
+        .article-item:last-child {
+            border-bottom: none;
+        }
+
+        .article-info {
+            flex: 1;
+        }
+
+        .article-info h3 {
+            color: #333;
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .article-info p {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .article-meta {
+            color: #999;
+            font-size: 12px;
+        }
+
+        .article-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.2s;
+        }
+
+        .edit-btn {
+            background: #667eea;
+            color: white;
+        }
+
+        .edit-btn:hover {
+            background: #5568d3;
+        }
+
+        .delete-btn {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .delete-btn:hover {
+            background: #c0392b;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            color: #333;
+            font-size: 24px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .image-preview {
+            width: 100%;
+            max-width: 200px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 5px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .image-preview.active {
+            display: block;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .submit-btn {
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .cancel-btn {
+            padding: 12px 25px;
+            background: #e0e0e0;
+            color: #333;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                position: relative;
+                height: auto;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .article-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .article-actions {
+                margin-top: 15px;
+                width: 100%;
+            }
+        }
+    </style>
+    <script src="https://sites.super.myninja.ai/_assets/ninja-daytona-script.js"></script>
+</head>
+
+<body>
+<div class="container">
+
+<div class="sidebar">
+<div class="sidebar-header">
+<h2>AAC GBEAAA</h2>
+<p>Admin Panel</p>
+</div>
+
+<ul class="nav-menu">
+<li><a href="dashboard.html">📊 Dashboard</a></li>
+<li><a href="articles.html" class="active">📝 Articles</a></li>
+<li><a href="events.html">📅 Events</a></li>
+<li><a href="gallery.html">🖼️ Gallery</a></li>
+</ul>
+
+<button class="logout-btn" onclick="logout()">🚪 Logout</button>
+</div>
+
+<div class="main-content">
+
+<div class="header">
+<h1>Manage Articles</h1>
+<button class="add-btn" onclick="openModal()">➕ Add Article</button>
+</div>
+
+<div id="loading" class="loading">Loading articles...</div>
+<div id="articlesList" class="articles-list" style="display:none"></div>
+
+</div>
+</div>
+
+<!-- MODAL -->
+<div id="modal" class="modal">
+<div class="modal-content">
+
+<div class="modal-header">
+<h2 id="modalTitle">Add Article</h2>
+<button class="close-btn" onclick="closeModal()">&times;</button>
+</div>
+
+<form id="articleForm">
+
+<input type="hidden" id="articleId">
+
+<div class="form-group">
+<label>Title *</label>
+<input id="title" required>
+</div>
+
+<div class="form-group">
+<label>Content *</label>
+<textarea id="content" required></textarea>
+</div>
+
+<div class="form-group">
+<label>Author</label>
+<input id="author" value="Admin">
+</div>
+
+<div class="form-group">
+<label>Category</label>
+<select id="category">
+<option>General</option>
+<option>Announcement</option>
+<option>News</option>
+<option>Sermon</option>
+<option>Event</option>
+</select>
+</div>
+
+<div class="form-group">
+<label>Date</label>
+<input type="date" id="date">
+</div>
+
+<div class="form-actions">
+<button type="button" class="cancel-btn" onclick="closeModal()">Cancel</button>
+<button class="submit-btn">Save Article</button>
+</div>
+
+</form>
+
+</div>
+</div>
+
+<script>
+
+let articles=[];
+let currentEditId=null;
+
+/* AUTH CHECK */
+fetch('/api/admin/check',{credentials:'include'})
+.then(r=>r.json())
+.then(d=>{
+if(!d.authenticated){
+window.location.href='login.html';
+}else{
+loadArticles();
+}
+});
+
+/* LOAD ARTICLES */
+function loadArticles(){
+fetch('/api/articles',{credentials:'include'})
+.then(r=>r.json())
+.then(data=>{
+articles=data;
+renderArticles();
+document.getElementById("loading").style.display="none";
+document.getElementById("articlesList").style.display="block";
+});
+}
+
+/* RENDER LIST */
+function renderArticles(){
+
+const container=document.getElementById("articlesList");
+
+if(articles.length===0){
+container.innerHTML="<div class='empty-state'>No articles yet</div>";
+return;
+}
+
+container.innerHTML=articles.map(article=>`
+<div class="article-item">
+
+<div class="article-info">
+<h3>${escapeHtml(article.title)}</h3>
+<p>${escapeHtml(article.content.substring(0,150))}...</p>
+<div class="article-meta">
+${article.author} • ${article.date} • ${article.category}
+</div>
+</div>
+
+<div class="article-actions">
+<button class="action-btn edit-btn"
+onclick="editArticle('${article.id}')">Edit</button>
+
+<button class="action-btn delete-btn"
+onclick="deleteArticle('${article.id}')">Delete</button>
+</div>
+
+</div>
+`).join("");
+
+}
+
+/* MODAL */
+function openModal(article=null){
+
+const modal=document.getElementById("modal");
+const title=document.getElementById("modalTitle");
+
+document.getElementById("articleForm").reset();
+
+if(article){
+title.textContent="Edit Article";
+currentEditId=article.id;
+
+document.getElementById("title").value=article.title;
+document.getElementById("content").value=article.content;
+document.getElementById("author").value=article.author;
+document.getElementById("category").value=article.category;
+document.getElementById("date").value=article.date;
+
+}else{
+title.textContent="Add Article";
+currentEditId=null;
+document.getElementById("date").value=new Date().toISOString().split('T')[0];
+}
+
+modal.classList.add("active");
+}
+
+function closeModal(){
+document.getElementById("modal").classList.remove("active");
+}
+
+/* FORM SUBMIT */
+document.getElementById("articleForm").addEventListener("submit",e=>{
+e.preventDefault();
+
+const payload={
+title:document.getElementById("title").value,
+content:document.getElementById("content").value,
+author:document.getElementById("author").value,
+category:document.getElementById("category").value,
+date:document.getElementById("date").value
+};
+
+const url=currentEditId?`/api/articles/${currentEditId}`:'/api/articles';
+const method=currentEditId?'PUT':'POST';
+
+fetch(url,{
+method,
+headers:{
+"Content-Type":"application/json"
+},
+credentials:'include',
+body:JSON.stringify(payload)
+})
+.then(r=>r.json())
+.then(data=>{
+if(data.success){
+closeModal();
+loadArticles();
+}else{
+alert(data.error);
+}
+});
+
+});
+
+/* DELETE */
+function deleteArticle(id){
+if(confirm("Delete article?")){
+fetch(`/api/articles/${id}`,{
+method:"DELETE",
+credentials:"include"
+})
+.then(r=>r.json())
+.then(d=>{
+if(d.success) loadArticles();
+});
+}
+}
+
+function editArticle(id){
+const article=articles.find(a=>a.id===id);
+if(article) openModal(article);
+}
+
+function escapeHtml(text){
+const div=document.createElement("div");
+div.textContent=text;
+return div.innerHTML;
+}
+
+function logout(){
+fetch('/api/admin/logout',{
+method:'POST',
+credentials:'include'
+})
+.then(()=>location.href="login.html");
+}
+
+</script>
+
+</body>
+
+</html>

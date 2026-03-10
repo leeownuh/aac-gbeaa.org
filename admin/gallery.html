@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Gallery - AAC GBEAAA</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .sidebar-header h2 {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-menu li {
+            margin-bottom: 10px;
+        }
+
+        .nav-menu a {
+            display: block;
+            padding: 12px 15px;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background 0.3s;
+            font-size: 14px;
+        }
+
+        .nav-menu a:hover,
+        .nav-menu a.active {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .logout-btn {
+            margin-top: 30px;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 14px;
+        }
+
+        .main-content {
+            margin-left: 250px;
+            flex: 1;
+            padding: 30px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 28px;
+        }
+
+        .add-btn {
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+
+        .add-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .gallery-item {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .gallery-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .gallery-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            cursor: pointer;
+        }
+
+        .gallery-info {
+            padding: 15px;
+        }
+
+        .gallery-info h3 {
+            color: #333;
+            font-size: 16px;
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .gallery-info p {
+            color: #666;
+            font-size: 13px;
+            margin-bottom: 10px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .gallery-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .gallery-category {
+            background: #667eea;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+        }
+
+        .gallery-date {
+            color: #999;
+            font-size: 11px;
+        }
+
+        .gallery-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .card-img {
+            height: auto;
+        }
+
+        .card-img img {
+            width: 100%;
+            height: auto;
+            display: block;
+            object-fit: contain;
+            /* optional */
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.2s;
+        }
+
+        .delete-btn {
+            background: #a8149e;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        .delete-btn:hover {
+            background: #c0392b;
+            transform: translateY(-1px);
+        }
+
+        .delete-btn:active {
+            transform: translateY(1px);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            color: #333;
+            font-size: 24px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .image-preview {
+            width: 100%;
+            max-width: 300px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 5px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .image-preview.active {
+            display: block;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .submit-btn {
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .cancel-btn {
+            padding: 12px 25px;
+            background: #e0e0e0;
+            color: #333;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+        }
+
+        .image-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .image-modal.active {
+            display: flex;
+        }
+
+        .image-modal img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+        }
+
+        .image-modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                position: relative;
+                height: auto;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .gallery-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+        }
+    </style>
+    <script src="https://sites.super.myninja.ai/_assets/ninja-daytona-script.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>AAC GBEAAA</h2>
+                <p>Admin Panel</p>
+            </div>
+
+            <ul class="nav-menu">
+                <li><a href="dashboard.html">📊 Dashboard</a></li>
+                <li><a href="articles.html">📝 Articles</a></li>
+                <li><a href="events.html">📅 Events</a></li>
+                <li><a href="gallery.html" class="active">🖼️ Gallery</a></li>
+            </ul>
+
+            <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+        </div>
+
+        <div class="main-content">
+            <div class="header">
+                <h1>Manage Gallery</h1>
+                <button class="add-btn" onclick="openModal()">➕ Add Image</button>
+            </div>
+
+            <div id="loading" class="loading">Loading gallery...</div>
+            <div id="galleryGrid" class="gallery-grid" style="display: none;"></div>
+        </div>
+    </div>
+
+    <!-- Upload Modal -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add Image to Gallery</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+
+            <form id="galleryForm">
+                <div class="form-group">
+                    <label for="title">Title *</label>
+                    <input type="text" id="title" name="title" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" name="description"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="category">Category</label>
+                    <select id="category" name="category" required>
+                        <option value="">Select Category</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="image">Image *</label>
+                    <input type="file" id="image" name="image" accept="image/*" required>
+                    <img id="imagePreview" class="image-preview" alt="Preview">
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="cancel-btn" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="submit-btn">Add Image</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Image Preview Modal -->
+    <div id="imageModal" class="image-modal">
+        <button class="image-modal-close" onclick="closeImageModal()">&times;</button>
+        <img id="modalImage" src="" alt="Gallery Image">
+    </div>
+    <script>
+
+        let gallery = [];
+        let categories = [];
+
+        /* =============================
+        AUTH CHECK
+        ============================= */
+        function checkAuth() {
+
+            fetch('/api/admin/check', {
+                credentials: 'include'
+            })
+                .then(r => r.json())
+                .then(data => {
+
+                    if (!data.authenticated) {
+                        window.location.href = "login.html";
+                        return;
+                    }
+
+                    loadGallery();
+                    loadCategories();
+
+                })
+                .catch(() => {
+                    window.location.href = "login.html";
+                });
+        }
+
+        checkAuth();
+
+        /* =============================
+        LOAD GALLERY
+        ============================= */
+        function loadGallery() {
+
+            fetch('/api/gallery', {
+                credentials: 'include'
+            })
+                .then(r => r.json())
+                .then(data => {
+
+                    gallery = data.images || [];
+
+                    renderGallery();
+
+                    document.getElementById("loading").style.display = "none";
+                    document.getElementById("galleryGrid").style.display = "grid";
+
+                })
+                .catch(() => {
+                    document.getElementById("loading").innerText = "Gallery load failed";
+                });
+
+        }
+
+        /* =============================
+        RENDER GALLERY
+        ============================= */
+        function renderGallery() {
+
+            const container = document.getElementById("galleryGrid");
+
+            if (!gallery.length) {
+                container.innerHTML = "<div class='empty-state'>No images found</div>";
+                return;
+            }
+
+            container.innerHTML = gallery.map(item => {
+
+                const imgPath =
+                    `/assets/images/gallery/${item.category}/${item.file}`;
+
+                return `
+        <div class="gallery-item">
+
+            <img
+            src="${imgPath}"
+            class="gallery-image"
+            onclick="viewImage('${imgPath}')"
+            onerror="this.src='/assets/images/gallery/gallery-1.jpg'"
+            >
+
+            <div class="gallery-info">
+
+                <h3>${escapeHtml(item.title)}</h3>
+                <p>${escapeHtml(item.description || "")}</p>
+
+                <div class="gallery-meta">
+                    <span class="gallery-category">
+                        ${item.category}
+                    </span>
+
+                    <span class="gallery-date">
+                        ${item.date || ""}
+                    </span>
+                </div>
+
+                <button
+                class="delete-btn"
+                onclick="deleteImage('${item.file}')">
+                    Delete
+                </button>
+
+            </div>
+        </div>
+        `;
+            }).join("");
+
+        }
+
+        /* =============================
+        LOAD CATEGORIES
+        ============================= */
+        function loadCategories() {
+
+            fetch('/api/gallery/categories', {
+                credentials: 'include'
+            })
+                .then(r => r.json())
+                .then(data => {
+                    categories = data || [];
+                    populateCategoryDropdown();
+                });
+
+        }
+
+        /* =============================
+        CATEGORY DROPDOWN
+        ============================= */
+        function populateCategoryDropdown() {
+
+            const select = document.getElementById("category");
+
+            if (!select) return;
+
+            select.innerHTML = `
+        <option value="">Select Category</option>
+        <option value="ADD_NEW">➕ Add New Category</option>
+    `;
+
+            categories.forEach(cat => {
+                select.innerHTML += `
+            <option value="${cat.slug}">
+                ${cat.name}
+            </option>
+        `;
+            });
+
+            select.onchange = function (e) {
+
+                if (e.target.value === "ADD_NEW") {
+
+                    const name = prompt("Enter new category name");
+
+                    if (!name) return;
+
+                    fetch('/api/gallery/categories', {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        credentials: 'include',
+                        body: JSON.stringify({ name })
+                    })
+                        .then(r => r.json())
+                        .then(() => {
+                            loadCategories();
+                        });
+
+                    e.target.value = "";
+                }
+
+            };
+
+        }
+        /* =========================
+        UPLOAD GALLERY IMAGE
+        ========================= */
+
+        app.post('/api/gallery', authenticateAdmin, upload.single('image'), (req, res) => {
+
+            try {
+
+                const { title, description, category } = req.body;
+
+                if (!title || !category) {
+                    return res.status(400).json({
+                        error: "Title and category required"
+                    });
+                }
+
+                if (!req.file) {
+                    return res.status(400).json({
+                        error: "Image file required"
+                    });
+                }
+
+                const gallery = readJSON('./data/gallery.json');
+
+                /* Find category info */
+                const cat = gallery.categories.find(
+                    c => c.slug === category
+                );
+
+                if (!cat) {
+                    return res.status(400).json({
+                        error: "Invalid category"
+                    });
+                }
+
+                /* Category folder path */
+                const categoryFolder = path.join(
+                    __dirname,
+                    'assets/images/gallery',
+                    cat.folder
+                );
+
+                /* Create folder if missing */
+                if (!fs.existsSync(categoryFolder)) {
+                    fs.mkdirSync(categoryFolder, { recursive: true });
+                }
+
+                /* Move file from uploads → category folder */
+                const oldPath = path.join(__dirname, 'uploads', req.file.filename);
+
+                const newPath = path.join(
+                    categoryFolder,
+                    req.file.filename
+                );
+
+                /* ⭐ THIS IS THE MOST IMPORTANT LINE */
+                fs.renameSync(oldPath, newPath);
+
+                /* Save record to JSON */
+                const newImage = {
+                    id: Date.now().toString(),
+                    title,
+                    description: description || "",
+                    category,
+                    file: req.file.filename,
+                    date: new Date().toISOString().split("T")[0]
+                };
+
+                gallery.images.push(newImage);
+
+                writeJSON('./data/gallery.json', gallery);
+
+                res.json({
+                    success: true,
+                    image: newImage
+                });
+
+            } catch (err) {
+
+                console.error("Gallery upload error:", err);
+
+                res.status(500).json({
+                    error: "Upload failed"
+                });
+
+            }
+
+        });
+        /* =============================
+        DELETE IMAGE
+        ============================= */
+        function deleteImage(file) {
+
+            if (!confirm("Delete image?")) return;
+
+            fetch(`/api/gallery/${file}`, {
+                method: "DELETE",
+                credentials: 'include'
+            })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        loadGallery();
+                    } else {
+                        alert("Delete failed");
+                    }
+                });
+
+        }
+
+        /* =============================
+        MODALS
+        ============================= */
+        function openModal() {
+            document.getElementById("modal")
+                .classList.add("active");
+        }
+
+        function closeModal() {
+            document.getElementById("modal")
+                .classList.remove("active");
+        }
+
+        function viewImage(src) {
+            document.getElementById("modalImage").src = src;
+            document.getElementById("imageModal")
+                .classList.add("active");
+        }
+
+        function closeImageModal() {
+            document.getElementById("imageModal")
+                .classList.remove("active");
+        }
+
+        /* =============================
+        UTILS
+        ============================= */
+        function escapeHtml(text) {
+            if (!text) return "";
+            const div = document.createElement("div");
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        /* ESC KEY CLOSE */
+        document.addEventListener("keydown", e => {
+            if (e.key === "Escape") {
+                closeModal();
+                closeImageModal();
+            }
+        });
+
+    </script>
+</body>
+
+</html>

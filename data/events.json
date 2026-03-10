@@ -1,0 +1,92 @@
+[
+  {
+    "id": "1",
+    "title": "Provincial Women's Conference",
+    "description": "Whether you're seeking solace in times of struggle, fellowship with fellow travelers",
+    "date": "2025-07-18",
+    "time": "08:00 AM - 11:00 AM",
+    "location": "1901 Thornridge Cir. Shiloh, Hawaii 81063",
+    "image": "/assets/images/event-details/img-event-details-sec-1.png",
+    "category": "National"
+  },
+  {
+    "id": "2",
+    "title": "Provincial Leaders Meeting",
+    "description": "A special gathering for young believers to connect and worship together.",
+    "date": "2025-08-02",
+    "time": "10:00 AM - 02:00 PM",
+    "location": "44 Victory Rd, Zion City, IL 60099",
+    "image": "/assets/images/event-details/img-event-details-sec-1.png",
+    "category": "Provincial"
+  },
+  {
+    "id": "3",
+    "title": "India Gathering",
+    "description": "A community prayer session for all local members.",
+    "date": "2025-08-15",
+    "time": "09:00 AM - 12:00 PM",
+    "location": "12 Community Hall, Downtown",
+    "image": "/assets/images/event-details/img-event-details-sec-1.png",
+    "category": "District"
+  },
+  {
+    "id": "4",
+    "title": "Guvambwa",
+    "description": "Holy Communion service at Guvambwa.",
+    "date": "2025-05-30",
+    "end_date": "2025-06-01",
+    "time": "2025-05-30 to 2025-06-01",
+    "location": "Guvambwa",
+    "image": "/assets/images/event-details/img-event-details-sec-1.png",
+    "details_url": "event-details.html",
+    "category": "Holy Communion"
+  },
+  {
+    "id": "5",
+    "title": "Nyahukwe - Manicaland",
+    "description": "Holy Communion service in Nyahukwe, Manicaland.",
+    "date": "2025-06-27",
+    "end_date": "2025-06-29",
+    "time": "2025-06-27 to 2025-06-29",
+    "location": "Nyahukwe - Manicaland",
+    "image": "/assets/images/event-details/img-event-details-sec-1.png",
+    "details_url": "event-details.html",
+    "category": "Holy Communion"
+  },
+  {
+    "id": "6",
+    "title": "Ndarikure - Midlands",
+    "description": "Holy Communion in Ndarikure, Midlands.",
+    "date": "2025-08-22",
+    "end_date": "2025-08-24",
+    "time": "2025-08-22 to 2025-08-24",
+    "location": "Ndarikure - Midlands",
+    "image": "/assets/images/event-details/img-event-details-sec-1.png",
+    "details_url": "event-details.html",
+    "category": "Holy Communion"
+  },
+  {
+    "id": "7",
+    "title": "Nzvimbo - Chiweshe",
+    "description": "Holy Communion in Nzvimbo, Chiweshe.",
+    "date": "2025-09-26",
+    "end_date": "2025-09-28",
+    "time": "2025-09-26 to 2025-09-28",
+    "location": "Nzvimbo - Chiweshe",
+    "image": "/assets/images/event-details/img-event-details-sec-1.png",
+    "details_url": "event-details.html",
+    "category": "Holy Communion"
+  },
+  {
+    "id": "8",
+    "title": "Maungwa - Masvingo East",
+    "description": "Holy Communion at Maungwa, Masvingo East.",
+    "date": "2025-10-24",
+    "end_date": "2025-10-26",
+    "time": "2025-10-24 to 2025-10-26",
+    "location": "Maungwa - Masvingo East",
+    "image": "/assets/images/event-details/img-event-details-sec-1.png",
+    "details_url": "event-details.html",
+    "category": "Holy Communion"
+  }
+]

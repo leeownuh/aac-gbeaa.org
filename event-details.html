@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<!--
+
+******************
+Copyright (c) 2025
+******************
+
+Name: Official The African Apostolic Church - VaApostora VeAfrica Publicity Website
+Version: 1.0.0
+Author: Leona Kokerai - Ownuh
+
+-->
+<!--[if IE 8]> <html lang="en" class="ie8 no-js"> <![endif]-->
+<!--[if IE 9]> <html lang="en" class="ie9 no-js"> <![endif]-->
+<!--[if !IE]>
+-->
+<html class="no-js" lang="en">
+
+<!-- <![endif]-->
+<!-- head -->
+
+<!--/event-details.html by Ownuh, Thu, 10 Jul 2025 15:29:22 GMT -->
+
+<head>
+
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <!-- Basic Page Needs
+        ================================================== -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <!-- Specific Meta
+        ================================================== -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="Official The African Apostolic Church - VaApostora VeAfrica Publicity Website">
+    <meta name="keywords"
+        content="HTML5, charity HTML, church, churches, donation, ministry, mosque, ngo, non-profit, prayer, religion, religious">
+    <meta name="author" content="wp-organic">
+    <meta name="MobileOptimized" content="320">
+
+    <!-- Titles
+        ================================================== -->
+    <title>Official The African Apostolic Church - VaApostora VeAfrica Publicity Website</title>
+
+    <!-- Favicons
+        ================================================== -->
+    <link rel="shortcut icon" href="assets/images/favicon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="assets/images/favicon.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="assets/images/favicon.png">
+
+    <!-- Custom Font ( Fontawesome + Falticon + Google Font )
+        ======================================================-->
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Halant:wght@300;400;500;600;700&amp;family=Sora:wght@100..800&amp;display=swap">
+    <link rel="stylesheet" type="text/css" href="assets/library/font-awesome-5.15.4/fontawesome-all.min.css">
+
+    <!-- CSS ( Bootstrap + Owlcarouse + Imagehover + MagnificPopup + MenuMaker + Custom Style )
+        ======================================================================================= -->
+    <link rel="stylesheet" type="text/css" href="assets/library/bootstrap-5.3.2/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="assets/library/animate/animate.min.css">
+    <link rel="stylesheet" type="text/css" href="assets/library/magnific-popup/magnific-popup.css">
+    <link rel="stylesheet" type="text/css" href="assets/library/odometer/odometer.css">
+    <link rel="stylesheet" type="text/css" href="assets/library/swiper/swiper-bundle.css">
+    <link rel="stylesheet" type="text/css" href="assets/library/aos/aos.css">
+
+    <!-- Custom - CSS here -->
+    <link rel="stylesheet" type="text/css" href="assets/style.css">
+
+</head>
+<!-- end head -->
+
+<!-- body start -->
+
+<body>
+
+    <!--  Preloader - When Document load to display
+        =============================================== -->
+    <div id="preloader">
+        <div id="preloader">
+            <div id="loader" class="loader">
+                <div class="loader-container text-center">
+                    <div class="loader-icon"><img src="assets/images/logo/preloader.png" alt="Preloader"></div>
+                    <h6 class="text-center">The African Apostolic Church GBEAAA Province</h6>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header Style Two
+        ===================== -->
+    <header class="transparent-header header-style-2">
+        <div class="tc-header__top d-none d-xxl-block d-xl-block">
+            <div class="container custom-container">
+                <div class="row align-items-center">
+                    <div class="col-lg-6 col-md-12 justify-content-md-center">
+                        <div class="position-relative overflow-hidden top-news">
+                            <div class="swiper-1-vertical">
+                                <div class="swiper-wrapper" id="event-swiper">
+                                    <!-- Slides will be injected here -->
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-12">
+                        <ul class="tc-header__top-right list-wrap fs-7 fw-normal">
+                            <li>
+                                <i class="size-16" data-feather="phone"></i>
+                                <a href="tel:2295550109"><span class="text-dark">(229) 555-0109</span></a>
+                            </li>
+                            <li>
+                                <i class="size-16" data-feather="map-pin"></i>
+                                <span class="text-dark">8 Jefferson Road, Logan Park,Harare, Zimbabwe.</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const swiperContainer = document.getElementById("event-swiper");
+
+                fetch("data/events.json")
+                    .then(res => res.json())
+                    .then(events => {
+                        const today = new Date().toISOString().split("T")[0];
+
+                        const upcomingEvents = events.filter(event => event.date >= today);
+
+                        upcomingEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+                        upcomingEvents.forEach(event => {
+                            const slide = `
+            <div class="swiper-slide">
+              <div class="d-flex fs-7 fw-normal align-items-center justify-content-md-center justify-content-lg-start mb-md-2 mb-lg-0">
+                <span class="me-2 has-dot">
+                  <strong>UPCOMING:</strong> ${event.title}
+                </span>
+                <a href="event-details.html?id=${event.id}" class="d-flex rounded-5 tc-btn-xs">
+                  <span>More Info</span>
+                  <i data-feather="arrow-right" class="size-12"></i>
+                </a>
+              </div>
+            </div>
+          `;
+                            swiperContainer.insertAdjacentHTML("beforeend", slide);
+                        });
+
+                        // Initialize Swiper (only after DOM is ready and content is injected)
+                        if (typeof Swiper !== "undefined") {
+                            new Swiper(".swiper-1-vertical", {
+                                direction: 'vertical',
+                                loop: true,
+                                autoplay: {
+                                    delay: 4000,
+                                    disableOnInteraction: false,
+                                },
+                                slidesPerView: 1,
+                            });
+                        }
+
+                        if (typeof feather !== "undefined") {
+                            feather.replace();
+                        }
+                    })
+                    .catch(err => {
+                        console.error("Failed to load events:", err);
+                    });
+            });
+       </script>
+
+        <!-- While User Scroll to Dispaly Sticky Header
+            =============================================== -->
+        <div id="sticky-header" class="tc-header__area header-top-2">
+            <div class="container custom-container">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="tgmenu__wrap py-xxl-0 py-xl-0 py-3">
+                            <nav
+                                class="tgmenu__nav d-flex align-items-center justify-content-between justify-content-xxl-between justify-content-xl-evenly">
+                                <div class="logo">
+                                    <a class="d-flex align-items-center" href="index.html">
+                                        <img src="assets/images/logo/logo-1.png"
+                                            alt="The African Apostolic Church - VaApostora VeAfrica">
+                                    </a>
+                                </div>
+                                <div class="tgmenu__navbar-wrap tgmenu__main-menu d-none d-xxl-flex d-xl-flex">
+                                    <!--Main Menu-->
+                                    <ul class="navigation">
+                                        <li><a href="index.html">Home</a></li>
+                                        <li><a href="about-us.html">About Us</a></li>
+                                        <li><a href="events-list.html">Events</a></li>
+                                        <li><a href="blog.html">Blog</a></li>
+                                        <li><a href="gallery.html">Gallery</a></li>
+                                        <li class="menu-item-has-children"><a href="contact.html">Contact</a>
+                                            <ul class="sub-menu">
+                                                <li><a href="contact1.html">America & Europe</a></li>
+                                                <li><a href="contact2.html">Asia & Australia</a></li>
+                                                <li><a href="contact3.html">Dubai</a></li>
+                                                <li><a href="contact4.html">Great Britain</a></li>
+                                            </ul>
+                                        </li>
+                                        
+                                    </ul>
+                                </div>
+                               
+                                <div
+                                    class="mobile-nav-toggler d-block d-xxl-none d-xl-none d-flex justify-content-center align-items-center justify-content-end">
+                                    <i data-feather="menu"></i>
+                                </div>
+                            </nav>
+                        </div>
+                        <!-- Mobile Menu  -->
+                        <div class="tgmobile__menu">
+                            <nav class="tgmobile__menu-box">
+                                <div class="close-btn"><i class="fas fa-times"></i></div>
+                                <div class="nav-logo">
+                                    <a href="index.html"><img src="assets/images/logo/logo-1.png"
+                                            alt="The African Apostolic Church - VaApostora VeAfrica"></a>
+                                </div>
+                               
+                                <div class="tgmobile__menu-outer">
+                                </div>
+                                <div class="tgmobile__menu-bottom">
+                                    <div class="contact-info">
+                                        <ul class="list-wrap">
+                                            <li><a href="mailto:contact@the-aac-gbeaaa.org">contact@the-aac-gbeaaa.org</a></li>
+                                            <li><a href="tel:2295550109">(229) 555-0109</a></li>
+                                        </ul>
+                                    </div>
+                                    <div class="social-links">
+                                       <ul class="tiny-footer-menu float-end d-none d-xxl-block d-xl-block d-lg-block">
+                                <li><a href="https://www.facebook.com/share/1CCWU9q2Jy/"><i class="fab fa-facebook-f"></i></a></li>
+                                <li><a href="javascript:"><i class="fab fa-instagram"></i></a></li>
+                                <li><a href="https://x.com/MyBackup768079"><i class="fab fa-twitter"></i></a></li>
+                                <li><a href="https://youtube.com/@theafricanapostolicchurch-w6m?si=OroWGEg1q3Mo4lw-"><i class="fab fa-youtube"></i></a></li>
+                                <li><a href="https://www.tiktok.com/@the.african.apost20?_r=1&_t=ZS-94ALmkmZHoC"><i class="fab fa-tiktok"></i></a></li>
+            
+                            </ul>
+                                    </div>
+                                </div>
+                            </nav>
+                        </div>
+                        <div class="tgmobile__menu-backdrop"></div>
+                        <!-- End Mobile Menu -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
+
+        <!-- Quick Contact Us Sidebar
+            ============================= -->
+        <div class="offCanvas__info">
+            <div class="offCanvas__close-icon menu-close">
+                <button><i class="far fa-window-close"></i></button>
+            </div>
+            <div class="offCanvas__logo mb-30">
+                <a href="index.html"><img src="assets/images/logo/logo-1.png"
+                        alt="The African Apostolic Church - VaApostora VeAfrica"></a>
+            </div>
+            <div class="offCanvas__side-info mb-30">
+                <div class="contact-list mb-30">
+                    <h4>Office Address</h4>
+                    <p>
+                        8 Jefferson Road, Logan Park,Harare, Zimbabwe.
+                    </p>
+                </div>
+                <div class="contact-list mb-30">
+                    <h4>Phone Number</h4>
+                    <p>+0989 7876 9865 9</p>
+                    <p>+(090) 8765 86543 85</p>
+                </div>
+                <div class="contact-list mb-30">
+                    <h4>Email Address</h4>
+                    <p>admin@the-aac-gbeaaa.org</p>
+                    <p>admin@the-aac-gbeaaa.org</p>
+                </div>
+            </div>
+            <div class="offCanvas__social-icon mt-30">
+                <a href="javascript:"><i class="fab fa-facebook-f"></i></a>
+                <a href="javascript:"><i class="fab fa-twitter"></i></a>
+                <a href="javascript:"><i class="fab fa-google-plus-g"></i></a>
+                <a href="javascript:"><i class="fab fa-instagram"></i></a>
+            </div>
+        </div>
+        <div class="offCanvas__overly"></div>
+    </header>
+
+    <!-- Content Area
+        ================= -->
+    <main class="fix">
+
+        <!-- Page Header Banner
+            ======================= -->
+        <div class="envent-details-header">
+            <div class="page-header" data-background="assets/images/home2/hero-2-bg.png">
+            </div>
+        </div>
+
+        <!-- Event Details Page
+            ======================= -->
+        <section class="event-details-section-1 pt-80">
+            <div class="container container-1">
+                <div class="row">
+                    <div class="col-12 mb-4 d-flex justify-content-center">
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+                                <li class="breadcrumb-item"><a href="events-list.html">Events</a></li>
+                                <li class="breadcrumb-item active fw-semibold" aria-current="page">Event Details</li>
+                            </ol>
+                        </nav>
+                    </div>
+
+                    <!-- Tags -->
+
+
+                    <!-- Title -->
+                    <div class="col-12 d-flex align-items-center flex-column justify-content-center">
+                        <h1 id="post-title" class="text-center page-title fw-medium"></h1>
+                    </div>
+
+                    <!-- Author + Date -->
+                    <div class="col-10">
+                        <div class="d-block d-md-flex underlined-bottom justify-content-between">
+                            <div
+                                class="position-relative w-fit-content overflow-hidden shine-animate-item hover-up d-flex align-items-center py-4">
+                                <div class="title ps-4">
+                                    <p id="event-date" class="fs-7 mb-0"></p>
+                                </div>
+                            </div>
+
+                            <!-- Share Icons -->
+                            <div class="icons d-flex align-items-center mb-4 mb-md-0">
+                                <p class="text-dark mb-0 me-2">Share:</p>
+                                <a href="javascript:" target="_blank" class="fw-600 text-dark px-2"><i
+                                        class="fab fa-facebook-f"></i></a>
+                                <a href="javascript:" target="_blank" class="fw-600 text-dark px-2"><i
+                                        class="fab fa-instagram"></i></a>
+                                <a href="javascript:" target="_blank" class="fw-600 text-dark px-2"><i
+                                        class="fab fa-pinterest-p"></i></a>
+                                <a href="javascript:" target="_blank" class="fw-600 text-dark px-2"><i
+                                        class="fab fa-twitter"></i></a>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+        </section>
+
+        <!-- Event Organizer Team -->
+        <section class="pt-110px pb-5">
+            <div class="container">
+                <div class="row align-items-center">
+                    <!-- Text Content on Left -->
+                    <div class="col-lg-6 order-lg-1 order-2">
+                        <div class="col-12 gap-2 py-4 d-flex justify-content-center">
+                            <a class="btn-blur rounded-5 px-3 py-2" href="javascript:">event-category</a>
+                        </div>
+                        <h4 class="fw-medium pb-3">EventTitle</h4>
+                        <p class="pb-2">
+                            We invite you to hear the Gospel of Jesus Christ who Commissioned Servant of God Paul Mwazha
+                            Of Africa.
+                        </p>
+
+                        <h4 class="fw-medium pb-2">Event Details</h4>
+                        <ul class="fs-6 pb-3 list-style">
+                            <li><span class="fw-semibold text-dark">Dates: </span>Every Wednesday evening from 26 March
+                                2025 to 26 September 2025</li>
+                            <li><span class="fw-semibold text-dark">Time: </span>7:00 PM to 8:30 PM</li>
+                            <li><span class="fw-semibold text-dark">Location: </span>The African Apostolic Church
+                                Sanctuary</li>
+                        </ul>
+
+                        <h4 class="fw-medium pb-3">In the Name of Jesus</h4>
+                        <p class="pb-2">
+                            The barren have children.<br>
+                            The sick are healed.<br>
+                            Evil spirits are cast out.<br>
+                            Various personal needs are fulfilled.
+                        </p>
+                        <p>
+                            "15 Go ye into all the world and preach the gospel to every creature.
+                            16 Whoever believes and is baptized will be saved, but whoever does not believe will be
+                            condemned." - Mark 16:15-16
+                        </p>
+
+                        <!-- Download Image Button -->
+                        <a href="assets/images/event-details/img-event-details-sec-1.png" download
+                            class="btn btn-primary mt-3">
+                            Download Image
+                        </a>
+                    </div>
+
+                    <!-- Image on Right -->
+                    <div class="col-lg-6 order-lg-2 order-1 mb-4 mb-lg-0 text-center">
+                        <img src="assets/images/event-details/img-event-details-sec-1.png"
+                            alt="The African Apostolic Church - VaApostora VeAfrica" class="img-fluid rounded">
+                    </div>
+
+                </div>
+            </div>
+        </section>
+    </main>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            const eventId = urlParams.get('id');
+
+            const events = JSON.parse(localStorage.getItem('events')) || [];
+            const event = events.find(e => e.id === eventId);
+
+            if (!event) {
+                document.getElementById('post-title').textContent = "Event Not Found";
+                return;
+            }
+
+            // Update all dynamic fields
+            document.getElementById('post-title').textContent = event.title;
+            document.getElementById('event-date').textContent = `${event.date} | ${event.time}`;
+            document.querySelector('.btn-blur').textContent = event.category;
+            document.querySelector('.fw-medium.pb-3').textContent = event.title;
+            document.querySelector('.img-fluid').src = event.image;
+            document.querySelector('.img-fluid').alt = event.title;
+            document.querySelector('a[download]').href = event.image;
+
+            // Optional: Replace placeholder description if exists
+            const descriptionParagraph = document.querySelector('.fw-medium.pb-3 + p');
+            if (descriptionParagraph) {
+                descriptionParagraph.textContent = event.description;
+            }
+        });
+    </script>
+
+    <!-- Footer Widget Area
+        ======================= -->
+    <footer>
+        <div class="footer-area footer-area-two text-white">
+            <div class="footer-bottom">
+                <div class="container">
+                    <div class="row align-items-center">
+                        <div class="col-12">
+                            <hr>
+                        </div>
+                        <div class="col-lg-5">
+                            <div class="copyright-text">
+                                <p>© 2026 <a class="text-primary" href="index.html">The African Apostolic Church</a> |
+                                    All Rights
+                                    Reserved
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3 col-12 mb-3 mb-xxl-0 mb-xl-0 mb-lg-0">
+                           <ul class="tiny-footer-menu float-end d-none d-xxl-block d-xl-block d-lg-block">
+                                <li><a href="about-us.html" class="fs-7 text-100 text-hover-primary">About Us</a></li>
+                                <li><a href="events-list.html" class="fs-7 text-100 text-hover-primary">Events</a>
+                                </li>
+                                <li><a href="gallery.html" class="fs-7 text-100 text-hover-primary">Gallery</a></li>
+                                <li><a href="blog.html" class="fs-7 text-100 text-hover-primary">Blog</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-lg-4 footer-social ">
+                            <ul class="tiny-footer-menu float-end d-none d-xxl-block d-xl-block d-lg-block">
+                                <li><a href="https://www.facebook.com/share/1CCWU9q2Jy/"><i class="fab fa-facebook-f"></i></a></li>
+                                <li><a href="javascript:"><i class="fab fa-instagram"></i></a></li>
+                                <li><a href="https://x.com/MyBackup768079"><i class="fab fa-twitter"></i></a></li>
+                                <li><a href="https://youtube.com/@theafricanapostolicchurch-w6m?si=OroWGEg1q3Mo4lw-"><i class="fab fa-youtube"></i></a></li>
+                                <li><a href="https://www.tiktok.com/@the.african.apost20?_r=1&_t=ZS-94ALmkmZHoC"><i class="fab fa-tiktok"></i></a></li>
+            
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!--  Back To Top - Button When Document Scroll Down to Display
+        ============================================================== -->
+    <button class="scroll__top scroll-to-target" data-target="html"><i class="fas fa-angle-up"></i></button>
+
+    <!--  Jquery Library Script Files
+        =================================================== -->
+    <script src="assets/library/jquery-3.7.1.min.js"></script>
+    <script src="assets/library/bootstrap-5.3.2/bootstrap.bundle.min.js"></script>
+    <script src="assets/library/magnific-popup/magnific-popup.min.js"></script>
+    <script src="assets/library/odometer/odometer.min.js"></script>
+    <script src="assets/library/jquery.appear/script.js"></script>
+    <script src="assets/library/parallax-scroll/jquery.parallaxScroll.min.js"></script>
+    <script src="assets/library/isotop/isotope.pkgd.min.js"></script>
+    <script src="assets/library/images-loaded/imagesloaded.pkgd.min.js"></script>
+    <script src="assets/library/swiper/swiper-bundle.js"></script>
+    <script src="assets/library/wow/wow.min.js"></script>
+    <script src="assets/library/aos/aos.js"></script>
+    <script src="assets/library/feather/feather.min.js"></script>
+    <script src="assets/library/gsap-3.10.4/gsap.js"></script>
+    <script src="assets/library/gsap-3.10.4/ScrollTrigger.js"></script>
+    <script src="assets/library/gsap-3.10.4/SplitText.js"></script>
+
+    <!--  Custom Script
+        ===================================== -->
+    <script src="assets/script.js"></script>
+
+</body>
+<!-- body end -->
+
+
+<!--/event-details.html by Ownuh, Thu, 10 Jul 2025 15:29:28 GMT -->
+
+</html>

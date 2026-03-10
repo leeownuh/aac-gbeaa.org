@@ -1,0 +1,336 @@
+{
+  "categories": [
+    {
+      "name": "Dubai",
+      "slug": "dubai",
+      "folder": "dubai",
+      "filterClass": "dubai"
+    },
+    {
+      "name": "India Gathering",
+      "slug": "india",
+      "folder": "india",
+      "filterClass": "india"
+    },
+    {
+      "name": "Paul Mwazha",
+      "slug": "paul",
+      "folder": "paul",
+      "filterClass": "paul"
+    },
+    {
+      "name": "Quotes",
+      "slug": "quotes",
+      "folder": "quotes",
+      "filterClass": "quotes"
+    },
+    {
+      "name": "United Kingdom",
+      "slug": "uk",
+      "folder": "uk",
+      "filterClass": "uk"
+    },
+    {
+      "name": "sabbath",
+      "slug": "sabbath",
+      "folder": "sabbath",
+      "filterClass": "sabbath"
+    },
+    {
+      "name": "test",
+      "slug": "test",
+      "folder": "test",
+      "filterClass": "test"
+    }
+  ],
+  "images": [
+    {
+      "title": "Dubai Service 1",
+      "category": "dubai",
+      "file": "1.jpg",
+      "date": "2026-02-23"
+    },
+    {
+      "title": "Dubai Service 2",
+      "category": "dubai",
+      "file": "2.jpg",
+      "date": "2026-02-23"
+    },
+    {
+      "title": "Dubai Service 3",
+      "category": "dubai",
+      "file": "3.jpg",
+      "date": "2026-02-23"
+    },
+    {
+      "title": "Dubai Service 4",
+      "category": "dubai",
+      "file": "4.jpg",
+      "date": "2026-02-23"
+    },
+    {
+      "title": "Dubai Service 5",
+      "category": "dubai",
+      "file": "5.jpg",
+      "date": "2026-02-23"
+    },
+    {
+      "title": "Dubai Service 6",
+      "category": "dubai",
+      "file": "6.jpg",
+      "date": "2026-02-23"
+    },
+    {
+      "title": "Dubai Service 7",
+      "category": "dubai",
+      "file": "7.jpg",
+      "date": "2026-02-23"
+    },
+    {
+      "title": "Dubai Service 8",
+      "category": "dubai",
+      "file": "8.jpg",
+      "date": "2026-02-23"
+    },
+    {
+      "title": "Dubai Service 9",
+      "category": "dubai",
+      "file": "9.jpg",
+      "date": "2026-02-23"
+    },
+    {
+      "title": "Dubai Service 10",
+      "category": "dubai",
+      "file": "10.jpg",
+      "date": "2026-02-23"
+    },
+    {
+      "title": "Dubai Service 11",
+      "category": "dubai",
+      "file": "11.jpg",
+      "date": "2026-02-23"
+    },
+    {
+      "title": "Dubai Service 12",
+      "category": "dubai",
+      "file": "12.jpg",
+      "date": "2026-02-23"
+    },
+    {
+      "title": "Dubai Service 13",
+      "category": "dubai",
+      "file": "13.jpg",
+      "date": "2026-02-23"
+    },
+    {
+      "title": "Dubai Service 14",
+      "category": "dubai",
+      "file": "14.jpg",
+      "date": "2026-02-23"
+    },
+    {
+      "title": "Dubai Service 15",
+      "category": "dubai",
+      "file": "15.jpg",
+      "date": "2026-02-23"
+    },
+    {
+      "title": "Dubai Service 16",
+      "category": "dubai",
+      "file": "16.jpg",
+      "date": "2026-02-23"
+    },
+    {
+      "title": "Dubai Service 17",
+      "category": "dubai",
+      "file": "17.jpg",
+      "date": "2026-02-23"
+    },
+    {
+      "title": "Dubai Service 18",
+      "category": "dubai",
+      "file": "18.jpg",
+      "date": "2026-02-23"
+    },
+    {
+      "title": "Dubai Service 19",
+      "category": "dubai",
+      "file": "19.jpg",
+      "date": "2026-02-23"
+    },
+    {
+      "title": "Dubai Service 20",
+      "category": "dubai",
+      "file": "20.jpg",
+      "date": "2026-02-23"
+    },
+    {
+      "title": "Dubai Service 21",
+      "category": "dubai",
+      "file": "21.jpg",
+      "date": "2026-02-23"
+    },
+    {
+      "title": "Dubai Service 22",
+      "category": "dubai",
+      "file": "22.jpg",
+      "date": "2026-02-23"
+    },
+    {
+      "title": "Dubai Service 23",
+      "category": "dubai",
+      "file": "23.jpg",
+      "date": "2026-02-23"
+    },
+    {
+      "title": "Dubai Service 24",
+      "category": "dubai",
+      "file": "24.jpg",
+      "date": "2026-02-23"
+    },
+    {
+      "title": "Dubai Service 25",
+      "category": "dubai",
+      "file": "25.jpg",
+      "date": "2026-02-23"
+    },
+    {
+      "title": "India Gathering 1",
+      "category": "india",
+      "file": "1.jpg",
+      "date": "2026-02-23"
+    },
+    {
+      "title": "India Gathering 1",
+      "category": "india",
+      "file": "2.jpg",
+      "date": "2026-02-23"
+    },
+    {
+      "title": "India Gathering 1",
+      "category": "india",
+      "file": "3.jpg",
+      "date": "2026-02-23"
+    },
+    {
+      "title": "India Gathering 1",
+      "category": "india",
+      "file": "4.jpg",
+      "date": "2026-02-23"
+    },
+    {
+      "title": "India Gathering 1",
+      "category": "india",
+      "file": "5.jpg",
+      "date": "2026-02-23"
+    },
+    {
+      "title": "India Gathering 1",
+      "category": "india",
+      "file": "6.jpg",
+      "date": "2026-02-23"
+    },
+    {
+      "title": "uk",
+      "category": "uk",
+      "file": "1.jpg",
+      "date": "2026-02-23"
+    },
+    {
+      "title": "uk",
+      "category": "uk",
+      "file": "2.jpg",
+      "date": "2026-02-23"
+    },
+    {
+      "title": "uk",
+      "category": "uk",
+      "file": "3.jpg",
+      "date": "2026-02-23"
+    },
+    {
+      "title": "uk",
+      "category": "uk",
+      "file": "4.jpg",
+      "date": "2026-02-23"
+    },
+    {
+      "title": "uk",
+      "category": "uk",
+      "file": "5.jpg",
+      "date": "2026-02-23"
+    },
+    {
+      "title": "uk",
+      "category": "uk",
+      "file": "6.jpg",
+      "date": "2026-02-23"
+    },
+    {
+      "title": "uk",
+      "category": "uk",
+      "file": "7.jpg",
+      "date": "2026-02-23"
+    },
+    {
+      "title": "Paul Mwazha",
+      "category": "paul",
+      "file": "1.jpg",
+      "date": "2026-02-23"
+    },
+    {
+      "title": "Paul Mwazha",
+      "category": "paul",
+      "file": "2.jpg",
+      "date": "2026-02-23"
+    },
+    {
+      "title": "Paul Mwazha",
+      "category": "paul",
+      "file": "3.jpg",
+      "date": "2026-02-23"
+    },
+    {
+      "title": "Paul Mwazha",
+      "category": "paul",
+      "file": "4.jpg",
+      "date": "2026-02-23"
+    },
+    {
+      "title": "Paul Mwazha",
+      "category": "paul",
+      "file": "5.jpg",
+      "date": "2026-02-23"
+    },
+    {
+      "title": "Paul Mwazha",
+      "category": "paul",
+      "file": "6.jpg",
+      "date": "2026-02-23"
+    },
+    {
+      "title": "Paul Mwazha",
+      "category": "paul",
+      "file": "7.jpg",
+      "date": "2026-02-23"
+    },
+    {
+      "title": "Paul Mwazha",
+      "category": "paul",
+      "file": "8.jpg",
+      "date": "2026-02-23"
+    },
+    {
+      "title": "Paul Mwazha",
+      "category": "paul",
+      "file": "9.jpg",
+      "date": "2026-02-23"
+    },
+    {
+      "title": "Paul Mwazha",
+      "category": "paul",
+      "file": "10.jpg",
+      "date": "2026-02-23"
+    }
+  ]
+}

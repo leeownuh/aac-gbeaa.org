@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<!--
+
+******************
+Copyright (c) 2025
+******************
+
+Name: Official The African Apostolic Church - VaApostora VeAfrica Publicity Website
+Version: 1.0.0
+Author: Leona Kokerai - Ownuh
+
+-->
+<!--[if IE 8]> <html lang="en" class="ie8 no-js"> <![endif]-->
+<!--[if IE 9]> <html lang="en" class="ie9 no-js"> <![endif]-->
+<!--[if !IE]>
+-->
+<html class="no-js" lang="en">
+
+    <!-- <![endif]-->
+    <!-- head -->
+    
+<!--/about-us.html by Ownuh, Thu, 10 Jul 2025 15:29:09 GMT -->
+<head>
+
+        <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+        <!-- Basic Page Needs
+        ================================================== -->
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+        <!-- Specific Meta
+        ================================================== -->
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+        <meta name="description" content="Official The African Apostolic Church - VaApostora VeAfrica Publicity Website">
+        <meta name="keywords" content="HTML5, charity HTML, church, churches, donation, ministry, mosque, ngo, non-profit, prayer, religion, religious">
+        <meta name="author" content="wp-organic">
+        <meta name="MobileOptimized" content="320">
+
+        <!-- Titles
+        ================================================== -->
+        <title>Official The African Apostolic Church - VaApostora VeAfrica Publicity Website</title>
+
+        <!-- Favicons
+        ================================================== -->
+        <link rel="shortcut icon" href="assets/images/favicon.png">
+        <link rel="apple-touch-icon" sizes="72x72" href="assets/images/favicon.png">
+        <link rel="apple-touch-icon" sizes="114x114" href="assets/images/favicon.png">
+
+        <!-- Custom Font ( Fontawesome + Falticon + Google Font )
+        ======================================================-->
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Halant:wght@300;400;500;600;700&amp;family=Sora:wght@100..800&amp;display=swap">
+        <link rel="stylesheet" type="text/css" href="assets/library/font-awesome-5.15.4/fontawesome-all.min.css">
+
+        <!-- CSS ( Bootstrap + Owlcarouse + Imagehover + MagnificPopup + MenuMaker + Custom Style )
+        ======================================================================================= -->
+        <link rel="stylesheet" type="text/css" href="assets/library/bootstrap-5.3.2/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="assets/library/animate/animate.min.css">
+        <link rel="stylesheet" type="text/css" href="assets/library/magnific-popup/magnific-popup.css">
+        <link rel="stylesheet" type="text/css" href="assets/library/odometer/odometer.css">
+        <link rel="stylesheet" type="text/css" href="assets/library/swiper/swiper-bundle.css">
+        <link rel="stylesheet" type="text/css" href="assets/library/aos/aos.css">
+
+        <!-- Custom - CSS here -->
+        <link rel="stylesheet" type="text/css" href="assets/style.css">
+
+    </head>
+    <!-- end head -->
+
+    <!-- body start -->
+    <body>
+
+        <!--  Preloader - When Document load to display
+        =============================================== -->
+        <div id="preloader">
+            <div id="loader" class="loader">
+                <div class="loader-container text-center">
+                    <div class="loader-icon"><img src="assets/images/logo/preloader.png" alt="Preloader"></div>
+                    <h6 class="text-center">The African Apostolic Church GBEAAA Province</h6>
+                </div>
+            </div>
+        </div>
+
+        <!-- Header Style Two
+        ===================== -->
+       <header class="transparent-header header-style-2">
+        <div class="tc-header__top d-none d-xxl-block d-xl-block">
+            <div class="container custom-container">
+                <div class="row align-items-center">
+                    <div class="col-lg-6 col-md-12 justify-content-md-center">
+                        <div class="position-relative overflow-hidden top-news">
+                            <div class="swiper-1-vertical"> <div class="swiper-wrapper" id="event-swiper">
+  <!-- Slides will be injected here -->
+</div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-12">
+                        <ul class="tc-header__top-right list-wrap fs-7 fw-normal">
+                            <li>
+                                <i class="size-16" data-feather="phone"></i>
+                                <a href="tel:2295550109"><span class="text-dark">(229) 555-0109</span></a>
+                            </li>
+                            <li>
+                                <i class="size-16" data-feather="map-pin"></i>
+                                <span class="text-dark">8 Jefferson Road, Logan Park,Harare, Zimbabwe.</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const swiperContainer = document.getElementById("event-swiper");
+
+    fetch("data/events.json")
+      .then(res => res.json())
+      .then(events => {
+        const today = new Date().toISOString().split("T")[0];
+
+        const upcomingEvents = events.filter(event => event.date >= today);
+
+        upcomingEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+        upcomingEvents.forEach(event => {
+          const slide = `
+            <div class="swiper-slide">
+              <div class="d-flex fs-7 fw-normal align-items-center justify-content-md-center justify-content-lg-start mb-md-2 mb-lg-0">
+                <span class="me-2 has-dot">
+                  <strong>UPCOMING:</strong> ${event.title}
+                </span>
+                <a href="event-details.html?id=${event.id}" class="d-flex rounded-5 tc-btn-xs">
+                  <span>More Info</span>
+                  <i data-feather="arrow-right" class="size-12"></i>
+                </a>
+              </div>
+            </div>
+          `;
+          swiperContainer.insertAdjacentHTML("beforeend", slide);
+        });
+
+        // Initialize Swiper (only after DOM is ready and content is injected)
+        if (typeof Swiper !== "undefined") {
+          new Swiper(".swiper-1-vertical", {
+            direction: 'vertical',
+            loop: true,
+            autoplay: {
+              delay: 4000,
+              disableOnInteraction: false,
+            },
+            slidesPerView: 1,
+          });
+        }
+
+        if (typeof feather !== "undefined") {
+          feather.replace();
+        }
+      })
+      .catch(err => {
+        console.error("Failed to load events:", err);
+      });
+  });</script>
+
+        <!-- While User Scroll to Dispaly Sticky Header
+            =============================================== -->
+        <div id="sticky-header" class="tc-header__area header-top-2">
+            <div class="container custom-container">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="tgmenu__wrap py-xxl-0 py-xl-0 py-3">
+                            <nav
+                                class="tgmenu__nav d-flex align-items-center justify-content-between justify-content-xxl-between justify-content-xl-evenly">
+                                <div class="logo">
+                                    <a class="d-flex align-items-center" href="index.html">
+                                        <img src="assets/images/logo/logo-1.png"
+                                            alt="The African Apostolic Church - VaApostora VeAfrica">
+                                    </a>
+                                </div>
+                                <div class="tgmenu__navbar-wrap tgmenu__main-menu d-none d-xxl-flex d-xl-flex">
+                                    <!--Main Menu-->
+                                    <ul class="navigation">
+                                        <li><a href="index.html">Home</a></li>
+                                        <li><a href="about-us.html">About Us</a></li>
+                                        <li><a href="events-list.html">Events</a></li>
+                                        <li><a href="blog.html">Blog</a></li>
+                                        <li><a href="gallery.html">Gallery</a></li>
+                                       <li class="menu-item-has-children"><a href="contact.html">Contact</a>
+                                           <ul class="sub-menu">
+                                                <li><a href="contact1.html">America & Europe</a></li>
+                                                <li><a href="contact2.html">Asia & Australia</a></li>
+                                                <li><a href="contact3.html">Dubai</a></li>
+                                                <li><a href="contact4.html">Great Britain</a></li>
+                                            </ul>
+                                        </li> 
+                                        
+                                    </ul>
+                                </div>
+                               
+                                <div
+                                    class="mobile-nav-toggler d-block d-xxl-none d-xl-none d-flex justify-content-center align-items-center justify-content-end">
+                                    <i data-feather="menu"></i>
+                                </div>
+                            </nav>
+                        </div>
+                        <!-- Mobile Menu  -->
+                        <div class="tgmobile__menu">
+                            <nav class="tgmobile__menu-box">
+                                <div class="close-btn"><i class="fas fa-times"></i></div>
+                                <div class="nav-logo">
+                                    <a href="index.html"><img src="assets/images/logo/logo-1.png"
+                                            alt="The African Apostolic Church - VaApostora VeAfrica"></a>
+                                </div>
+                               
+                                <div class="tgmobile__menu-outer">
+                                </div>
+                                <div class="tgmobile__menu-bottom">
+                                    <div class="contact-info">
+                                        <ul class="list-wrap">
+                                            <li><a href="mailto:contact@the-aac-gbeaaa.org">contact@the-aac-gbeaaa.org</a></li>
+                                            <li><a href="tel:2295550109">(229) 555-0109</a></li>
+                                        </ul>
+                                    </div>
+                                    <div class="social-links">
+                                       <ul class="tiny-footer-menu float-end d-none d-xxl-block d-xl-block d-lg-block">
+                                <li><a href="https://www.facebook.com/share/1CCWU9q2Jy/"><i class="fab fa-facebook-f"></i></a></li>
+                                <li><a href="javascript:"><i class="fab fa-instagram"></i></a></li>
+                                <li><a href="https://x.com/MyBackup768079"><i class="fab fa-twitter"></i></a></li>
+                                <li><a href="https://youtube.com/@theafricanapostolicchurch-w6m?si=OroWGEg1q3Mo4lw-"><i class="fab fa-youtube"></i></a></li>
+                                <li><a href="https://www.tiktok.com/@the.african.apost20?_r=1&_t=ZS-94ALmkmZHoC"><i class="fab fa-tiktok"></i></a></li>
+            
+                            </ul>
+                                    </div>
+                                </div>
+                            </nav>
+                        </div>
+                        <div class="tgmobile__menu-backdrop"></div>
+                        <!-- End Mobile Menu -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
+
+        <!-- Quick Contact Us Sidebar
+            ============================= -->
+        <div class="offCanvas__info">
+            <div class="offCanvas__close-icon menu-close">
+                <button><i class="far fa-window-close"></i></button>
+            </div>
+            <div class="offCanvas__logo mb-30">
+                <a href="index.html"><img src="assets/images/logo/logo-1.png"
+                        alt="The African Apostolic Church - VaApostora VeAfrica"></a>
+            </div>
+            <div class="offCanvas__side-info mb-30">
+                <div class="contact-list mb-30">
+                    <h4>Office Address</h4>
+                    <p>
+                        8 Jefferson Road, Logan Park,Harare, Zimbabwe.
+                    </p>
+                </div>
+                <div class="contact-list mb-30">
+                    <h4>Phone Number</h4>
+                    <p>+0989 7876 9865 9</p>
+                    <p>+(090) 8765 86543 85</p>
+                </div>
+                <div class="contact-list mb-30">
+                    <h4>Email Address</h4>
+                    <p>admin@the-aac-gbeaaa.org</p>
+                    <p>admin@the-aac-gbeaaa.org</p>
+                </div>
+            </div>
+            <div class="offCanvas__social-icon mt-30">
+                <a href="javascript:"><i class="fab fa-facebook-f"></i></a>
+                <a href="javascript:"><i class="fab fa-twitter"></i></a>
+                <a href="javascript:"><i class="fab fa-google-plus-g"></i></a>
+                <a href="javascript:"><i class="fab fa-instagram"></i></a>
+            </div>
+        </div>
+        <div class="offCanvas__overly"></div>
+    </header>
+        <!-- Content Area
+        ================= -->
+        <main class="fix">
+
+            <!-- Page Header Banner
+            ======================= -->
+            <div class="page-header" data-background="assets/images/home2/hero-2-bg2.png">
+                <div class="container">
+                    <div class="row">
+                        <h1 class="mb-2 text-white">About The African Apostolic Church</h1>
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+                                <li class="breadcrumb-item active" aria-current="page">About Us</li>
+                            </ol>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+<br><br>         <section>
+                <div class="container">
+                    <div class="about-box-4">
+                        <div class="row align-items-center">
+                            <div class="col-lg-6 col-md-12">
+                                <div class="pe-md-0 pe-lg-5">
+                                    <p class="mb-3">The African Apostolic Church (VaApostora VeAfrica) is a Christian denomination that originated in Zimbabwe. It is grounded in the teachings of the apostles of our Lord Jesus Christ, as first established in Jerusalem. </p>
+                                    <p class="mb-5"> The church recognizes the Holy Spirit as central to its guidance and formation.It upholds the authority of divine revelation and places emphasis on miracles, healing, deliverance, and apostolic order.</p>
+                                    <a href="contact.html" class="btn text-white rounded-5 mb-4 mb-lg-0 btn-circle-arrow" data-aos="flip-up">
+                                        <span>Join Us Now</span>
+                                        <span class="bg-transparent ms-2">
+                                            <i class="size-16" data-feather="arrow-right"></i>
+                                        </span>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-12 text-center">
+                                <img src="assets/images/about/img-1.png" alt="The African Apostolic Church - VaApostora VeAfrica">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Our History Section
+            ======================== -->
+            <section class="About-section-4 pt-80px pb-80px position-relative">
+                <div class="container">
+                    <div class="row d-flex align-items-center">
+                        <div class="col-lg-6 ps-lg-4 pe-4">
+                            <img class="" src="assets/images/about/img-sec-4.png" data-aos="zoom-in" alt="The African Apostolic Church - VaApostora VeAfrica">
+                        </div>
+                        <div class="col-lg-6 d-flex align-content-start mt-4 mt-lg-0 flex-wrap ps-4">
+                            <h2 class="fw-normal mb-3" data-aos="fade-up">Our History</h2>
+                            <p data-aos="fade-up mb-2">
+                                The name “The African Apostolic Church, VaApostora VeAfrica” was revealed in 1957 to Paul Mwazha of Africa when he heard the voice of the Holy Spirit. 
+                            </p>
+                            <p class="mb-0" data-aos="fade-up">
+                               At that time, the church had not yet been formed, and the words were received as prophetic utterances. From then on, Paul Mwazha’s ministry was marked by miraculous works—transforming lives, healing the sick, and delivering many from spiritual oppression, including witchcraft and demonic torment. In 1959, after receiving a direct and vivid instruction from the Holy Spirit, Archbishop Paul Mwazha formally established the African Apostolic Church.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+<!-- Donation Section
+            ============================= -->
+            <section class="section-5 position-relative">
+                <div class="container">
+                    <div class="row d-flex align-items-center">
+                        <div class="col-lg-6 d-flex align-content-start flex-wrap pe-lg-4">
+                            <div class="d-flex gap-5 align-items-end" data-aos="fade-up">
+                                <div class="section-title">
+                                    <span class="sub-title">The Calling</span>
+                                </div>
+                            </div>
+                            <h2 class="fw-normal" data-aos="fade-up">The Divine Commission</h2>
+                            <p data-aos="fade-up">
+Prior to this, Paul Mwazha of Africa (the Arch-Bishop of The African Apostolic Church) had received his calling in 1951 when he heard the voice of the Lord saying, “who shall we send, who shall go for us?”.
+                            </p>
+                            <p class="mb-5" data-aos="fade-up">
+                                 He then went on to pray to God and saying, “I am here Lord, sent me to your people beginning in Africa first, then the rest of the world if be it your will Lord”.
+                            </p>
+                            <a href="contact.html" class="btn text-white rounded-5 btn-circle-arrow" data-aos="flip-up">
+                                <span>Become an Apostle of Jesus</span>
+                                <span class="bg-transparent ms-2">
+                                    <i class="size-16" data-feather="arrow-right"></i>
+                                </span>
+                            </a>
+                        </div>
+                        <div class="col-lg-6 ps-lg-4 pt-lg-0 pt-5">
+                            <img class="img-donation" src="assets/images/home1/img-sec5.png" data-aos="fade-zoom-in" alt="The African Apostolic Church - VaApostora VeAfrica">
+                            <div class="text-box position-relative d-flex align-items-center" data-parallax='{"x" : 50 , "y" : -50 }'>
+                                <h1 class="mb-0 p-4">1M+</h1>
+                                <p class="mb-0 has-left-line">Believers worldwide</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="wrap-asset position-absolute">
+                    <img class="alltuchtopdown" src="assets/images/home1/img-sec-5.png" alt="The African Apostolic Church - VaApostora VeAfrica">
+                </div>
+            </section>
+            <section class="section-6 position-relative">
+                <div class="container">
+                    <div class="row d-flex align-items-center">
+                        <div class="col-lg-6 pe-lg-4">
+                            <div class="position-relative">
+                                <div class="background">
+                                    <img src="assets/images/home1/img-big-sec6.png" alt="The African Apostolic Church - VaApostora VeAfrica" data-aos="fade-zoom-in" class="aos-init aos-animate">
+                                </div>
+                                <div class="card-float position-absolute br-4 alltuchtopdown">
+                                    <div class="card-float-top rounded-top-1">
+                                        <img class="mb-2 aos-init aos-animate" src="assets/images/home1/book-card-sec6.png" alt="The African Apostolic Church - VaApostora VeAfrica" data-aos="fade-up">
+                                        <p class="mb-0 pt-2 fs-7 text-dark">Reach out to us for support, counseling, or prayer.</p>
+                                    </div>
+                                    <div class="rounded-bottom-1 card-float-bot d-flex align-items-center justify-content-center">
+                                        <p class="text-white mb-0">Become an Apostole<br>of Jesus</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 d-flex align-content-start flex-wrap pt-lg-0 pt-5 ps-lg-4">
+                            <div class="d-flex gap-5 align-items-end aos-init aos-animate" data-aos="fade-up">
+                                <div class="section-title">
+                                    <span class="sub-title">What are we</span>
+                                </div>
+                            </div>
+                            <h2 class="fw-normal ds-5 aos-init aos-animate" data-aos="fade-up">Hona VaApostora vaJesu</h2>
+                            <p class="fs-6 aos-init aos-animate" data-aos="fade-up">
+                                "l had a dream that I was on top of a mountain, I was shown a small plot fenced with wooden poles. The plot lay barren. It seemed to be Autumn. I moved onto a very high rock. I turned east and  saw lush green trees. Above all the growth were a group of African men dressed in long white gowns . Thy were singing praises to God. A voice said to me:"
+                            </p>
+                            <a href="tel:2295550109" class="pt-2 d-flex align-items-center aos-init aos-animate" data-aos="flip-up">
+                                <span class="icon text-white me-4">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-users size-26"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                                </span>
+                                <div class="contact">
+                                    <p class="fw-light fs-6 mb-2">"Behold the Apostles of Jesus"</p>
+                                    <p class="fs-3 mb-0 phone-num" -="">- Paul Ernest Mamvura Mwazha</p>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="wrap-asset position-absolute">
+                    <img src="assets/images/home1/img-sec-6.png" alt="The African Apostolic Church - VaApostora VeAfrica" data-parallax="{&quot;x&quot; : 100 , &quot;y&quot; : -200 }" style="transform:translate3d(62.191px, -124.352px, 0px) rotateX(0deg) rotateY(0deg) rotateZ(0deg) scaleX(1) scaleY(1) scaleZ(1); -webkit-transform:translate3d(62.191px, -124.352px, 0px) rotateX(0deg) rotateY(0deg) rotateZ(0deg) scaleX(1) scaleY(1) scaleZ(1); ">
+                </div>
+            </section>
+            <!-- Quick Info Section
+            =============================== -->
+            <section class="about-sec-5 position-relative section-padding">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-12 col-12 pe-5">
+                            <div class="header-sec-5">
+                                <div class="d-flex gap-5 align-items-end" data-aos="fade-up">
+                                    <div class="section-title">
+                                        <span class="sub-title fs-5">The church today</span>
+                                    </div>
+                                </div>
+                                <h3 class="fw-medium" data-aos="fade-up">The African Apostolic Church — where hearts are open, spirits are lifted, and love abounds.</h3>
+                                <p data-aos="fade-up fs-6 mb-0">
+                                  While the name “The African Apostolic Church (VaApostora VeAfrica)” reflects the church's origin, its mission is universal. The church carries a divine mandate to reach all nations with the Gospel of Jesus Christ, inviting people of every race, culture, and background to share in the saving message of the Kingdom of God.
+                                </p>
+                            </div>
+                            <div class="feature-list">
+                                <div class="feature-box d-flex p-4 ps-0">
+                                    <img class="align-self-start mb-3" src="assets/images/about/icon-sec5-0.png" alt="The African Apostolic Church - VaApostora VeAfrica">
+                                    <div class="text-box ps-4">
+                                        <h5 class="fw-medium">Spiritual reconciliation</h5>
+                                        <p class="fs-6 mb-0">The commissioning of Paul Mwazha of Africa has ushered a new era, of reviving the church of the olden days, tracing its roots back to the Apostolic traditions back in Jerusalem, thereby recreating the world though a true ordinance of God which is to be applied to all people of all nations, race and creed. </p>
+                                    </div>
+                                </div>
+                                <div class="feature-box d-flex p-4 ps-0">
+                                    <img class="align-self-start mb-3" src="assets/images/about/icon-sec5-1.png" alt="The African Apostolic Church - VaApostora VeAfrica">
+                                    <div class="text-box ps-4">
+                                        <h5 class="fw-medium">Our Mission</h5>
+                                        <p class="fs-6 mb-0">The mission of The African Apostolic Church is to re-establish God's Kingdom on earth by teaching individuals, families, and communities to transform their lives, cultures, and traditions in alignment with the Word of God. This is the gospel of Jesus Christ — a call to holiness, order, and divine purpose..</p>
+                                    </div>
+                                </div>
+                                <div class="feature-box d-flex p-4 ps-0">
+                                    <img class="align-self-start mb-3" src="assets/images/about/icon-sec5-2.png" alt="The African Apostolic Church - VaApostora VeAfrica">
+                                    <div class="text-box ps-4">
+                                        <h5 class="fw-medium">Our Values</h5>
+                                        <p class="fs-6 mb-0">We believe that living by God's Word transforms every aspect of life from how people dress, eat, speak, and interact, to how they worship and how they conduct themselves in every sphere of life Through this transformation, the Church helps humanity rediscover its original lost Godly culture: a life of obedience, humility, and purity according to the statutes and laws of God. </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+           
+
+            <!-- Call to Action Section
+            =========================== -->
+            <div class="section-13 position-relative py-5">
+                <div class="container">
+                    <div class="row d-flex align-items-center">
+                        <div class="col-xl-6 col-12 text-start text-xxl-start text-xl-start text-center mb-xxl-0 mb-xl-0 mb-3">
+                            <h2 class=" fs-1 text-dark">Abundant Resources</h2>
+                            <p class="mb-0 fw-regular fs-6">Access a wealth of spiritual resources posted<br>on our channel for your growth and inspiration.</p>
+                            </p>
+                        </div>
+                        <div class="col-xl-6 col-12 text-end text-xxl-end text-xl-end text-lg-center text-center">
+                            <div class="mt-4 mt-lg-0">
+                                <a href="https://whatsapp.com/channel/0029Vb7Fyxx1CYoKgXDTMw3s" class="btn text-white rounded-5 me-2">
+                                    <span class="bg-transparent me-2">
+                                        <i class="size-16" data-feather="mail"></i>
+                                    </span>
+                                    <span>Follow our Whatsapp Channel</span>
+                                </a>
+                               
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="wrap-asset-13 position-absolute">
+                    <img class="asset-top-down" src="assets/images/home1/img-sec-13.png" alt="The African Apostolic Church - VaApostora VeAfrica">
+                </div>
+                <div class="wrap-asset-13-1 position-absolute">
+                    <img class="asset-top-down" src="assets/images/home1/img-sec-13.1.png" alt="The African Apostolic Church - VaApostora VeAfrica">
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Footer Widget Area
+        ======================= -->
+        <footer>
+        <div class="footer-area footer-area-two text-white">
+            <div class="footer-bottom">
+                <div class="container">
+                    <div class="row align-items-center">
+                        <div class="col-12">
+                            <hr>
+                        </div>
+                        <div class="col-lg-5">
+                            <div class="copyright-text">
+                                <p>© 2026 <a class="text-primary" href="index.html">The African Apostolic Church</a> |
+                                    All Rights
+                                    Reserved
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3 col-12 mb-3 mb-xxl-0 mb-xl-0 mb-lg-0">
+                           <ul class="tiny-footer-menu float-end d-none d-xxl-block d-xl-block d-lg-block">
+                                <li><a href="about-us.html" class="fs-7 text-100 text-hover-primary">About Us</a></li>
+                                <li><a href="events-list.html" class="fs-7 text-100 text-hover-primary">Events</a>
+                                </li>
+                                <li><a href="gallery.html" class="fs-7 text-100 text-hover-primary">Gallery</a></li>
+                                <li><a href="blog.html" class="fs-7 text-100 text-hover-primary">Blog</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-lg-4 footer-social ">
+                            <ul class="tiny-footer-menu float-end d-none d-xxl-block d-xl-block d-lg-block">
+                                <li><a href="https://www.facebook.com/share/1CCWU9q2Jy/"><i class="fab fa-facebook-f"></i></a></li>
+                                <li><a href="javascript:"><i class="fab fa-instagram"></i></a></li>
+                                <li><a href="https://x.com/MyBackup768079"><i class="fab fa-twitter"></i></a></li>
+                                <li><a href="https://youtube.com/@theafricanapostolicchurch-w6m?si=OroWGEg1q3Mo4lw-"><i class="fab fa-youtube"></i></a></li>
+                                <li><a href="https://www.tiktok.com/@the.african.apost20?_r=1&_t=ZS-94ALmkmZHoC"><i class="fab fa-tiktok"></i></a></li>
+            
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+        <!--  Back To Top - Button When Document Scroll Down to Display
+        ============================================================== -->
+        <button class="scroll__top scroll-to-target" data-target="html"><i class="fas fa-angle-up"></i></button>
+    
+        <!--  Jquery Library Script Files
+        =================================================== -->
+        <script src="assets/library/jquery-3.7.1.min.js"></script>
+        <script src="assets/library/bootstrap-5.3.2/bootstrap.bundle.min.js"></script>
+        <script src="assets/library/magnific-popup/magnific-popup.min.js"></script>
+        <script src="assets/library/odometer/odometer.min.js"></script>
+        <script src="assets/library/jquery.appear/script.js"></script>
+        <script src="assets/library/parallax-scroll/jquery.parallaxScroll.min.js"></script>
+        <script src="assets/library/isotop/isotope.pkgd.min.js"></script>
+        <script src="assets/library/images-loaded/imagesloaded.pkgd.min.js"></script>
+        <script src="assets/library/swiper/swiper-bundle.js"></script>
+        <script src="assets/library/wow/wow.min.js"></script>
+        <script src="assets/library/aos/aos.js"></script>
+        <script src="assets/library/feather/feather.min.js"></script>
+        <script src="assets/library/gsap-3.10.4/gsap.js"></script>
+        <script src="assets/library/gsap-3.10.4/ScrollTrigger.js"></script>
+        <script src="assets/library/gsap-3.10.4/SplitText.js"></script>
+
+        <!--  Custom Script
+        ===================================== -->
+        <script src="assets/script.js"></script>
+
+    </body>
+    <!-- body end -->
+
+
+<!--/about-us.html by Ownuh, Thu, 10 Jul 2025 15:29:19 GMT -->
+</html>

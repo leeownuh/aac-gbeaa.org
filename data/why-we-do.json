@@ -1,0 +1,270 @@
+{
+  "sectionTitle": "Why We Do What We Do",
+  "organization": "The Africa Apostolic Church",
+  "items": [
+    {
+      "id": 1,
+      "title": "Observing Clean and Unclean Foods ",
+      "description": "We believe God defines what is holy and healthy for His people, and we obey His dietary laws as an act of holiness.",
+      "link": "why-clean-foods.html",
+      "scriptures": [
+        {
+          "reference": "Deuteronomy 14:3",
+          "text": "Thou shalt not eat any abominable thing."
+        },
+        {
+          "reference": "Leviticus 11:46–47",
+          "text": "To make a difference between the unclean and the clean, and between the beast that may be eaten and the beast that may not be eaten."
+        },
+        {
+          "reference": "Genesis 3:6",
+          "text": "And when the woman saw that the tree was good for food… she took of the fruit thereof, and did eat."
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Why We Maintain Modesty",
+      "description": "We uphold simplicity and purity in appearance as part of consecration before God.",
+      "link": "why-modesty-grooming.html",
+      "scriptures": [
+        {
+          "reference": "Ezekiel 44:20",
+          "text": "Neither shall they shave their heads, nor suffer their locks to grow long; they shall only poll their heads."
+        },
+        {
+          "reference": "Revelation 3:5",
+          "text": "He that overcometh, the same shall be clothed in white raiment."
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Why Men Keep Natural Hair",
+      "description": "We maintain natural, orderly hair in submission to God’s created order.",
+      "link": "why-men-natural-hair.html",
+      "scriptures": [
+        {
+          "reference": "Leviticus 19:27",
+          "text": "Ye shall not round the corners of your heads, neither shalt thou mar the corners of thy beard."
+        },
+        {
+          "reference": "1 Corinthians 11:14",
+          "text": "Doth not even nature itself teach you, that, if a man have long hair, it is a shame unto him?"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Why Men Keep Beards at all times",
+      "description": "We preserve the beard as part of God’s created identity for men.",
+      "link": "why-men-beards.html",
+      "scriptures": [
+        {
+          "reference": "Leviticus 21:5",
+          "text": "They shall not shave off the corner of their beard."
+        },
+        {
+          "reference": "Psalm 133:1–2",
+          "text": "It is like the precious ointment upon the head, that ran down upon the beard, even Aaron’s beard."
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Why We Avoid Mixed Fabrics",
+      "description": "We follow biblical principles of separation and purity, even in dress.",
+      "link": "why-mixed-fabrics.html",
+      "scriptures": [
+        {
+          "reference": "Deuteronomy 22:11",
+          "text": "Thou shalt not wear a garment of divers sorts, as of woollen and linen together."
+        },
+        {
+          "reference": "Leviticus 19:19",
+          "text": "Neither shall a garment mingled of linen and woollen come upon thee."
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Why Women Dress Modestly",
+      "description": "We teach modest apparel as an expression of godliness and humility.",
+      "link": "why-women-modesty.html",
+      "scriptures": [
+        {
+          "reference": "1 Timothy 2:9–10",
+          "text": "Women adorn themselves in modest apparel, with shamefacedness and sobriety."
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Why We worship without our Shoes",
+      "description": "Removing shoes shows reverence in holy places.",
+      "link": "why-remove-shoes.html",
+      "scriptures": [
+        {
+          "reference": "Exodus 3:5",
+          "text": "Put off thy shoes from off thy feet, for the place whereon thou standest is holy ground."
+        },
+        {
+          "reference": "Joshua 5:15",
+          "text": "Loose thy shoe from off thy foot; for the place whereon thou standest is holy."
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Why We Do Not Drink Alcohol",
+      "description": "We abstain from alcohol to maintain holiness, sobriety, and spiritual clarity.",
+      "link": "why-no-alcohol.html",
+      "scriptures": [
+        {
+          "reference": "Ephesians 5:18",
+          "text": "Be not drunk with wine, wherein is excess; but be filled with the Spirit."
+        },
+        {
+          "reference": "1 Corinthians 6:10",
+          "text": "Nor drunkards shall inherit the kingdom of God."
+        },
+        {
+          "reference": "Isaiah 5:22",
+          "text": "Woe unto them that are mighty to drink wine."
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "title": "No Offering of Sacrifices to Ancestors or Spirits",
+      "description": "We worship God alone and reject all forms of idolatry.",
+      "link": "why-no-ancestor-sacrifice.html",
+      "scriptures": [
+        {
+          "reference": "Exodus 20:3–5",
+          "text": "Thou shalt have no other gods before me."
+        },
+        {
+          "reference": "1 Corinthians 10:21",
+          "text": "Ye cannot drink the cup of the Lord, and the cup of devils."
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "title": "Women Observing Purification After Childbirth",
+      "description": "We follow biblical instruction regarding ceremonial purification after childbirth.",
+      "link": "why-childbirth-purification.html",
+      "scriptures": [
+        {
+          "reference": "Leviticus 12:2",
+          "text": "If a woman have conceived seed, and born a man child: then she shall be unclean seven days."
+        },
+        {
+          "reference": "Leviticus 12:5",
+          "text": "If she bear a maid child, then she shall be unclean two weeks."
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "title": "Women Observing separation during mensturation",
+      "description": "We respect God’s law regarding ceremonial separation.",
+      "link": "why-menstruation-separation.html",
+      "scriptures": [
+        {
+          "reference": "Leviticus 15:19",
+          "text": "She shall be put apart seven days."
+        },
+        {
+          "reference": "Leviticus 18:19",
+          "text": "Thou shalt not approach unto a woman… as long as she is put apart."
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "title": "Why We Do Not Accept Homosexual Practice",
+      "description": "We uphold the biblical definition of sexual purity.",
+      "link": "why-no-homosexual-practice.html",
+      "scriptures": [
+        {
+          "reference": "Leviticus 18:22",
+          "text": "Thou shalt not lie with mankind, as with womankind."
+        },
+        {
+          "reference": "Leviticus 20:13",
+          "text": "Both of them have committed an abomination."
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "title": "Why Women Cover Their Heads at all times",
+      "description": "Head covering is a sign of authority and spiritual order.",
+      "link": "why-head-covering.html",
+      "scriptures": [
+        {
+          "reference": "1 Corinthians 11:5–6",
+          "text": "Every woman that prayeth with her head uncovered dishonoureth her head."
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "title": "Why Women Avoid Elaborate Hair Styling",
+      "description": "We promote modesty and inward beauty.",
+      "link": "why-simple-hair.html",
+      "scriptures": [
+        {
+          "reference": "1 Peter 3:3–4",
+          "text": "Let it be the hidden man of the heart."
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "title": "Why We Do Not Practice Cross-Dressing",
+      "description": "We preserve God’s distinction between male and female.",
+      "link": "why-no-cross-dressing.html",
+      "scriptures": [
+        {
+          "reference": "Deuteronomy 22:5",
+          "text": "The woman shall not wear that which pertaineth unto a man."
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "title": "Why We Keep the Holy Sabbath",
+      "description": "We observe the Sabbath because God created and commanded it.",
+      "link": "why-sabbath.html",
+      "scriptures": [
+        {
+          "reference": "Genesis 2:2–3",
+          "text": "God blessed the seventh day, and sanctified it."
+        },
+        {
+          "reference": "Exodus 20:8–10",
+          "text": "Remember the sabbath day, to keep it holy."
+        },
+         {
+          "reference": "Deuteronomy 5:14",
+          "text": "The seventh day is the sabbath of the LORD thy God: in it thou shalt not do any work."
+        }
+      ]
+    },
+    {
+      "id": 17,
+      "title": "Why We Encourage Open-Air Worship",
+      "description": "God is not confined to buildings.",
+      "link": "why-open-air-worship.html",
+      "scriptures": [
+        {
+          "reference": "Acts 17:24–25",
+          "text": "God that made the world… dwelleth not in temples made with hands."
+        }
+      ]
+    }
+  ]
+}

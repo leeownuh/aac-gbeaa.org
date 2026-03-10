@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<!--
+
+******************
+Copyright (c) 2025
+******************
+
+Name: Official The African Apostolic Church - VaApostora VeAfrica Publicity Website
+Version: 1.0.0
+Author: Leona Kokerai - Ownuh
+
+-->
+<!--[if IE 8]> <html lang="en" class="ie8 no-js"> <![endif]-->
+<!--[if IE 9]> <html lang="en" class="ie9 no-js"> <![endif]-->
+<!--[if !IE]>
+-->
+<html class="no-js" lang="en">
+
+<!-- <![endif]-->
+<!-- head -->
+
+<!--/index.html by Ownuh, Thu, 10 Jul 2025 15:28:53 GMT -->
+
+<head>
+
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <!-- Basic Page Needs
+        ================================================== -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <!-- Specific Meta
+        ================================================== -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="Official The African Apostolic Church - VaApostora VeAfrica Publicity Website">
+    <meta name="keywords"
+        content="HTML5, charity HTML, church, churches, donation, ministry, mosque, ngo, non-profit, prayer, religion, religious">
+    <meta name="author" content="wp-organic">
+    <meta name="MobileOptimized" content="320">
+
+    <!-- Titles
+        ================================================== -->
+    <title>Official The African Apostolic Church - VaApostora VeAfrica Publicity Website</title>
+
+    <!-- Favicons
+        ================================================== -->
+    <link rel="shortcut icon" href="assets/images/favicon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="assets/images/favicon.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="assets/images/favicon.png">
+
+    <!-- Custom Font ( Fontawesome + Falticon + Google Font )
+        ======================================================-->
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Halant:wght@300;400;500;600;700&amp;family=Sora:wght@100..800&amp;display=swap">
+    <link rel="stylesheet" type="text/css" href="assets/library/font-awesome-5.15.4/fontawesome-all.min.css">
+
+    <!-- CSS ( Bootstrap + Owlcarouse + Imagehover + MagnificPopup + MenuMaker + Custom Style )
+        ======================================================================================= -->
+    <link rel="stylesheet" type="text/css" href="assets/library/bootstrap-5.3.2/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="assets/library/animate/animate.min.css">
+    <link rel="stylesheet" type="text/css" href="assets/library/magnific-popup/magnific-popup.css">
+    <link rel="stylesheet" type="text/css" href="assets/library/odometer/odometer.css">
+    <link rel="stylesheet" type="text/css" href="assets/library/swiper/swiper-bundle.css">
+    <link rel="stylesheet" type="text/css" href="assets/library/aos/aos.css">
+
+    <!-- Custom - CSS here -->
+    <link rel="stylesheet" type="text/css" href="assets/style.css">
+
+</head>
+<!-- end head -->
+
+<!-- body start -->
+
+<body>
+
+    <!--  Preloader - When Document load to display
+        =============================================== -->
+    <div id="preloader">
+        <div id="preloader">
+            <div id="loader" class="loader">
+                <div class="loader-container text-center">
+                    <div class="loader-icon"><img src="assets/images/logo/preloader.png" alt="Preloader"></div>
+                    <h6 class="text-center">The African Apostolic Church GBEAAA Province</h6>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header Style Two
+        ===================== -->
+    <header class="transparent-header header-style-2">
+        <div class="tc-header__top d-none d-xxl-block d-xl-block">
+            <div class="container custom-container">
+                <div class="row align-items-center">
+                    <div class="col-lg-6 col-md-12 justify-content-md-center">
+                        <div class="position-relative overflow-hidden top-news">
+                            <div class="swiper-1-vertical">
+                                <div class="swiper-wrapper" id="event-swiper">
+                                    <!-- Slides will be injected here -->
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-12">
+                        <ul class="tc-header__top-right list-wrap fs-7 fw-normal">
+                            <li>
+                                <i class="size-16" data-feather="phone"></i>
+                                <a href="tel:2295550109"><span class="text-dark">(229) 555-0109</span></a>
+                            </li>
+                            <li>
+                                <i class="size-16" data-feather="map-pin"></i>
+                                <span class="text-dark">8 Jefferson Road, Logan Park,Harare, Zimbabwe.</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const swiperContainer = document.getElementById("event-swiper");
+
+                fetch("data/events.json")
+                    .then(res => res.json())
+                    .then(events => {
+                        const today = new Date().toISOString().split("T")[0];
+
+                        const upcomingEvents = events.filter(event => event.date >= today);
+
+                        upcomingEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+                        upcomingEvents.forEach(event => {
+                            const slide = `
+            <div class="swiper-slide">
+              <div class="d-flex fs-7 fw-normal align-items-center justify-content-md-center justify-content-lg-start mb-md-2 mb-lg-0">
+                <span class="me-2 has-dot">
+                  <strong>UPCOMING:</strong> ${event.title}
+                </span>
+                <a href="event-details.html?id=${event.id}" class="d-flex rounded-5 tc-btn-xs">
+                  <span>More Info</span>
+                  <i data-feather="arrow-right" class="size-12"></i>
+                </a>
+              </div>
+            </div>
+          `;
+                            swiperContainer.insertAdjacentHTML("beforeend", slide);
+                        });
+
+                        // Initialize Swiper (only after DOM is ready and content is injected)
+                        if (typeof Swiper !== "undefined") {
+                            new Swiper(".swiper-1-vertical", {
+                                direction: 'vertical',
+                                loop: true,
+                                autoplay: {
+                                    delay: 4000,
+                                    disableOnInteraction: false,
+                                },
+                                slidesPerView: 1,
+                            });
+                        }
+
+                        if (typeof feather !== "undefined") {
+                            feather.replace();
+                        }
+                    })
+                    .catch(err => {
+                        console.error("Failed to load events:", err);
+                    });
+            });
+        </script>
+
+        <!-- While User Scroll to Dispaly Sticky Header
+            =============================================== -->
+        <div id="sticky-header" class="tc-header__area header-top-2">
+            <div class="container custom-container">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="tgmenu__wrap py-xxl-0 py-xl-0 py-3">
+                            <nav
+                                class="tgmenu__nav d-flex align-items-center justify-content-between justify-content-xxl-between justify-content-xl-evenly">
+                                <div class="logo">
+                                    <a class="d-flex align-items-center" href="index.html">
+                                        <img src="assets/images/logo/logo-1.png"
+                                            alt="The African Apostolic Church - VaApostora VeAfrica">
+                                    </a>
+                                </div>
+                                <div class="tgmenu__navbar-wrap tgmenu__main-menu d-none d-xxl-flex d-xl-flex">
+                                    <!--Main Menu-->
+                                    <ul class="navigation">
+                                        <li><a href="index.html">Home</a></li>
+                                        <li><a href="about-us.html">About Us</a></li>
+                                        <li><a href="events-list.html">Events</a></li>
+                                        <li><a href="blog.html">Blog</a></li>
+                                        <li><a href="gallery.html">Gallery</a></li>
+                                        <li class="menu-item-has-children"><a href="contact.html">Contact</a>
+                                            <ul class="sub-menu">
+                                                <li><a href="contact1.html">America & Europe</a></li>
+                                                <li><a href="contact2.html">Asia & Australia</a></li>
+                                                <li><a href="contact3.html">Dubai</a></li>
+                                                <li><a href="contact4.html">Great Britain</a></li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <div
+                                    class="mobile-nav-toggler d-block d-xxl-none d-xl-none d-flex justify-content-center align-items-center justify-content-end">
+                                    <i data-feather="menu"></i>
+                                </div>
+                            </nav>
+                        </div>
+                        <!-- Mobile Menu  -->
+                        <div class="tgmobile__menu">
+                            <nav class="tgmobile__menu-box">
+                                <div class="close-btn"><i class="fas fa-times"></i></div>
+                                <div class="nav-logo">
+                                    <a href="index.html"><img src="assets/images/logo/logo-1.png"
+                                            alt="The African Apostolic Church - VaApostora VeAfrica"></a>
+                                </div>
+
+                                <div class="tgmobile__menu-outer">
+                                </div>
+                                <div class="tgmobile__menu-bottom">
+                                    <div class="contact-info">
+                                        <ul class="list-wrap">
+                                            <li><a
+                                                    href="mailto:contact@the-aac-gbeaaa.org">contact@the-aac-gbeaaa.org</a>
+                                            </li>
+                                            <li><a href="tel:2295550109">(229) 555-0109</a></li>
+                                        </ul>
+                                    </div>
+                                    <div class="social-links">
+                                        <ul class="tiny-footer-menu float-end d-none d-xxl-block d-xl-block d-lg-block">
+                                            <li><a href="https://www.facebook.com/share/1CCWU9q2Jy/"><i
+                                                        class="fab fa-facebook-f"></i></a></li>
+                                            <li><a href="javascript:"><i class="fab fa-instagram"></i></a></li>
+                                            <li><a href="https://x.com/MyBackup768079"><i
+                                                        class="fab fa-twitter"></i></a></li>
+                                            <li><a
+                                                    href="https://youtube.com/@theafricanapostolicchurch-w6m?si=OroWGEg1q3Mo4lw-"><i
+                                                        class="fab fa-youtube"></i></a></li>
+                                            <li><a
+                                                    href="https://www.tiktok.com/@the.african.apost20?_r=1&_t=ZS-94ALmkmZHoC"><i
+                                                        class="fab fa-tiktok"></i></a></li>
+
+                                        </ul>
+                                    </div>
+                                </div>
+                            </nav>
+                        </div>
+                        <div class="tgmobile__menu-backdrop"></div>
+                        <!-- End Mobile Menu -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+        <!-- Quick Contact Us Sidebar
+            ============================= -->
+        <div class="offCanvas__info">
+            <div class="offCanvas__close-icon menu-close">
+                <button><i class="far fa-window-close"></i></button>
+            </div>
+            <div class="offCanvas__logo mb-30">
+                <a href="index.html"><img src="assets/images/logo/logo-1.png"
+                        alt="The African Apostolic Church - VaApostora VeAfrica"></a>
+            </div>
+            <div class="offCanvas__side-info mb-30">
+                <div class="contact-list mb-30">
+                    <h4>Office Address</h4>
+                    <p>
+                        8 Jefferson Road, Logan Park,Harare, Zimbabwe.
+                    </p>
+                </div>
+                <div class="contact-list mb-30">
+                    <h4>Phone Number</h4>
+                    <p>+0989 7876 9865 9</p>
+                    <p>+(090) 8765 86543 85</p>
+                </div>
+                <div class="contact-list mb-30">
+                    <h4>Email Address</h4>
+                    <p>admin@the-aac-gbeaaa.org</p>
+                    <p>admin@the-aac-gbeaaa.org</p>
+                </div>
+            </div>
+            <div class="offCanvas__social-icon mt-30">
+                <a href="javascript:"><i class="fab fa-facebook-f"></i></a>
+                <a href="javascript:"><i class="fab fa-twitter"></i></a>
+                <a href="javascript:"><i class="fab fa-google-plus-g"></i></a>
+                <a href="javascript:"><i class="fab fa-instagram"></i></a>
+            </div>
+        </div>
+        <div class="offCanvas__overly"></div>
+    </header>
+
+    <!-- Content Area
+        ================= -->
+    <main class="fix">
+
+        <!-- Slider Section
+            =================== -->
+        <section class="banner-area banner-bg hero-2 justify-content-right"
+            data-background="assets/images/home2/hero-2-bg.png">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-10 mx-auto text-right justify-content-right">
+                        <div class="banner-content">
+                            <span class="breadcrumb-item text-uppercase fw-normal" data-aos="fade-up"
+                                data-aos-delay="0"><strong>Welcome to the african apostolic church (GBEAAA) - official
+                                    website</strong> </span>
+                            <h2 class="title ds-3 fw-normal text-light" data-aos="fade-up" data-aos-delay="200">
+                                VaApostora VeAfrica</h2>
+                            <p class="text-light fs-5" data-aos="fade-up" data-aos-delay="400">The church name was given
+                                by the Holy Spirit in 1957<br> when Paul Mwazha of Africa heard a voice saying, <br>'The
+                                African Apostolic Church VaApostora VeAfrica'.<br> The church was then established in
+                                1959.</p>
+                            <div class="d-flex gap-2 mx-auto justify-content-right pt-3">
+                                <a href="contact.html"
+                                    class="btn btn-white rounded-5 btn-circle-arrow aos-init aos-animate"
+                                    data-aos="flip-down" data-aos-delay="100">
+                                    <span class="text">Join Us Now</span>
+                                    <span class="bg-transparent ms-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round"
+                                            class="feather feather-arrow-right size-16">
+                                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                                            <polyline points="12 5 19 12 12 19"></polyline>
+                                        </svg>
+                                    </span>
+                                </a>
+                                <a href="about-us.html" class="btn-cirle d-flex align-items-right" data-aos="flip-down"
+                                    data-aos-delay="300">
+                                    <span class="circle-arrow">
+                                        <i data-feather="arrow-right"></i>
+                                    </span>
+                                    <span class="text-white fs-5">Explore More</sp an>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="banner-social fs-7">
+                    <i data-feather="gift" class="me-1 rotate--90 size-16"></i>
+                    <span class="text-white">Want to Join us?</span>
+                    <a href="contact.html">Contact Us <i data-feather="arrow-up" class="size-14"></i></a>
+                </div>
+                <div class="banner-scroll text-white">
+                    <a href="#about" class="text-white">Scroll Down <span><i class="fas fa-arrow-right"></i></span></a>
+                </div>
+            </div>
+        </section>
+        <!-- About Blessed
+            ================== -->
+        <section class="home1-section2" id="about">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-7 pt-80">
+                        <h2 class="ds-3 fw-normal" data-aos="fade-up">Statement of Faith</h2>
+                        <p class="fs-6" data-aos="fade-up">
+                            We affirm the Holy Bible, as the inspired word of God and the basis for our beliefs. We
+                            believe in the Ten Commandments including the Holy Sabbath of the Lord (Exodus 20). We
+                            continuously strive to live like our Lord Jesus Christ, who came to fulfil the law. We
+                            voluntarily band ourselves together as a body of baptized believers in Jesus Christ,
+                            baptized in the name of, "the Father, the Son and the Holy Spirit", and personally committed
+                            to sharing the good news of salvation to lost mankind in all communities that we live.
+
+                        </p>
+                        <div class="row mt-5">
+                            <div class="col-lg-6">
+                                <img src="assets/images/home1/img-1.png"
+                                    alt="The African Apostolic Church - VaApostora VeAfrica" data-aos="flip-left">
+                                <h5 class="mt-4 fw-medium">Our Belief</h5>
+                                <p data-aos="fade-up">
+                                    We believe in the believer's baptism as written in (Matthew 28:19; Acts 2:41) and
+                                    the Lord's Supper as it appears in (Luke 22:19-20; 1 Corinthians 11:23-26) in the
+                                    holy books of the bible.
+
+                                </p>
+                            </div>
+                            <div class="col-lg-6">
+                                <img src="assets/images/home1/img-2.png"
+                                    alt="The African Apostolic Church - VaApostora VeAfrica" data-aos="flip-left">
+                                <h5 class="mt-4 fw-medium">Our affirmation</h5>
+                                <p data-aos="fade-up">
+                                    The servant of God Archbishop Ernest Paul Mwazha was commissioned by our Lord Jesus
+                                    Christ to proclaim the gospel of Jesus Christ in Africa and the world over.
+
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-5">
+                        <div class="z-3 up-event-cover rounded-3">
+                            <div class="up-event shadow-1 position-relative">
+                                <h4 class="mb-2">Holy Communion Dates</h4>
+                                <ul class="events-list p-0" id="holy-communion-list">
+                                    <!-- JS will inject all Holy Communion <li> items here -->
+                                </ul>
+                                <a href="events-list.html" class="btn btn-full" data-aos="fade-up">View More Events</a>
+                                <img class="position-absolute top-0 right-5 tag" src="assets/images/home1/img-4.png"
+                                    alt="The African Apostolic Church - VaApostora VeAfrica">
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="bg-animation">
+                <img src="assets/images/home1/img-3.png" alt="The African Apostolic Church - VaApostora VeAfrica"
+                    data-aos="fade-right" data-aos-delay="400" class="aos-init aos-animate img-bg">
+            </div>
+        </section>
+        <section class="section-7">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="container">
+                        <div class="col-12">
+                            <div class="d-flex align-items-center justify-content-center flex-column mb-3">
+                                <h4 class="text-white mb-0 fw-normal text-center ds-5 w-80 mb-4 aos-init aos-animate"
+                                    data-aos="flip-up">
+                                    "The paramount work is to preach importance of the name of Jesus Christ and the
+                                    mysteries of&nbsp;his&nbsp;salvation."
+                                </h4>
+                                <div class="d-flex gap-2 aos-init aos-animate" data-aos="flip-up">
+
+                                    <a href="contact.html"
+                                        class="btn btn-white rounded-5 btn-circle-arrow aos-init aos-animate"
+                                        data-aos="flip-up">
+                                        <span class="text">Testimonies</span>
+                                        <span class="bg-transparent ms-2">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round"
+                                                class="feather feather-arrow-right size-16">
+                                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                                                <polyline points="12 5 19 12 12 19"></polyline>
+                                            </svg>
+                                        </span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Upcomming Events Section
+            ============================= -->
+        <section class="home2-section2 pt-80px pb-80px position-relative" id="about">
+            <div class="container">
+                <div class="row mb-5 align-items-end">
+                    <div class="col-lg-8 col-md-8 col-sm-8 sub-title2">
+                        <div class="d-flex gap-5 align-items-end">
+                            <div class="section-title tg-heading-subheading animation-style3">
+                                <span class="sub-title">Scheduled Activities </span>
+                                <h5 class="title tg-element-title">Upcoming Events</h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 d-xxl-block d-lg-block d-md-block d-sm-block d-none">
+                        <div class="d-flex justify-content-end align-items-end">
+                            <div class="swiper-button-prev swiper-button-prev-style-1 swiper-button-prev-animate">
+                                <i class="size-24" data-feather="arrow-left"></i>
+                            </div>
+                            <div class="swiper-button-next swiper-button-next-style-1 swiper-button-next-animate">
+                                <i class="size-24" data-feather="arrow-right"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- swipper js -->
+            <div class="container-fluid">
+                <div class="row align-items-center">
+                    <div class="col-12 position-relative">
+                        <div class="box-swiper-padding">
+                            <div class="swiper-container blessed-event-slider">
+                                <div class="swiper-wrapper py-2">
+                                    <!-- Slides will be inserted here dynamically by JS -->
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="col-12 text-center my-2">
+                        <div class="blessed-event-slider-pagination"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- end swipper js -->
+            <div class="bg-bottom">
+
+            </div>
+            <div class="bg-top d-none d-lg-block alltuchtopdown">
+                <img src="assets/images/home2/img-bg-sec-2-1.png"
+                    alt="The African Apostolic Church - VaApostora VeAfrica" data-aos="fade-right" data-aos-delay="400"
+                    class="aos-init aos-animate img-bg">
+            </div>
+        </section>
+
+        <!-- Sermon Section
+            =================== -->
+        <section class="section-padding pb-5">
+            <div class="container">
+                <div class="row mb-5 align-items-end">
+                    <div class="col-lg-8 col-md-8 col-sm-8 sub-title2">
+                        <div class="d-flex gap-5 align-items-end">
+                            <div class="section-title tg-heading-subheading animation-style3">
+                                <span class="sub-title">Recordings</span>
+                                <h5 class="title tg-element-title">Explore our Video and Audio Gallery</h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 d-xxl-block d-lg-block d-md-block d-sm-block d-none">
+                        <div class="d-flex justify-content-end align-items-end">
+                            <div class="swiper-button-prev swiper-button-prev-style-1 swiper-button-prev-5">
+                                <i class="size-24" data-feather="arrow-left"></i>
+                            </div>
+                            <div class="swiper-button-next swiper-button-next-style-1 swiper-button-next-5">
+                                <i class="size-24" data-feather="arrow-right"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12 position-relative">
+                        <div class="swiper-container blessed-sermon-slider">
+                            <div class="swiper-wrapper">
+                                <div class="swiper-slide">
+                                    <div class="postion-relative">
+                                        <div
+                                            class="card-sermon-1 rounded-2 overflow-hidden bg-white shine-animate-item hover-up">
+                                            <div class="position-relative overflow-hidden mb-2">
+                                                <a href="https://youtube.com/@theafricanapostolicchurch-w6m?si=OroWGEg1q3Mo4lw-"class="shine-animate">
+                                                    <img src="assets/images/home2/sermon-1.png"
+                                                        alt="The African Apostolic Church - VaApostora VeAfrica">
+                                                </a>
+                                            </div>
+                                            <div class="card-body p-4">
+                                                <h3 class="font-body text-dark fs-3 lh-base"><a
+                                                        href="https://youtube.com/@theafricanapostolicchurch-w6m?si=OroWGEg1q3Mo4lw-" class="">Sermons
+                                                    </a>
+                                                </h3>
+                                                <div class="meta-1 fs-7 mb-3">
+                                                    <span class="author">Uploaded By: <a
+                                                            href="https://www.youtube.com/playlist?list=PLa2WRGCR6mRehQq_o6LYWsWahLEMEXbja"
+                                                            class="text-decoration-underline"> The African Apostolic
+                                                            Church Publicity</a></span>
+                                                    <span class="date ms-1">24 April 2025</span>
+                                                </div>
+                                                <p class="fs-7 mb-4 text-dark">
+                                                    Video and audio recordings of sermons from The African Apostolic
+                                                    Church (Vaapostora VeAfrica).</p>
+                                                <div class="d-flex justify-content-between">
+                                                    <div class="icons d-flex gap-2 align-items-center">
+                                                        <a href="https://www.youtube.com/playlist?list=PLa2WRGCR6mRehQq_o6LYWsWahLEMEXbja"
+                                                            target="_blank" title="Watch Now"><i
+                                                                class="fab fa-youtube"></i></a>
+
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="swiper-slide">
+                                    <div class="postion-relative">
+                                        <div
+                                            class="card-sermon-1 rounded-2 overflow-hidden bg-white shine-animate-item hover-up">
+                                            <div class="position-relative overflow-hidden mb-2">
+                                                <a href="https://youtube.com/@theafricanapostolicchurch-w6m?si=OroWGEg1q3Mo4lw-" class="shine-animate">
+                                                    <img src="assets/images/home2/sermon-2.png"
+                                                        alt="The African Apostolic Church - VaApostora VeAfrica">
+                                                </a>
+                                            </div>
+                                            <div class="card-body p-4">
+                                                <h3 class="font-body text-dark fs-3 lh-base"><a
+                                                        href="https://youtube.com/@theafricanapostolicchurch-w6m?si=OroWGEg1q3Mo4lw-" class="">Music</a>
+                                                </h3>
+                                                <div class="meta-1 fs-7 mb-3">
+                                                    <span class="author">Uploaded By: <a
+                                                            href="https://www.youtube.com/playlist?list=PLa2WRGCR6mRdLBsYpqaI2JhR_U3ttAoff"
+                                                            class="text-decoration-underline"> The African Apostolic
+                                                            Church Publicity</a></span>
+                                                    <span class="date ms-1">28 April 2025</span>
+                                                </div>
+                                                <p class="fs-7 mb-4 text-dark">
+                                                    Video and audio recordings of hymns and choruses from The African
+                                                    Apostolic Church (Vaapostora VeAfrica).</p>
+                                                <div class="d-flex justify-content-between">
+                                                    <div class="icons d-flex gap-2 align-items-center">
+                                                        <a href="https://www.youtube.com/playlist?list=PLa2WRGCR6mRdLBsYpqaI2JhR_U3ttAoff"
+                                                            target="_blank" title="Watch Now"><i
+                                                                class="fab fa-youtube"></i></a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="swiper-slide">
+                                    <div class="postion-relative">
+                                        <div
+                                            class="card-sermon-1 rounded-2 overflow-hidden bg-white shine-animate-item hover-up">
+                                            <div class="position-relative overflow-hidden mb-2">
+                                                <a href="https://youtube.com/@theafricanapostolicchurch-w6m?si=OroWGEg1q3Mo4lw-" class="shine-animate">
+                                                    <img src="assets/images/home2/sermon-3.png"
+                                                        alt="The African Apostolic Church - VaApostora VeAfrica">
+                                                </a>
+                                            </div>
+                                            <div class="card-body p-4">
+                                                <h3 class="font-body text-dark fs-3 lh-base"><a
+                                                        href="https://youtube.com/@theafricanapostolicchurch-w6m?si=OroWGEg1q3Mo4lw-" class="">Paul Mwazha Teachings</a>
+                                                </h3>
+                                                <div class="meta-1 fs-7 mb-3">
+                                                    <span class="author">Uploaded By: <a
+                                                            href="youtube.com/playlist?list=PLa2WRGCR6mRd6Jbk8l2kMJbRzYslQpxKE"
+                                                            class="text-decoration-underline"> The African Apostolic
+                                                            Church Publicity</a.+0></span>
+                                                    <span class="date ms-1">28 April 2025</span>
+                                                </div>
+                                                <p class="fs-7 mb-4 text-dark">
+                                                    Video and audio recordings from the angel of God Paul Mwazha of
+                                                    Africa</p>
+                                                <div class="d-flex justify-content-between">
+                                                    <div class="icons d-flex gap-2 align-items-center">
+                                                        <a href="youtube.com/playlist?list=PLa2WRGCR6mRd6Jbk8l2kMJbRzYslQpxKE"
+                                                            target="_blank" title="Watch Now"><i
+                                                                class="fab fa-youtube"></i></a>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 text-center mt-4">
+                        <div class="blessed-sermon-slider-pagination"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Call to Action Section -->
+        <section class="home2-section-7 pb-80px">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12 d-flex flex-lg-row justify-content-lg-center align-items-center">
+                        <div class="d-lg-flex flex-lg-row flex-column w-100 rounded-4 overflow-hidden align-items-center gap-4"
+                            data-aos="fade-up" data-background="assets/images/home2/bg-img-sec-7.png">
+                            <div class="col-lg-4">
+                                <img class="bg w-100" src="assets\images\gallery\paul\8.jpg" alt="paul-mwazha">
+                            </div>
+                            <div class="p-4" data-aos="fade-up">
+                                <div class="row">
+
+                                    <!-- Date Box -->
+                                    <div class="col-sm-3 col-12 d-none d-xxl-block d-lg-block d-md-block d-sm-block">
+                                        <div id="event-date-box"
+                                            class="event-date rounded-2 text-center bg-primary p-4 semons-box">
+                                            <h2 id="event-day" class="text-white mb-0 lh-1"></h2>
+                                            <span id="event-month" class="fs-7 text-white d-block mb-0"></span>
+                                            <span id="event-year" class="fs-7 text-white"></span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Content Box -->
+                                    <div
+                                        class="col-sm-9 col-12 d-flex flex-lg-row flex-column gap-3 align-items-center">
+                                        <div class="content text-center text-lg-start text-white">
+                                            <h2 class="fs-2 mb-2 font-body text-white fw-normal mb-0">
+                                                IN THIS MONTH IN HISTORY
+                                            </h2>
+                                            <p id="event-description" class="event-meta fs-6 text-white fw-normal mb-0">
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Our Team Section
+            ===================== -->
+        <section class="home1-section3 position-relative" id="sermons-section">
+            <div class="container">
+                <div class="row mb-5 align-items-end d-flex align-items-center">
+                    <div class="col-lg-10 col-md-8 mb-3 mb-lg-0">
+                        <div class="d-flex flex-column flex-xl-row gap-xl-5 align-items-xl-end">
+                            <div class="section-title tg-heading-subheading animation-style3">
+                                <span class="sub-title">Church doctrine</span>
+                                <h5 class="title tg-element-title">Explore our Principles</h5>
+                            </div>
+                            <p class="fs-5 w-lg-50 mb-0">
+                                Core principles and values that guide our church's mission
+                                and lifestyle
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-md-4 d-none d-md-block">
+                        <div class="d-flex justify-content-end align-items-end">
+                            <div class="swiper-button-prev swiper-button-prev-style-1 swiper-button-prev-animate"
+                                tabindex="0" role="button" aria-label="Previous slide"
+                                aria-controls="swiper-wrapper-c543929da511ccb10">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" class="feather feather-arrow-left size-24">
+                                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                                    <polyline points="12 19 5 12 12 5"></polyline>
+                                </svg>
+                            </div>
+                            <div class="swiper-button-next swiper-button-next-style-1 swiper-button-next-animate"
+                                tabindex="0" role="button" aria-label="Next slide"
+                                aria-controls="swiper-wrapper-c543929da511ccb10">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" class="feather feather-arrow-right size-24">
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    <polyline points="12 5 19 12 12 19"></polyline>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row align-items-center">
+                    <div class="col-12 position-relative">
+                        <div class="box-swiper-padding">
+                            <div
+                                class="swiper-container blessed-sermon-slider-one swiper-container-initialized swiper-container-horizontal swiper-container-pointer-events">
+                                <div class="swiper-wrapper" id="swiper-wrapper-c543929da511ccb10"
+                                    style="transform: translate3d(-2800px, 0px, 0px); transition-duration: 0ms;"></div>
+                                <span class="swiper-notification" aria-live="assertive" aria-atomic="true"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 text-center mt-3">
+                        <div class="blessed-sermon-slider-one-pagination swiper-pagination-bullets"><span
+                                class="swiper-pagination-bullet"></span><span
+                                class="swiper-pagination-bullet"></span><span
+                                class="swiper-pagination-bullet"></span><span
+                                class="swiper-pagination-bullet"></span><span
+                                class="swiper-pagination-bullet swiper-pagination-bullet-active"></span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="wrap-asset position-absolute top-50 left-5 ms-5">
+                <img class="alltuchtopdown" src="assets/images/sermon-details/cornflower-bgr.png" alt="Blessed">
+            </div>
+        </section>
+        <!-- Related Blog Posts ======================= -->
+        <section class="pt-80px pb-80px bg-linear-1 mt-80px">
+            <div class="container">
+                <div class="row mb-5">
+                    <div class="col-12">
+                        <div class="section-title tg-heading-subheading animation-style3">
+                            <span class="sub-title">Our news and blog</span>
+                            <h5 class="title tg-element-title">Updated Latest News</h5>
+                        </div>
+                    </div>
+                </div>
+                <!-- Dynamic blog container -->
+                <div class="row" id="blog-container"></div>
+            </div>
+        </section>
+
+
+
+        <!-- Call to Action Section
+            =========================== -->
+        <div class="section-13 position-relative py-5">
+            <div class="container">
+                <div class="row d-flex align-items-center">
+                    <div
+                        class="col-xl-6 col-12 text-start text-xxl-start text-xl-start text-center mb-xxl-0 mb-xl-0 mb-3">
+                        <h2 class=" fs-1 text-dark">Abundant Resources</h2>
+                        <p class="mb-0 fw-regular fs-6">Access a wealth of spiritual resources posted<br>on our channel
+                            for your growth and inspiration.</p>
+                        </p>
+                    </div>
+                    <div class="col-xl-6 col-12 text-end text-xxl-end text-xl-end text-lg-center text-center">
+                        <div class="mt-4 mt-lg-0">
+                            <a href="https://whatsapp.com/channel/0029Vb7Fyxx1CYoKgXDTMw3s"
+                                class="btn text-white rounded-5 me-2">
+                                <span class="bg-transparent me-2">
+                                    <i class="size-16" data-feather="mail"></i>
+                                </span>
+                                <span>Follow our Whatsapp Channel</span>
+                            </a>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="wrap-asset-13 position-absolute">
+                <img class="asset-top-down" src="assets/images/home1/img-sec-13.png"
+                    alt="The African Apostolic Church - VaApostora VeAfrica">
+            </div>
+            <div class="wrap-asset-13-1 position-absolute">
+                <img class="asset-top-down" src="assets/images/home1/img-sec-13.1.png"
+                    alt="The African Apostolic Church - VaApostora VeAfrica">
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer Widget Area
+        ======================= -->
+    <footer>
+        <div class="footer-area footer-area-two text-white">
+            <div class="footer-bottom">
+                <div class="container">
+                    <div class="row align-items-center">
+                        <div class="col-12">
+                            <hr>
+                        </div>
+                        <div class="col-lg-5">
+                            <div class="copyright-text">
+                                <p>© 2026 <a class="text-primary" href="index.html">The African Apostolic Church</a> |
+                                    All Rights
+                                    Reserved
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3 col-12 mb-3 mb-xxl-0 mb-xl-0 mb-lg-0">
+                            <ul class="tiny-footer-menu float-end d-none d-xxl-block d-xl-block d-lg-block">
+                                <li><a href="about-us.html" class="fs-7 text-100 text-hover-primary">About Us</a></li>
+                                <li><a href="events-list.html" class="fs-7 text-100 text-hover-primary">Events</a>
+                                </li>
+                                <li><a href="gallery.html" class="fs-7 text-100 text-hover-primary">Gallery</a></li>
+                                <li><a href="blog.html" class="fs-7 text-100 text-hover-primary">Blog</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-lg-4 footer-social ">
+                            <ul class="tiny-footer-menu float-end d-none d-xxl-block d-xl-block d-lg-block">
+                                <li><a href="https://www.facebook.com/share/1CCWU9q2Jy/"><i
+                                            class="fab fa-facebook-f"></i></a></li>
+                                <li><a href="javascript:"><i class="fab fa-instagram"></i></a></li>
+                                <li><a href="https://x.com/MyBackup768079"><i class="fab fa-twitter"></i></a></li>
+                                <li><a href="https://youtube.com/@theafricanapostolicchurch-w6m?si=OroWGEg1q3Mo4lw-"><i
+                                            class="fab fa-youtube"></i></a></li>
+                                <li><a href="https://www.tiktok.com/@the.african.apost20?_r=1&_t=ZS-94ALmkmZHoC"><i
+                                            class="fab fa-tiktok"></i></a></li>
+
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!--  Back To Top - Button When Document Scroll Down to Display
+        ============================================================== -->
+    <button class="scroll__top scroll-to-target" data-target="html"><i class="fas fa-angle-up"></i></button>
+
+    <!--  Jquery Library Script Files
+        =================================================== -->
+    <script src="assets/library/jquery-3.7.1.min.js"></script>
+    <script src="assets/library/bootstrap-5.3.2/bootstrap.bundle.min.js"></script>
+    <script src="assets/library/magnific-popup/magnific-popup.min.js"></script>
+    <script src="assets/library/odometer/odometer.min.js"></script>
+    <script src="assets/library/jquery.appear/script.js"></script>
+    <script src="assets/library/parallax-scroll/jquery.parallaxScroll.min.js"></script>
+    <script src="assets/library/isotop/isotope.pkgd.min.js"></script>
+    <script src="assets/library/images-loaded/imagesloaded.pkgd.min.js"></script>
+    <script src="assets/library/swiper/swiper-bundle.js"></script>
+    <script src="assets/library/wow/wow.min.js"></script>
+    <script src="assets/library/aos/aos.js"></script>
+    <script src="assets/library/feather/feather.min.js"></script>
+    <script src="assets/library/gsap-3.10.4/gsap.js"></script>
+    <script src="assets/library/gsap-3.10.4/ScrollTrigger.js"></script>
+    <script src="assets/library/gsap-3.10.4/SplitText.js"></script>
+
+    <!--  Custom Script
+        ===================================== -->
+    <script src="assets/script.js"></script>
+    <script>
+        const events = {
+            "January": [
+                { day: 19, year: 1965, text: 'The voice of the Lord Jesus is heard to say, "My Blessed Gospel to the Nations."' },
+                { day: null, year: 1983, text: "Five lions are sent for Paul's protection in all his journeys of the gospel." },
+                { day: 30, year: 1986, text: "In a dream at a Church Mission, a leader stood before a great gathering and expressed deep gratitude to the people of Africa for their faithfulness and commitment." }
+            ],
+
+            "February": [
+                { day: 17, year: 1956, text: "The African Apostolic Church was made Zion—the dwelling place of the Almighty when the Lord Jesus descended from heaven on a white cloud surrounded by singing angels." }
+            ],
+
+            "March": [
+                { day: 30, year: 1965, text: 'Declaration made, "I am the Angel of Africa, the only Ernest Mwazha in Southern Rhodesia."' },
+                { day: null, year: 1983, text: "Flock of doves from the east land in Africa and refuse to leave for the west." },
+                { day: 26, year: 1986, text: "Doves flew from the West toward the East and crossed a radiant dividing line. Though called to return, they refused and remained in Africa." }
+            ],
+
+            "April": [
+                { day: 11, year: 1956, text: "A bright white moon fell from the sky and landed at my feet. Upon seeing this I awoke and praised God." },
+                { day: null, year: 1983, text: 'Vision reveals a thick black smoke that cleared to allow a voice to announce, "It is the Time of the End."' },
+                { day: null, year: 1983, text: 'Paul is allowed to fish and his catch is proclaimed by a voice above, "Royal Fish."' },
+                { day: 10, year: 1984, text: "While standing beside a river with church members the river dried up and wherever I stepped powerful springs burst forth." },
+                { day: 29, year: 1985, text: "A small stone mansion appeared in a vision and thick black smoke covered the sky. A voice declared clearly, 'Time of the End.'" },
+                { day: 21, year: 1987, text: "During worship at Chirasauta the gathering place became like a great dam filled with water and a voice proclaimed it was the Pool of Salvation." },
+                { day: 27, year: 1987, text: "God performed extraordinary miracles beyond human understanding revealing His supreme power." }
+            ],
+
+            "May": [
+                { day: 10, year: 1960, text: 'Three heavenly messengers announce that, "The Lord Jesus is coming to rule in righteousness!" Through intense prayer God revealed power to change situations.' },
+                { day: 8, year: 1956, text: "In a dream a man from Chomutumbi appeared directing me toward a great gathering at the mountain near Chirasauta." }
+            ],
+
+            "June": [
+                { day: 3, year: 1965, text: "Vision of visit to Nigeria and meeting with Kwame Nkrumah in Accra, Ghana." },
+                { day: 22, year: 1983, text: "The Divine power of God intervenes to stop the East-West confrontation and end potential global nuclear war." }
+            ],
+
+            "July": [
+                { day: 31, year: 1984, text: "A magnificent palace was revealed as the dwelling place of the Lord on earth symbolizing the Divine Kingdom established among us." },
+                { day: null, year: 1983, text: "A silver streak Shekinah is visible and trails Paul on his journeys." }
+            ],
+
+            "August": [
+                { day: 10, year: 1967, text: "In a vision two powerful donkeys named Moses and Daniel pulled a chariot across the world symbolizing the spread of the Gospel." }
+            ],
+
+            "September": [
+                { day: 29, year: 1965, text: "Paul Mwazha is graced with bright rays of God's grace." },
+                { day: null, year: 1983, text: "Paul is crowned by two Angels in the Holy Temple of God Almighty." },
+                { day: null, year: 1983, text: 'A boy-angel brings the message to Paul, "Jesus is Coming."' },
+                { day: 29, year: 1967, text: "The Holy Spirit descended powerfully at the caves of Chirasauta crying 'Shiloh'." },
+                { day: 13, year: 1984, text: "On a mountain garments turned white and a voice declared 'Jesus is coming'." },
+                { day: 1, year: 1984, text: "After winning a symbolic race I was clothed in heavenly garments and saw multitudes gathered." },
+                { day: 29, year: 1998, text: "Quelea birds transformed into men and women dressed in white garments symbolizing many people turning to God." }
+            ],
+
+            "October": [
+                { day: 6, year: 1984, text: "After intense prayer a dream revealed clergymen gathered in conference." },
+                { day: 22, year: 1956, text: "A powerful vision revealed the dwelling and active presence of the Holy Spirit on earth." },
+                { day: 28, year: 1956, text: "A voice declared 'Jesus our Deliverer' and later proclaimed 'Jesus our Saviour'." }
+            ],
+
+            "November": [
+                { day: 15, year: 1956, text: "Two men bound by the Holy Spirit approached and affirmed faithful service to God." },
+                { day: 3, year: 1956, text: "Three African priests appeared and one knelt saying 'God save the Priest'." }
+            ],
+
+            "December": [
+                { day: 23, year: 1965, text: "A book listing names of all Christians is received from the Main Office of the Lord God Almighty." },
+                { day: null, year: 1967, text: "Vision shows tickets accorded to worshippers for seats on transport to the Holy City." },
+                { day: null, year: 1951, text: "A voice asked 'Who can we commission?' and I responded willingly to serve." },
+                { day: 22, year: 1956, text: "A voice declared that anyone facing troubles should go up Chirasauta Mountain where God would answer prayers." },
+                { day: 27, year: 1969, text: "Vision of entering the Holy City and witnessing a pillar being built signifying readiness for eternal glory." }
+            ]
+        };
+
+        const monthMap = [
+            "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        ];
+
+        const now = new Date();
+        const currentMonthName = monthMap[now.getMonth()];
+        const monthEvents = events[currentMonthName];
+
+        if (monthEvents && monthEvents.length > 0) {
+            const randomEvent = monthEvents[Math.floor(Math.random() * monthEvents.length)];
+
+            document.getElementById("event-day").textContent = randomEvent.day ?? "";
+            document.getElementById("event-month").textContent = currentMonthName;
+            document.getElementById("event-year").textContent = randomEvent.year ?? "";
+            document.getElementById("event-description").textContent = randomEvent.text;
+        } else {
+            document.getElementById("event-day").textContent = "";
+            document.getElementById("event-month").textContent = currentMonthName;
+            document.getElementById("event-year").textContent = "";
+            document.getElementById("event-description").textContent = "No recorded events for this month.";
+        }
+    </script>
+    <script src="assets/article.js"></script>
+    <script src="assets/events.js" defer></script>
+    <script src="assets/why-we-do.js"></script>
+
+</body>
+<!-- body end -->
+
+
+<!--/index.html by Ownuh, Thu, 10 Jul 2025 15:29:09 GMT -->
+
+</html>
