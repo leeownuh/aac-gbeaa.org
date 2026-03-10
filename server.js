@@ -104,9 +104,9 @@ router.post('/admin/login', async (req, res) => {
     const adminData = readJSON('./data/admin.json');
 
     if (username === adminData.username) {
-      // For demo purposes, accept default password 'admin123'
-      // In production, use bcrypt.compare(password, adminData.password)
-      if (password === 'admin123') {
+      const passwordMatch = await bcrypt.compare(password, adminData.password);
+
+if (passwordMatch) {
         req.session.admin = { username: adminData.username };
         return res.json({ success: true, message: 'Login successful' });
         loadGallery();
