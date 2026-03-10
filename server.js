@@ -94,7 +94,6 @@ const writeJSON = (filepath, data) => {
     return false;
   }
 };
-
 // ==================== AUTH ROUTES ====================
 
 // Admin login
@@ -103,18 +102,27 @@ router.post('/admin/login', async (req, res) => {
     const { username, password } = req.body;
     const adminData = readJSON('./data/admin.json');
 
-    if (username === adminData.username) {
-      const passwordMatch = await bcrypt.compare(password, adminData.password);
-
-if (passwordMatch) {
-        req.session.admin = { username: adminData.username };
-        return res.json({ success: true, message: 'Login successful' });
-        loadGallery();
-        loadCategories();
-      }
+    // Check username
+    if (username !== adminData.username) {
+      return res.status(401).json({ success: false, error: 'Invalid credentials' });
     }
 
-    res.status(401).json({ success: false, error: 'Invalid credentials' });
+    // Check password
+    const passwordMatch = await bcrypt.compare(password, adminData.password);
+
+    if (!passwordMatch) {
+      return res.status(401).json({ success: false, error: 'Invalid credentials' });
+    }
+
+    // Create session
+    req.session.admin = { username: adminData.username };
+
+    // Optional functions
+    loadGallery();
+    loadCategories();
+
+    return res.json({ success: true, message: 'Login successful' });
+
   } catch (error) {
     res.status(500).json({ success: false, error: 'Login failed' });
   }
