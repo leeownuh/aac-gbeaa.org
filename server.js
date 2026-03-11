@@ -29,9 +29,9 @@ router.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: true,
+    secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
-    sameSite: "none",
+    sameSite: process.env.NODE_ENV === 'production' ? "none" : "lax",
     maxAge: 24 * 60 * 60 * 1000
   }
 }));
@@ -129,7 +129,7 @@ console.log("Admin file:", adminData);
 
 
     return res.json({ success: true, message: 'Login successful' });
-
+console.log('Session after login:', req.session);
   } catch (error) {
     res.status(500).json({ success: false, error: 'Login failed' });
   }

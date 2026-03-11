@@ -216,7 +216,6 @@
             }
         }
     </style>
-<script src="https://sites.super.myninja.ai/_assets/ninja-daytona-script.js"></script>
 </head>
 <body>
     <div class="dashboard-container">
@@ -276,47 +275,41 @@
     </div>
 
     <script>
-        // Check authentication
-        fetch('/api/admin/check')
-            .then(response => response.json())
-            .then(data => {
-                if (!data.authenticated) {
-                    window.location.href = 'login.html';
-                } else {
-                    document.getElementById('adminUsername').textContent = data.username;
-                    loadDashboard();
-                }
-            })
-            .catch(() => {
-                window.location.href = 'login.html';
-            });
-
-        function loadDashboard() {
-
-    Promise.all([
-        fetch('/api/articles').then(r => r.json()),
-        fetch('/api/events').then(r => r.json()),
-        fetch('/api/gallery').then(r => r.json())
-    ])
-    .then(([articles, events, gallery]) => {
-
-        document.getElementById('articlesCount').textContent = articles.length;
-        document.getElementById('eventsCount').textContent = events.length;
-
-        // ✅ Correct way to count gallery images
-        document.getElementById('galleryCount').textContent =
-            (gallery.images || []).length;
-
-        document.getElementById('loading').style.display = 'none';
-        document.getElementById('dashboardContent').style.display = 'block';
-
+    // Check authentication
+    fetch('/api/admin/check', { 
+        credentials: 'include' 
     })
-    .catch(error => {
-        console.error('Error loading dashboard:', error);
-        document.getElementById('loading').textContent = 'Error loading dashboard';
+    .then(response => response.json())
+    .then(data => {
+        if (!data.authenticated) {
+            window.location.href = 'login.html';
+        } else {
+            document.getElementById('adminUsername').textContent = data.username;
+            loadDashboard();
+        }
+    })
+    .catch(() => {
+        window.location.href = 'login.html';
     });
 
-}
-    </script>
+    function loadDashboard() {
+        Promise.all([
+            fetch('/api/articles', { credentials: 'include' }).then(r => r.json()),
+            fetch('/api/events', { credentials: 'include' }).then(r => r.json()),
+            fetch('/api/gallery', { credentials: 'include' }).then(r => r.json())
+        ])
+        .then(([articles, events, gallery]) => {
+            document.getElementById('articlesCount').textContent = articles.length;
+            document.getElementById('eventsCount').textContent = events.length;
+            document.getElementById('galleryCount').textContent = (gallery.images || []).length;
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('dashboardContent').style.display = 'block';
+        })
+        .catch(error => {
+            console.error('Error loading dashboard:', error);
+            document.getElementById('loading').textContent = 'Error loading dashboard';
+        });
+    }
+</script>
 </body>
 </html>

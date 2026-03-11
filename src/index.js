@@ -21,6 +21,7 @@ const app = express();
 const server = http.createServer(app);
 app.set('trust proxy', 1);
 app.use('/api', apiRoutes);
+
 const ensureDirectories = () => {
   const dirs = [
     config.paths.data,
@@ -73,6 +74,7 @@ const configureMiddleware = () => {
     referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
     xssFilter: true
   }));
+  
 
   app.use(cors(config.cors));
 
@@ -106,56 +108,40 @@ const configureRoutes = () => {
   app.use(notFoundHandler);
   app.use(errorHandler);
 };
-
 const handleGracefulShutdown = () => {
+  if (config.nodeEnv !== 'production') return;
+
   const shutdown = async (signal) => {
     logger.info(`Received ${signal}, starting graceful shutdown...`);
     
     server.close(async () => {
       logger.info('HTTP server closed');
-      
       try {
         await fileLock.cleanup();
         logger.info('File locks cleaned up');
-      } catch (error) {
-        logger.error('Error cleaning up file locks', { error: error.message });
+      } catch (err) {
+        logger.error('Error cleaning up file locks', { error: err.message });
       }
-
       process.exit(0);
     });
 
     setTimeout(() => {
       logger.error('Forced shutdown after timeout');
       process.exit(1);
-    }, 10000);
+    }, 30000);
   };
 
   process.on('SIGTERM', () => shutdown('SIGTERM'));
   process.on('SIGINT', () => shutdown('SIGINT'));
 };
 
-const handleErrors = () => {
-  process.on('uncaughtException', (error) => {
-    logger.error('Uncaught exception', { error: error.message, stack: error.stack });
-    process.exit(1);
-  });
-
-  process.on('unhandledRejection', (reason, promise) => {
-    logger.error('Unhandled rejection', { reason, promise });
-    process.exit(1);
-  });
-};
-
+// start server
 const startServer = async () => {
   try {
     logger.info('Starting server initialization...');
-
     ensureDirectories();
-    
     await cache.initialize();
-    
     await authService.initialize();
-
     configureMiddleware();
     configureRoutes();
     handleGracefulShutdown();
@@ -176,3 +162,15 @@ const startServer = async () => {
 startServer();
 
 module.exports = { app, server };
+
+const handleErrors = () => {
+  process.on('uncaughtException', (error) => {
+    logger.error('Uncaught exception', { error: error.message, stack: error.stack });
+    process.exit(1);
+  });
+
+  process.on('unhandledRejection', (reason, promise) => {
+    logger.error('Unhandled rejection', { reason, promise });
+    process.exit(1);
+  });
+};
