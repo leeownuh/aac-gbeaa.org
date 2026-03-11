@@ -596,6 +596,21 @@ credentials:'include'
 .then(()=>location.href="login.html");
 }
 
+// Add this to your JS file that runs after the DOM is ready
+document.getElementById('logoutBtn').addEventListener('click', () => {
+    if (confirm('Are you sure you want to logout?')) {
+        fetch('/api/admin/logout', { 
+            method: 'POST', 
+            credentials: 'include'  // important for session cookies
+        })
+        .then(() => {
+            window.location.href = 'login.html';
+        })
+        .catch(err => {
+            console.error('Logout failed', err);
+        });
+    }
+});
 </script>
 
 </body>

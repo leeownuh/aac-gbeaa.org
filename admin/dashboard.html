@@ -232,7 +232,7 @@
                 <li><a href="gallery.html">🖼️ Gallery</a></li>
             </ul>
 
-            <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+            <button class="logout-btn" id="logoutBtn">🚪 Logout</button>
         </div>
 
         <div class="main-content">
@@ -310,6 +310,21 @@
             document.getElementById('loading').textContent = 'Error loading dashboard';
         });
     }
+    // Add this to your JS file that runs after the DOM is ready
+document.getElementById('logoutBtn').addEventListener('click', () => {
+    if (confirm('Are you sure you want to logout?')) {
+        fetch('/api/admin/logout', { 
+            method: 'POST', 
+            credentials: 'include'  // important for session cookies
+        })
+        .then(() => {
+            window.location.href = 'login.html';
+        })
+        .catch(err => {
+            console.error('Logout failed', err);
+        });
+    }
+});
 </script>
 </body>
 </html>

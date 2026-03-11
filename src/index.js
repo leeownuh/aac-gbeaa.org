@@ -163,6 +163,8 @@ startServer();
 
 module.exports = { app, server };
 
+
+
 const handleErrors = () => {
   process.on('uncaughtException', (error) => {
     logger.error('Uncaught exception', { error: error.message, stack: error.stack });
