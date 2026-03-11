@@ -106,10 +106,8 @@ router.post('/admin/login', async (req, res) => {
     const { username, password } = req.body;
     const path = require('path');
 
-    const adminData = readJSON(
-      path.join(__dirname, 'data/admin.json')
-    );
-   console.log("Admin path:", path.join(__dirname, 'data/admin.json'));
+    const adminData = readJSON(path.join(process.cwd(), 'data', 'admin.json'));
+   console.log("Admin path:", path.join(process.cwd(), 'data', 'admin.json'));
 console.log("Admin file:", adminData);
     // Check username
     if (username !== adminData.username) {
