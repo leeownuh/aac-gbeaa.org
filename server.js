@@ -67,9 +67,12 @@ const upload = multer({
 
 // Authentication middleware
 const authenticateAdmin = (req, res, next) => {
-  if (req.session && req.session.admin) {
+  try {
+    if (!req.session || !req.session.admin) throw new Error();
+    const payload = AuthService.verifyAccessToken(req.session.admin.accessToken);
+    if (!payload || payload.role !== 'admin') throw new Error();
     next();
-  } else {
+  } catch {
     res.status(401).json({ error: 'Unauthorized. Please login.' });
   }
 };
@@ -100,55 +103,39 @@ const writeJSON = (filepath, data) => {
 };
 // ==================== AUTH ROUTES ====================
 
+const AuthService = require('./src/services/authService');
+
 // Admin login
 router.post('/admin/login', async (req, res) => {
   try {
     const { username, password } = req.body;
-    const path = require('path');
-
-    const adminData = readJSON(
-      path.join(__dirname, 'data/admin.json')
-    );
-   console.log("Admin path:", path.join(__dirname, 'data/admin.json'));
-console.log("Admin file:", adminData);
-    // Check username
-    if (username !== adminData.username) {
-      return res.status(401).json({ success: false, error: 'Invalid credentials' });
-    }
-
-    // Check password
-    const passwordMatch = await bcrypt.compare(password, adminData.password);
-    console.log("Password entered:", password);
-    console.log("Hash:", adminData.password);
-    if (!passwordMatch) {
-      return res.status(401).json({ success: false, error: 'Invalid credentials' });
-    }
-
-    // Create session
-    req.session.admin = { username: adminData.username };
-
-
-    return res.json({ success: true, message: 'Login successful' });
-console.log('Session after login:', req.session);
-  } catch (error) {
-    res.status(500).json({ success: false, error: 'Login failed' });
+    const tokens = await AuthService.authenticateUser(username, password, req.ip, req.headers['user-agent']);
+    // Optionally store accessToken in session if you want
+    req.session.admin = { username, accessToken: tokens.accessToken, refreshToken: tokens.refreshToken };
+    res.json({ success: true, tokens });
+  } catch (err) {
+    res.status(401).json({ success: false, error: err.message });
   }
 });
 
 // Admin logout
-router.post('/admin/logout', (req, res) => {
-  req.session.destroy((err) => {
-    if (err) {
-      return res.status(500).json({ error: 'Logout failed' });
+router.post('/admin/logout', async (req, res) => {
+  try {
+    if (req.session && req.session.admin) {
+      await AuthService.logout(req.session.admin.refreshToken);
+      req.session.destroy(() => {});
     }
     res.json({ success: true, message: 'Logged out successfully' });
-  });
+  } catch (err) {
+    res.status(500).json({ error: 'Logout failed' });
+  }
 });
 
 // Check admin session
 router.get('/admin/check', (req, res) => {
   if (req.session && req.session.admin) {
-    res.json({ authenticated: true, username: req.session.admin.username });
+    const valid = AuthService.verifyAccessToken(req.session.admin.accessToken);
+    res.json({ authenticated: !!valid, username: req.session.admin.username });
   } else {
     res.json({ authenticated: false });
   }
