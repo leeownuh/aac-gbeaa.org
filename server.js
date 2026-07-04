@@ -15,6 +15,59 @@ const { buildSessionOptions } = require('./src/services/sessionStore');
 const router = express.Router();
 const uploadsDir = path.resolve(config.paths.uploads);
 const galleryAssetsDir = path.resolve(config.paths.galleryAssets);
+const unsafeMethods = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
+
+const getConfiguredOrigins = () => {
+  const origin = config.cors.origin;
+  if (!origin || origin === '*') {
+    return [];
+  }
+
+  if (Array.isArray(origin)) {
+    return origin;
+  }
+
+  return String(origin)
+    .split(',')
+    .map(value => value.trim())
+    .filter(Boolean);
+};
+
+const requireTrustedOrigin = (req, res, next) => {
+  if (!unsafeMethods.has(req.method)) {
+    return next();
+  }
+
+  const authorization = req.get('authorization') || '';
+  if (authorization.startsWith('Bearer ')) {
+    return next();
+  }
+
+  const source = req.get('origin') || req.get('referer');
+  if (!source) {
+    if (config.nodeEnv !== 'production') {
+      return next();
+    }
+    return res.status(403).json({ error: 'Trusted origin required' });
+  }
+
+  try {
+    const sourceOrigin = new URL(source).origin;
+    const requestOrigin = `${req.protocol}://${req.get('host')}`;
+    const allowedOrigins = new Set([
+      requestOrigin,
+      ...getConfiguredOrigins()
+    ]);
+
+    if (!allowedOrigins.has(sourceOrigin)) {
+      return res.status(403).json({ error: 'Invalid request origin' });
+    }
+
+    return next();
+  } catch {
+    return res.status(403).json({ error: 'Invalid request origin' });
+  }
+};
 
 // Middleware
 router.use(cors({
@@ -26,6 +79,7 @@ router.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Session configuration
 router.use(session(buildSessionOptions()));
+router.use(requireTrustedOrigin);
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({

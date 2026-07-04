@@ -3,6 +3,7 @@ const logger = require('../utils/logger');
 
 const buildSessionOptions = () => {
   const options = {
+    name: config.session.cookie.secure ? '__Host-aac.sid' : 'aac.sid',
     secret: config.session.secret,
     resave: config.session.resave,
     saveUninitialized: config.session.saveUninitialized,

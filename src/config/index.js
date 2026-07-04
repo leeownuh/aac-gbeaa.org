@@ -26,6 +26,7 @@ const isProduction = nodeEnv === 'production';
 const sessionCookieSecure = process.env.SESSION_COOKIE_SECURE
   ? process.env.SESSION_COOKIE_SECURE === 'true'
   : isProduction;
+const sessionCookieSameSite = process.env.SESSION_COOKIE_SAME_SITE || 'lax';
 const insecureSecretMarkers = new Set([
   'default-jwt-secret-change-in-production',
   'default-refresh-secret-change-in-production',
@@ -93,7 +94,7 @@ const config = {
     cookie: {
       secure: sessionCookieSecure,
       httpOnly: true,
-      sameSite: sessionCookieSecure ? 'none' : 'lax',
+      sameSite: sessionCookieSameSite,
       maxAge: 7 * 24 * 60 * 60 * 1000
     }
   },
