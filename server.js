@@ -148,7 +148,7 @@ const authenticateAdmin = (req, res, next) => {
       throw new Error();
     }
 
-    const role = AuthService.normalizeRole(payload.role || req.session.admin.role);
+    const role = AuthService.validateRole(payload.role || req.session.admin.role);
     req.admin = {
       username: payload.username || req.session.admin.username,
       role,
@@ -373,7 +373,7 @@ router.post('/admin/login', loginLimiter, async (req, res) => {
     const { username, password } = req.body;
     const tokens = await AuthService.authenticateUser(username, password, req.ip, req.headers['user-agent']);
     const payload = AuthService.verifyAccessToken(tokens.accessToken);
-    const role = AuthService.normalizeRole(payload?.role || tokens?.user?.role);
+    const role = AuthService.validateRole(payload?.role || tokens?.user?.role);
 
     await regenerateSession(req);
     req.session.admin = {
@@ -420,7 +420,7 @@ router.get('/admin/check', (req, res) => {
       return res.json({ authenticated: false });
     }
 
-    const role = AuthService.normalizeRole(valid.role || req.session.admin.role);
+    const role = AuthService.validateRole(valid.role || req.session.admin.role);
     req.session.admin.role = role;
     req.session.admin.requiresPasswordChange = Boolean(valid.mustChangePassword);
 
@@ -461,7 +461,7 @@ router.post('/admin/change-password', authenticateAdmin, async (req, res) => {
       req.headers['user-agent']
     );
     const payload = AuthService.verifyAccessToken(refreshedSession.accessToken);
-    const role = AuthService.normalizeRole(payload?.role || refreshedSession?.user?.role);
+    const role = AuthService.validateRole(payload?.role || refreshedSession?.user?.role);
     req.session.admin = {
       username: refreshedSession.user?.username || req.admin.username,
       role,

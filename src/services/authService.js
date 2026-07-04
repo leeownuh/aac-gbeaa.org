@@ -20,6 +20,26 @@ const ALLOWED_ROLES = new Set([
 
 const USERNAME_PATTERN = /^[a-zA-Z0-9_]{3,50}$/;
 
+const resolveRole = (role) => {
+  const value = String(role || '')
+    .trim()
+    .toLowerCase();
+
+  if (value === 'admin') {
+    return ADMIN_ROLES.SUPER;
+  }
+
+  if (value === 'viewer') {
+    return ADMIN_ROLES.MODERATOR;
+  }
+
+  if (ALLOWED_ROLES.has(value)) {
+    return value;
+  }
+
+  return null;
+};
+
 class AuthService {
   constructor() {
     this.failedAttempts = new Map();
@@ -28,29 +48,12 @@ class AuthService {
 
   // ===================== ROLE + IDENTITY HELPERS =====================
   normalizeRole(role) {
-    const value = String(role || '')
-      .trim()
-      .toLowerCase();
-
-    // Backward compatibility with older "admin" role.
-    if (value === 'admin') {
-      return ADMIN_ROLES.SUPER;
-    }
-
-    if (value === 'viewer') {
-      return ADMIN_ROLES.MODERATOR;
-    }
-
-    if (ALLOWED_ROLES.has(value)) {
-      return value;
-    }
-
-    return ADMIN_ROLES.MODERATOR;
+    return resolveRole(role) || ADMIN_ROLES.MODERATOR;
   }
 
   validateRole(role) {
-    const normalized = this.normalizeRole(role);
-    if (!ALLOWED_ROLES.has(normalized)) {
+    const normalized = resolveRole(role);
+    if (!normalized) {
       throw new Error('Invalid role');
     }
     return normalized;
@@ -222,7 +225,7 @@ class AuthService {
 
     this.clearFailedAttempts(normalizedUsername);
 
-    const role = this.normalizeRole(admin.role);
+    const role = this.validateRole(admin.role);
     const mustChangePassword = Boolean(admin.forcePasswordChange);
     const tokens = await this.generateTokens(
       {
@@ -302,7 +305,7 @@ class AuthService {
       throw new Error('Admin account not found');
     }
 
-    const role = this.normalizeRole(admin.role);
+    const role = this.validateRole(admin.role);
     const mustChangePassword = Boolean(admin.forcePasswordChange);
     const tokens = await this.generateTokens(
       {
