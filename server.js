@@ -16,6 +16,8 @@ const router = express.Router();
 const uploadsDir = path.resolve(config.paths.uploads);
 const galleryAssetsDir = path.resolve(config.paths.galleryAssets);
 const unsafeMethods = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
+const safeRouteIdPattern = /^[A-Za-z0-9_-]{1,80}$/;
+const safeGalleryFilePattern = /^[A-Za-z0-9][A-Za-z0-9_.-]{0,254}$/;
 
 const getConfiguredOrigins = () => {
   const origin = config.cors.origin;
@@ -67,6 +69,24 @@ const requireTrustedOrigin = (req, res, next) => {
   } catch {
     return res.status(403).json({ error: 'Invalid request origin' });
   }
+};
+
+const validateRouteId = (paramName = 'id') => (req, res, next) => {
+  const value = String(req.params[paramName] || '');
+  if (!safeRouteIdPattern.test(value)) {
+    return res.status(400).json({ error: 'Invalid ID format' });
+  }
+  req.params[paramName] = value;
+  return next();
+};
+
+const validateGalleryFile = (req, res, next) => {
+  const file = String(req.params.file || '');
+  if (!safeGalleryFilePattern.test(file) || file.includes('..')) {
+    return res.status(400).json({ error: 'Invalid gallery file' });
+  }
+  req.params.file = file;
+  return next();
 };
 
 // Middleware
@@ -603,7 +623,7 @@ router.get('/admin/changes/recent', authenticateAdmin, requirePasswordChangeComp
   }
 });
 
-router.post('/admin/changes/:id/approve', authenticateAdmin, requirePasswordChangeComplete, requireModeratorApproval, async (req, res) => {
+router.post('/admin/changes/:id/approve', validateRouteId(), authenticateAdmin, requirePasswordChangeComplete, requireModeratorApproval, async (req, res) => {
   try {
     const changeRequest = await changeRequestRepository.getChangeRequestById(req.params.id);
     if (!changeRequest) {
@@ -634,7 +654,7 @@ router.post('/admin/changes/:id/approve', authenticateAdmin, requirePasswordChan
   }
 });
 
-router.post('/admin/changes/:id/reject', authenticateAdmin, requirePasswordChangeComplete, requireModeratorApproval, async (req, res) => {
+router.post('/admin/changes/:id/reject', validateRouteId(), authenticateAdmin, requirePasswordChangeComplete, requireModeratorApproval, async (req, res) => {
   try {
     const changeRequest = await changeRequestRepository.getChangeRequestById(req.params.id);
     if (!changeRequest) {
@@ -705,7 +725,7 @@ router.get('/articles', async (req, res) => {
   }
 });
 
-router.get('/articles/:id', async (req, res) => {
+router.get('/articles/:id', validateRouteId(), async (req, res) => {
   try {
     const article = await contentRepository.getArticleById(req.params.id);
     if (article) {
@@ -772,7 +792,7 @@ router.post('/articles', authenticateAdmin, requirePasswordChangeComplete, requi
   }
 });
 
-router.put('/articles/:id', authenticateAdmin, requirePasswordChangeComplete, requireContentWriteAccess, async (req, res) => {
+router.put('/articles/:id', validateRouteId(), authenticateAdmin, requirePasswordChangeComplete, requireContentWriteAccess, async (req, res) => {
   try {
     const existing = await contentRepository.getArticleById(req.params.id);
     if (!existing) {
@@ -819,7 +839,7 @@ router.put('/articles/:id', authenticateAdmin, requirePasswordChangeComplete, re
   }
 });
 
-router.delete('/articles/:id', authenticateAdmin, requirePasswordChangeComplete, requireContentWriteAccess, async (req, res) => {
+router.delete('/articles/:id', validateRouteId(), authenticateAdmin, requirePasswordChangeComplete, requireContentWriteAccess, async (req, res) => {
   try {
     if (req.admin.role === ADMIN_ROLES.EDITOR) {
       const existing = await contentRepository.getArticleById(req.params.id);
@@ -866,7 +886,7 @@ router.get('/events', async (req, res) => {
   }
 });
 
-router.get('/events/:id', async (req, res) => {
+router.get('/events/:id', validateRouteId(), async (req, res) => {
   try {
     const event = await contentRepository.getEventById(req.params.id);
     if (event) {
@@ -944,7 +964,7 @@ router.post('/events', authenticateAdmin, requirePasswordChangeComplete, require
   }
 });
 
-router.put('/events/:id', authenticateAdmin, requirePasswordChangeComplete, requireContentWriteAccess, upload.single('image'), async (req, res) => {
+router.put('/events/:id', validateRouteId(), authenticateAdmin, requirePasswordChangeComplete, requireContentWriteAccess, upload.single('image'), async (req, res) => {
   try {
     const existing = await contentRepository.getEventById(req.params.id);
     if (!existing) {
@@ -996,7 +1016,7 @@ router.put('/events/:id', authenticateAdmin, requirePasswordChangeComplete, requ
   }
 });
 
-router.delete('/events/:id', authenticateAdmin, requirePasswordChangeComplete, requireContentWriteAccess, async (req, res) => {
+router.delete('/events/:id', validateRouteId(), authenticateAdmin, requirePasswordChangeComplete, requireContentWriteAccess, async (req, res) => {
   try {
     if (req.admin.role === ADMIN_ROLES.EDITOR) {
       const existing = await contentRepository.getEventById(req.params.id);
@@ -1133,7 +1153,7 @@ router.get('/gallery/count', async (req, res) => {
   }
 });
 
-router.delete('/gallery/:file', authenticateAdmin, requirePasswordChangeComplete, requireContentWriteAccess, async (req, res) => {
+router.delete('/gallery/:file', validateGalleryFile, authenticateAdmin, requirePasswordChangeComplete, requireContentWriteAccess, async (req, res) => {
   try {
     if (req.admin.role === ADMIN_ROLES.EDITOR) {
       const queued = await queueChangeRequest(req, {

@@ -576,7 +576,7 @@
             container.innerHTML = gallery.map(item => {
 
                 const imgPath =
-                    `/assets/images/gallery/${item.category}/${item.file}`;
+                    `/assets/images/gallery/${encodeURIComponent(item.category || "")}/${encodeURIComponent(item.file || "")}`;
 
                 return `
         <div class="gallery-item">
@@ -595,17 +595,18 @@
 
                 <div class="gallery-meta">
                     <span class="gallery-category">
-                        ${item.category}
+                        ${escapeHtml(item.category || "")}
                     </span>
 
                     <span class="gallery-date">
-                        ${item.date || ""}
+                        ${escapeHtml(item.date || "")}
                     </span>
                 </div>
 
                 <button
                 class="delete-btn"
-                onclick="deleteImage('${item.file}')">
+                data-file="${escapeAttr(item.file || "")}"
+                onclick="deleteImage(this.dataset.file)">
                     Delete
                 </button>
 
@@ -694,7 +695,7 @@
 
             if (!confirm("Delete image?")) return;
 
-            fetch(`/api/gallery/${file}`, {
+            fetch(`/api/gallery/${encodeURIComponent(file)}`, {
                 method: "DELETE",
                 credentials: 'include'
             })
@@ -741,6 +742,15 @@
             const div = document.createElement("div");
             div.textContent = text;
             return div.innerHTML;
+        }
+
+        function escapeAttr(text) {
+            return String(text || "")
+                .replace(/&/g, "&amp;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#39;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;");
         }
 
         /* ESC KEY CLOSE */
