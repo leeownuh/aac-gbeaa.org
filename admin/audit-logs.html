@@ -49,13 +49,13 @@
         <p>Admin Panel</p>
       </div>
       <ul class="nav-menu">
-        <li><a href="dashboard.html">Dashboard</a></li>
-        <li><a href="articles.html">Articles</a></li>
-        <li><a href="events.html">Events</a></li>
-        <li><a href="gallery.html">Gallery</a></li>
-        <li><a href="approvals.html">Moderation Queue</a></li>
-        <li><a href="audit-logs.html" class="active">Audit Logs</a></li>
-        <li><a href="accounts.html">Account Management</a></li>
+        <li><a href="/admin/dashboard">Dashboard</a></li>
+        <li><a href="/admin/articles">Articles</a></li>
+        <li><a href="/admin/events">Events</a></li>
+        <li><a href="/admin/gallery">Gallery</a></li>
+        <li><a href="/admin/approvals">Moderation Queue</a></li>
+        <li><a href="/admin/audit-logs" class="active">Audit Logs</a></li>
+        <li><a href="/admin/accounts">Account Management</a></li>
       </ul>
       <button class="logout-btn" id="logoutBtn">Logout</button>
     </div>
@@ -192,11 +192,11 @@
       .then(r => r.json())
       .then((data) => {
         if (!data.authenticated) {
-          window.location.href = 'login.html';
+          window.location.href = '/admin/login';
           return;
         }
         if (data.requiresPasswordChange) {
-          window.location.href = 'change-password.html';
+          window.location.href = '/admin/change-password';
           return;
         }
         if (!(data.permissions && data.permissions.canViewAuditLogs)) {
@@ -207,7 +207,7 @@
         loadLogs();
       })
       .catch(() => {
-        window.location.href = 'login.html';
+        window.location.href = '/admin/login';
       });
 
     document.getElementById('applyFiltersBtn').addEventListener('click', loadLogs);
@@ -223,7 +223,7 @@
       if (!confirm('Are you sure you want to logout?')) return;
       fetch('/api/admin/logout', { method: 'POST', credentials: 'include' })
         .finally(() => {
-          window.location.href = 'login.html';
+          window.location.href = '/admin/login';
         });
     });
   </script>

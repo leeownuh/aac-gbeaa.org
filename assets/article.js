@@ -52,7 +52,7 @@ function renderPosts(page = 1) {
         <div class="card-blog-1 rounded-2 overflow-hidden bg-white shadow-1 hover-up">
           <div class="card-body p-4">
             <h5 class="font-body text-dark fs-5 lh-base">
-              <a href="blog-details.html?id=${post.id}">${post.title}</a>
+              <a href="/blog-details?id=${post.id}">${post.title}</a>
             </h5>
             <div class="meta-1 fs-7 mb-3">
               <span class="author">by ${post.author}</span><br>
@@ -60,7 +60,7 @@ function renderPosts(page = 1) {
               <span class="badge bg-primary ms-2">${post.category}</span>
             </div>
             <p class="fs-7 mb-4 text-dark">${post.excerpt}</p>
-            <a href="blog-details.html?id=${post.id}" class="text-decoration-underline fs-7">Read More</a>
+            <a href="/blog-details?id=${post.id}" class="text-decoration-underline fs-7">Read More</a>
           </div>
         </div>
       </div>
@@ -123,17 +123,17 @@ function renderBlogPosts() {
             <div class="card-blog-1 mb-4 mb-lg-0 rounded-2 overflow-hidden bg-white shadow-1 hover-up">
                 <div class="card-body p-4">
                     <h5 class="font-body text-dark fs-5 lh-base">
-                        <a href="blog-details.html?id=${post.id}">${post.title}</a>
+                        <a href="/blog-details?id=${post.id}">${post.title}</a>
                     </h5>
                     <div class="meta-1 fs-7 mb-3">
                         <span class="author">
-                            by <a href="blog-details.html?id=${post.id}" class="text-decoration-underline">${post.author}</a>
+                            by <a href="/blog-details?id=${post.id}" class="text-decoration-underline">${post.author}</a>
                         </span>
                         <span class="date ms-1">${post.date}</span>
                         <span class="badge bg-primary ms-2">${post.category.toUpperCase()}</span>
                     </div>
                     <p class="fs-7 mb-4 text-dark">${post.excerpt}</p>
-                    <a href="blog-details.html?id=${post.id}" class="text-decoration-underline fs-7">Read More</a>
+                    <a href="/blog-details?id=${post.id}" class="text-decoration-underline fs-7">Read More</a>
                 </div>
             </div>
         </div>
@@ -192,7 +192,7 @@ const index = posts.findIndex(p => String(p.id) === String(postId));
 // Previous post
 const prevPost = posts[index - 1];
 if (prevPost) {
-  document.getElementById("prev-link").href = `blog-details.html?id=${prevPost.id}`;
+  document.getElementById("prev-link").href = `/blog-details?id=${prevPost.id}`;
   document.getElementById("prev-title").textContent = prevPost.title;
 } else {
   document.getElementById("prev-link").style.display = "none";
@@ -201,7 +201,7 @@ if (prevPost) {
 // Next post
 const nextPost = posts[index + 1];
 if (nextPost) {
-  document.getElementById("next-link").href = `blog-details.html?id=${nextPost.id}`;
+  document.getElementById("next-link").href = `/blog-details?id=${nextPost.id}`;
   document.getElementById("next-title").textContent = nextPost.title;
 } else {
   document.getElementById("next-link").style.display = "none";

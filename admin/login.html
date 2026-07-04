@@ -160,7 +160,7 @@
         </form>
 
         <div class="back-link">
-            <a href="../index.html">← Back to Website</a>
+            <a href="/">← Back to Website</a>
         </div>
     </div>
 
@@ -176,7 +176,7 @@ fetch('/api/admin/check', {
 .then(response => response.json())
 .then(data => {
     if (data.authenticated) {
-        window.location.href = data.requiresPasswordChange ? 'change-password.html' : 'dashboard.html';
+        window.location.href = data.requiresPasswordChange ? '/admin/change-password' : '/admin/dashboard';
     }
 });
 
@@ -211,7 +211,7 @@ loginForm.addEventListener('submit', async (e) => {
 
             setTimeout(() => {
                 const requiresPasswordChange = Boolean(result.user && result.user.requiresPasswordChange);
-                window.location.href = requiresPasswordChange ? 'change-password.html' : 'dashboard.html';
+                window.location.href = requiresPasswordChange ? '/admin/change-password' : '/admin/dashboard';
             }, 1000);
 
         } else {
@@ -236,7 +236,7 @@ if (logoutBtn) {
                 credentials: 'include'  // important for session cookies
             })
             .then(() => {
-                window.location.href = 'login.html';
+                window.location.href = '/admin/login';
             })
             .catch(err => {
                 console.error('Logout failed', err);

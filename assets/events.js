@@ -137,7 +137,7 @@ document.addEventListener('DOMContentLoaded', function () {
           <div class="content-event rounded p-3 d-flex flex-column h-100">
             <span class="badge bg-primary mb-2">${event.category}</span>
             <h4 class="mt-2 fw-medium">
-              <a href="event-details.html?id=${event.id}">${event.title}</a>
+              <a href="/event-details?id=${event.id}">${event.title}</a>
             </h4>
             <p class="content-p pb-2">${event.description}</p>
             <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between">
@@ -146,7 +146,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 <p class="location fs-8"><i data-feather="map-pin" class="size-12"></i> <span>${event.location}</span></p>
               </div>
               <div class="button mb-2">
-                <a href="event-details.html?id=${event.id}" class="d-inline-flex rounded-5 tc-btn-md fs-8 text-center">
+                <a href="/event-details?id=${event.id}" class="d-inline-flex rounded-5 tc-btn-md fs-8 text-center">
                   <span>View Details</span><i data-feather="arrow-right" class="size-12"></i>
                 </a>
               </div>
@@ -198,7 +198,7 @@ document.addEventListener('DOMContentLoaded', function () {
             </div>
             <div class="content">
               <p class="fs-6 mb-1">
-                <a href="event-details.html?id=${event.id}" class="text-black">${event.title}</a>
+                <a href="/event-details?id=${event.id}" class="text-black">${event.title}</a>
               </p>
               <span class="event-meta fs-8">
                 <i class="fa fa-clock me-1"></i>
@@ -238,11 +238,11 @@ document.addEventListener('DOMContentLoaded', function () {
           <div class="titles ms-lg-4">
             <div class="cat text-uppercase fs-8 mb-1"><span>${event.category}</span></div>
             <h5 class="title fs-5 mb-3">
-              <a href="event-details.html?id=${event.id}" class="fs-5 text-dark text-hover-primary font-body fw-normal">${event.title}</a>
+              <a href="/event-details?id=${event.id}" class="fs-5 text-dark text-hover-primary font-body fw-normal">${event.title}</a>
             </h5>
             <p class="time fs-8 mb-1"><i class="size-12" data-feather="clock"></i> <span>${event.time}</span></p>
             <p class="location fs-8"><i class="size-12" data-feather="map-pin"></i> <span>${event.location}</span></p>
-            <a href="event-details.html?id=${event.id}" class="d-inline-flex rounded-5 tc-btn-xs fs-8">
+            <a href="/event-details?id=${event.id}" class="d-inline-flex rounded-5 tc-btn-xs fs-8">
               <span>More Info</span> <i data-feather="arrow-right" class="size-12"></i>
             </a>
           </div>

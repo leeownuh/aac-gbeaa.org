@@ -359,13 +359,13 @@
 </div>
 
 <ul class="nav-menu">
-<li><a href="dashboard.html">📊 Dashboard</a></li>
-<li><a href="articles.html" class="active">📝 Articles</a></li>
-<li><a href="events.html">📅 Events</a></li>
-<li><a href="gallery.html">🖼️ Gallery</a></li>
-<li><a href="approvals.html">Moderation Queue</a></li>
-<li><a href="audit-logs.html">Audit Logs</a></li>
-<li><a href="accounts.html">Account Management</a></li>
+<li><a href="/admin/dashboard">📊 Dashboard</a></li>
+<li><a href="/admin/articles" class="active">📝 Articles</a></li>
+<li><a href="/admin/events">📅 Events</a></li>
+<li><a href="/admin/gallery">🖼️ Gallery</a></li>
+<li><a href="/admin/approvals">Moderation Queue</a></li>
+<li><a href="/admin/audit-logs">Audit Logs</a></li>
+<li><a href="/admin/accounts">Account Management</a></li>
 </ul>
 
 <button class="logout-btn" onclick="logout()">🚪 Logout</button>
@@ -448,10 +448,10 @@ fetch('/api/admin/check',{credentials:'include'})
 .then(r=>r.json())
 .then(d=>{
 if(!d.authenticated){
-window.location.href='login.html';
+window.location.href='/admin/login';
 }else{
 if(d.requiresPasswordChange){
-window.location.href='change-password.html';
+window.location.href='/admin/change-password';
 return;
 }
 loadArticles();
@@ -600,7 +600,7 @@ fetch('/api/admin/logout',{
 method:'POST',
 credentials:'include'
 })
-.then(()=>location.href="login.html");
+.then(()=>location.href="/admin/login");
 }
 
 // Add this to your JS file that runs after the DOM is ready
@@ -611,7 +611,7 @@ document.getElementById('logoutBtn').addEventListener('click', () => {
             credentials: 'include'  // important for session cookies
         })
         .then(() => {
-            window.location.href = 'login.html';
+            window.location.href = '/admin/login';
         })
         .catch(err => {
             console.error('Logout failed', err);

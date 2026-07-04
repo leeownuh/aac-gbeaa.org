@@ -38,14 +38,14 @@ document.addEventListener("DOMContentLoaded", function () {
         <div class="postion-relative">
             <div class="project__item-four">
                 <div class="project__thumb-four">
-                    <a href="why-we-do-what-we-do.html?id=${item.id}">
+                    <a href="/why-we-do-what-we-do?id=${item.id}">
                         <img src="${imagePath}" alt="${item.title}">
                     </a>
                 </div>
                 <div class="project__content-four">
                     <div class="left-content">
                         <h4 class="title text-white">
-                            <a href="why-we-do-what-we-do.html?id=${item.id}">
+                            <a href="/why-we-do-what-we-do?id=${item.id}">
                                 ${item.title}
                             </a>
                         </h4>
@@ -55,7 +55,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         <span>${references}</span>
                     </div>
                     <div class="more-details d-flex gap-2 mt-4">
-                        <a href="why-we-do-what-we-do.html?id=${item.id}"
+                        <a href="/why-we-do-what-we-do?id=${item.id}"
                             class="btn d-flex gap-1 btn-rounded-1">
                             <span>View Details</span>
                             <svg xmlns="http://www.w3.org/2000/svg"
@@ -135,13 +135,13 @@ document.addEventListener("DOMContentLoaded", function () {
             if (postIndex > 0 && prevTitle && prevLink) {
                 const prev = posts[postIndex - 1];
                 prevTitle.textContent = prev.title;
-                prevLink.href = `why-we-do-what-we-do.html?id=${prev.id}`;
+                prevLink.href = `/why-we-do-what-we-do?id=${prev.id}`;
             }
 
             if (postIndex < posts.length - 1 && nextTitle && nextLink) {
                 const next = posts[postIndex + 1];
                 nextTitle.textContent = next.title;
-                nextLink.href = `why-we-do-what-we-do.html?id=${next.id}`;
+                nextLink.href = `/why-we-do-what-we-do?id=${next.id}`;
             }
         })
         .catch(err => console.error("Error loading article:", err));

@@ -86,6 +86,17 @@ const configureMiddleware = () => {
   app.use('/api/', apiLimiter);
 
   if (config.app.serveStatic) {
+    app.use((req, res, next) => {
+      const isAssetPath = /^\/(?:api|assets|img|data|uploads)\//.test(req.path);
+      if (req.method === 'GET' && !isAssetPath && req.path.endsWith('.html')) {
+        const cleanPath = req.path === '/index.html'
+          ? '/'
+          : req.path.replace(/\.html$/, '');
+        return res.redirect(301, cleanPath);
+      }
+      return next();
+    });
+
     app.use(express.static(config.app.staticRoot, {
       maxAge: '1d',
       etag: true
@@ -134,6 +145,44 @@ const configureRoutes = () => {
     }
 
     res.json({ message: 'CMS API Server', version: '1.0.0' });
+  });
+
+  app.get(/^\/(.+)\.html$/, (req, res, next) => {
+    if (!config.app.serveStatic) {
+      return next();
+    }
+
+    const cleanPath = req.path === '/index.html'
+      ? '/'
+      : req.path.replace(/\.html$/, '');
+    return res.redirect(301, cleanPath);
+  });
+
+  app.get('*', (req, res, next) => {
+    if (!config.app.serveStatic || path.extname(req.path)) {
+      return next();
+    }
+
+    let requestedPath;
+    try {
+      requestedPath = path.normalize(decodeURIComponent(req.path)).replace(/^(\.\.[/\\])+/, '');
+    } catch {
+      return next();
+    }
+
+    const htmlPath = path.join(config.app.staticRoot, `${requestedPath}.html`);
+    const staticRoot = path.resolve(config.app.staticRoot);
+    const resolvedHtmlPath = path.resolve(htmlPath);
+
+    if (!resolvedHtmlPath.startsWith(staticRoot + path.sep) && resolvedHtmlPath !== path.join(staticRoot, 'index.html')) {
+      return next();
+    }
+
+    if (fs.existsSync(resolvedHtmlPath)) {
+      return res.sendFile(resolvedHtmlPath);
+    }
+
+    return next();
   });
 
   app.use(notFoundHandler);

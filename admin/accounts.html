@@ -53,13 +53,13 @@
         <p>Admin Panel</p>
       </div>
       <ul class="nav-menu">
-        <li><a href="dashboard.html">Dashboard</a></li>
-        <li><a href="articles.html">Articles</a></li>
-        <li><a href="events.html">Events</a></li>
-        <li><a href="gallery.html">Gallery</a></li>
-        <li><a href="approvals.html">Moderation Queue</a></li>
-        <li><a href="audit-logs.html">Audit Logs</a></li>
-        <li><a href="accounts.html" class="active">Account Management</a></li>
+        <li><a href="/admin/dashboard">Dashboard</a></li>
+        <li><a href="/admin/articles">Articles</a></li>
+        <li><a href="/admin/events">Events</a></li>
+        <li><a href="/admin/gallery">Gallery</a></li>
+        <li><a href="/admin/approvals">Moderation Queue</a></li>
+        <li><a href="/admin/audit-logs">Audit Logs</a></li>
+        <li><a href="/admin/accounts" class="active">Account Management</a></li>
       </ul>
       <button class="logout-btn" id="logoutBtn">Logout</button>
     </div>
@@ -158,7 +158,7 @@
         .then(r => r.json())
         .then((data) => {
           if (!data.authenticated) {
-            window.location.href = 'login.html';
+            window.location.href = '/admin/login';
             throw new Error('Not authenticated');
           }
 
@@ -167,7 +167,7 @@
           document.getElementById('whoami').textContent = `Signed in as ${data.username} (${role})`;
 
           if (data.requiresPasswordChange) {
-            window.location.href = 'change-password.html';
+            window.location.href = '/admin/change-password';
             throw new Error('Password change required');
           }
 
@@ -339,7 +339,7 @@
         method: 'POST',
         credentials: 'include'
       }).finally(() => {
-        window.location.href = 'login.html';
+        window.location.href = '/admin/login';
       });
     });
 

@@ -59,13 +59,13 @@
       </div>
 
       <ul class="nav-menu">
-        <li><a href="dashboard.html" class="active">Dashboard</a></li>
-        <li><a href="articles.html">Articles</a></li>
-        <li><a href="events.html">Events</a></li>
-        <li><a href="gallery.html">Gallery</a></li>
-        <li><a href="approvals.html">Moderation Queue</a></li>
-        <li><a href="audit-logs.html" id="auditNavLink" style="display:none">Audit Logs</a></li>
-        <li><a href="accounts.html" id="accountsNavLink" style="display:none">Account Management</a></li>
+        <li><a href="/admin/dashboard" class="active">Dashboard</a></li>
+        <li><a href="/admin/articles">Articles</a></li>
+        <li><a href="/admin/events">Events</a></li>
+        <li><a href="/admin/gallery">Gallery</a></li>
+        <li><a href="/admin/approvals">Moderation Queue</a></li>
+        <li><a href="/admin/audit-logs" id="auditNavLink" style="display:none">Audit Logs</a></li>
+        <li><a href="/admin/accounts" id="accountsNavLink" style="display:none">Account Management</a></li>
       </ul>
 
       <button class="logout-btn" id="logoutBtn">Logout</button>
@@ -98,11 +98,11 @@
         <div class="card">
           <h2>Quick Actions</h2>
           <div class="actions">
-            <a href="articles.html" class="btn btn-primary content-action">Add New Article</a>
-            <a href="events.html" class="btn btn-primary content-action">Add New Event</a>
-            <a href="gallery.html" class="btn btn-primary content-action">Upload Image</a>
-            <a href="accounts.html" class="btn btn-primary" id="manageUsersAction" style="display:none">Manage Accounts</a>
-            <a href="../index.html" class="btn btn-secondary">View Website</a>
+            <a href="/admin/articles" class="btn btn-primary content-action">Add New Article</a>
+            <a href="/admin/events" class="btn btn-primary content-action">Add New Event</a>
+            <a href="/admin/gallery" class="btn btn-primary content-action">Upload Image</a>
+            <a href="/admin/accounts" class="btn btn-primary" id="manageUsersAction" style="display:none">Manage Accounts</a>
+            <a href="/" class="btn btn-secondary">View Website</a>
           </div>
         </div>
       </div>
@@ -114,12 +114,12 @@
       .then(response => response.json())
       .then(data => {
         if (!data.authenticated) {
-          window.location.href = 'login.html';
+          window.location.href = '/admin/login';
           return;
         }
 
         if (data.requiresPasswordChange) {
-          window.location.href = 'change-password.html';
+          window.location.href = '/admin/change-password';
           return;
         }
 
@@ -148,7 +148,7 @@
         loadDashboard();
       })
       .catch(() => {
-        window.location.href = 'login.html';
+        window.location.href = '/admin/login';
       });
 
     function loadDashboard() {
@@ -177,7 +177,7 @@
           credentials: 'include'
         })
           .then(() => {
-            window.location.href = 'login.html';
+            window.location.href = '/admin/login';
           })
           .catch(err => {
             console.error('Logout failed', err);

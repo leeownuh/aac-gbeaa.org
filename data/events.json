@@ -38,7 +38,7 @@
     "time": "2025-05-30 to 2025-06-01",
     "location": "Guvambwa",
     "image": "/assets/images/event-details/img-event-details-sec-1.png",
-    "details_url": "event-details.html",
+    "details_url": "/event-details",
     "category": "Holy Communion"
   },
   {
@@ -50,7 +50,7 @@
     "time": "2025-06-27 to 2025-06-29",
     "location": "Nyahukwe - Manicaland",
     "image": "/assets/images/event-details/img-event-details-sec-1.png",
-    "details_url": "event-details.html",
+    "details_url": "/event-details",
     "category": "Holy Communion"
   },
   {
@@ -62,7 +62,7 @@
     "time": "2025-08-22 to 2025-08-24",
     "location": "Ndarikure - Midlands",
     "image": "/assets/images/event-details/img-event-details-sec-1.png",
-    "details_url": "event-details.html",
+    "details_url": "/event-details",
     "category": "Holy Communion"
   },
   {
@@ -74,7 +74,7 @@
     "time": "2025-09-26 to 2025-09-28",
     "location": "Nzvimbo - Chiweshe",
     "image": "/assets/images/event-details/img-event-details-sec-1.png",
-    "details_url": "event-details.html",
+    "details_url": "/event-details",
     "category": "Holy Communion"
   },
   {
@@ -86,7 +86,7 @@
     "time": "2025-10-24 to 2025-10-26",
     "location": "Maungwa - Masvingo East",
     "image": "/assets/images/event-details/img-event-details-sec-1.png",
-    "details_url": "event-details.html",
+    "details_url": "/event-details",
     "category": "Holy Communion"
   }
 ]
