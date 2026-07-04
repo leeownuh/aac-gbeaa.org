@@ -29,10 +29,12 @@ class AuthController {
         success: true,
         message: 'Login successful',
         data: {
-          accessToken: tokens.accessToken
+          accessToken: tokens.accessToken,
+          user: tokens.user
         }
       });
     } catch (error) {
+      intrusionDetection.trackFailedLogin(req.ip, req.body?.username || 'unknown');
       logger.error('Login failed', {
         username: req.body.username,
         error: error.message,
@@ -143,7 +145,15 @@ class AuthController {
         });
       }
 
-      logger.info('Password change requested', { userId });
+      await authService.changePassword(
+        req.user.username,
+        currentPassword,
+        newPassword,
+        req.ip,
+        req.get('user-agent')
+      );
+
+      logger.info('Password changed', { userId, ip: req.ip });
 
       res.json({
         success: true,
@@ -151,6 +161,12 @@ class AuthController {
       });
     } catch (error) {
       logger.error('Failed to change password', { error: error.message });
+      if (error.message === 'Current password is incorrect' || error.message === 'New password must be different from current password') {
+        return res.status(400).json({
+          success: false,
+          error: error.message
+        });
+      }
       res.status(500).json({
         success: false,
         error: 'Failed to change password'

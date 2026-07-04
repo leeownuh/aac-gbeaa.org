@@ -7,20 +7,19 @@ const helmet = require('helmet');
 const cors = require('cors');
 const config = require('./config');
 const logger = require('./utils/logger');
-const cache = require('./storage/cache');
+const db = require('./db');
 const fileLock = require('./utils/fileLock');
 const authService = require('./services/authService');
-const routes = require('./routes');
+const v2Routes = require('./routes');
 const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
 const { logRequest } = require('./middleware/auth');
 const { apiLimiter } = require('./middleware/rateLimiter');
-const apiRoutes = require('../server');
-const cmsRoutes = require('../server');
+const legacyRoutes = require('../server');
 
 const app = express();
 const server = http.createServer(app);
-app.set('trust proxy', 1);
-app.use('/api', apiRoutes);
+app.set('trust proxy', config.app.trustProxyHops);
+let appConfigured = false;
 
 const ensureDirectories = () => {
   const dirs = [
@@ -29,7 +28,8 @@ const ensureDirectories = () => {
     config.paths.backups,
     config.paths.logs,
     config.paths.storage,
-    config.paths.uploads
+    config.paths.uploads,
+    config.paths.galleryAssets
   ];
 
   dirs.forEach(dir => {
@@ -85,29 +85,71 @@ const configureMiddleware = () => {
   app.use(logRequest);
   app.use('/api/', apiLimiter);
 
-  // Serve static files from the root directory (where HTML, CSS, JS, images are)
-  const rootPath = path.resolve('.');
-  app.use(express.static(rootPath, {
-    maxAge: '1d',
-    etag: true
-  }));
-  logger.info(`Serving static files from: ${rootPath}`);
+  if (config.app.serveStatic) {
+    app.use(express.static(config.app.staticRoot, {
+      maxAge: '1d',
+      etag: true
+    }));
+    logger.info(`Serving static files from: ${config.app.staticRoot}`);
+  } else {
+    logger.info('Static file serving disabled for API tier mode');
+  }
 };
 
 const configureRoutes = () => {
-  app.use('/api', routes);
-  app.use('/api', cmsRoutes);
-  app.get('/', (req, res) => {
-    const indexPath = path.resolve('index.html');
-    if (fs.existsSync(indexPath)) {
-      return res.sendFile(indexPath);
+  app.use('/api', legacyRoutes);
+  app.use('/api/v2', v2Routes);
+  app.get('/api/health', (req, res) => {
+    res.json({
+      success: true,
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime()
+    });
+  });
+  app.get('/api/ready', async (req, res) => {
+    try {
+      await db.healthCheck();
+      res.json({
+        success: true,
+        status: 'ready',
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      logger.error('Readiness check failed', { error: error.message });
+      res.status(503).json({
+        success: false,
+        status: 'not_ready',
+        error: 'Database unavailable'
+      });
     }
+  });
+
+  app.get('/', (req, res) => {
+    if (config.app.serveStatic) {
+      const indexPath = path.join(config.app.staticRoot, 'index.html');
+      if (fs.existsSync(indexPath)) {
+        return res.sendFile(indexPath);
+      }
+    }
+
     res.json({ message: 'CMS API Server', version: '1.0.0' });
   });
 
   app.use(notFoundHandler);
   app.use(errorHandler);
 };
+
+const configureApp = () => {
+  if (appConfigured) {
+    return;
+  }
+
+  configureMiddleware();
+  configureRoutes();
+  appConfigured = true;
+};
+
 const handleGracefulShutdown = () => {
   if (config.nodeEnv !== 'production') return;
 
@@ -116,6 +158,13 @@ const handleGracefulShutdown = () => {
     
     server.close(async () => {
       logger.info('HTTP server closed');
+      try {
+        await db.close();
+        logger.info('PostgreSQL pool closed');
+      } catch (err) {
+        logger.error('Error closing PostgreSQL pool', { error: err.message });
+      }
+
       try {
         await fileLock.cleanup();
         logger.info('File locks cleaned up');
@@ -135,15 +184,26 @@ const handleGracefulShutdown = () => {
   process.on('SIGINT', () => shutdown('SIGINT'));
 };
 
+const handleErrors = () => {
+  process.on('uncaughtException', (error) => {
+    logger.error('Uncaught exception', { error: error.message, stack: error.stack });
+    process.exit(1);
+  });
+
+  process.on('unhandledRejection', (reason, promise) => {
+    logger.error('Unhandled rejection', { reason, promise });
+    process.exit(1);
+  });
+};
+
 // start server
 const startServer = async () => {
   try {
     logger.info('Starting server initialization...');
     ensureDirectories();
-    await cache.initialize();
+    await db.initialize();
     await authService.initialize();
-    configureMiddleware();
-    configureRoutes();
+    configureApp();
     handleGracefulShutdown();
     handleErrors();
 
@@ -159,20 +219,10 @@ const startServer = async () => {
   }
 };
 
-startServer();
+configureApp();
 
-module.exports = { app, server };
+if (require.main === module) {
+  startServer();
+}
 
-
-
-const handleErrors = () => {
-  process.on('uncaughtException', (error) => {
-    logger.error('Uncaught exception', { error: error.message, stack: error.stack });
-    process.exit(1);
-  });
-
-  process.on('unhandledRejection', (reason, promise) => {
-    logger.error('Unhandled rejection', { reason, promise });
-    process.exit(1);
-  });
-};
+module.exports = { app, server, startServer, configureApp };

@@ -1,14 +1,21 @@
 const { v4: uuidv4 } = require('uuid');
 const logger = require('../utils/logger');
-const cache = require('../storage/cache');
 const { validate } = require('../schemas');
 const intrusionDetection = require('../services/intrusionDetection');
+const contentRepository = require('../db/repositories/contentRepository');
+
+const generateExcerpt = (text, length = 150) => {
+  if (!text || typeof text !== 'string') {
+    return '';
+  }
+  return text.length > length ? `${text.slice(0, length)}...` : text;
+};
 
 class ArticleController {
   async getAllArticles(req, res) {
     try {
-      const articles = cache.get('article.json', []);
-      
+      const articles = await contentRepository.getAllArticles();
+
       res.json({
         success: true,
         data: articles
@@ -25,8 +32,7 @@ class ArticleController {
   async getArticleById(req, res) {
     try {
       const { id } = req.params;
-      const articles = cache.get('article.json', []);
-      const article = articles.find(a => a.id === id);
+      const article = await contentRepository.getArticleById(id);
 
       if (!article) {
         return res.status(404).json({
@@ -59,9 +65,11 @@ class ArticleController {
         content,
         author,
         category,
-        tags: tags || [],
-        imageUrl,
+        tags: Array.isArray(tags) ? tags : [],
+        imageUrl: imageUrl || null,
+        excerpt: generateExcerpt(content),
         published: false,
+        date: new Date().toISOString().slice(0, 10),
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       };
@@ -75,20 +83,17 @@ class ArticleController {
         });
       }
 
-      await cache.update('article.json', (articles) => {
-        articles.push(article);
-        return articles;
-      }, 'article');
+      const savedArticle = await contentRepository.createArticle(article);
 
       logger.info('Article created', {
-        articleId: article.id,
+        articleId: savedArticle.id,
         userId
       });
 
       res.status(201).json({
         success: true,
         message: 'Article created successfully',
-        data: article
+        data: savedArticle
       });
     } catch (error) {
       logger.error('Failed to create article', { error: error.message });
@@ -103,46 +108,41 @@ class ArticleController {
     try {
       const { id } = req.params;
       const updates = req.body;
+      const existing = await contentRepository.getArticleById(id);
 
-      const articles = await cache.update('article.json', (articles) => {
-        const index = articles.findIndex(a => a.id === id);
-        
-        if (index === -1) {
-          throw new Error('Article not found');
-        }
-
-        const updatedArticle = {
-          ...articles[index],
-          ...updates,
-          id: articles[index].id,
-          createdAt: articles[index].createdAt,
-          updatedAt: new Date().toISOString()
-        };
-
-        const result = validate('article', updatedArticle);
-        if (!result.valid) {
-          throw new Error(JSON.stringify(result.errors));
-        }
-
-        articles[index] = updatedArticle;
-        return articles;
-      }, 'article');
-
-      const article = articles.find(a => a.id === id);
-
-      res.json({
-        success: true,
-        message: 'Article updated successfully',
-        data: article
-      });
-    } catch (error) {
-      if (error.message === 'Article not found') {
+      if (!existing) {
         return res.status(404).json({
           success: false,
           error: 'Article not found'
         });
       }
 
+      const updatedArticle = {
+        ...existing,
+        ...updates,
+        id: existing.id,
+        excerpt: updates.excerpt || generateExcerpt(updates.content || existing.content),
+        createdAt: existing.createdAt,
+        updatedAt: new Date().toISOString()
+      };
+
+      const validationResult = validate('article', updatedArticle);
+      if (!validationResult.valid) {
+        return res.status(400).json({
+          success: false,
+          error: 'Validation failed',
+          details: validationResult.errors
+        });
+      }
+
+      const savedArticle = await contentRepository.updateArticle(id, updatedArticle);
+
+      res.json({
+        success: true,
+        message: 'Article updated successfully',
+        data: savedArticle
+      });
+    } catch (error) {
       res.status(500).json({
         success: false,
         error: 'Failed to update article'
@@ -155,16 +155,13 @@ class ArticleController {
       const { id } = req.params;
       const userId = req.user.userId;
 
-      await cache.update('article.json', (articles) => {
-        const index = articles.findIndex(a => a.id === id);
-        
-        if (index === -1) {
-          throw new Error('Article not found');
-        }
-
-        articles.splice(index, 1);
-        return articles;
-      });
+      const deleted = await contentRepository.deleteArticle(id);
+      if (!deleted) {
+        return res.status(404).json({
+          success: false,
+          error: 'Article not found'
+        });
+      }
 
       intrusionDetection.trackSuspiciousAction('deletes', {
         userId,
@@ -177,13 +174,6 @@ class ArticleController {
         message: 'Article deleted successfully'
       });
     } catch (error) {
-      if (error.message === 'Article not found') {
-        return res.status(404).json({
-          success: false,
-          error: 'Article not found'
-        });
-      }
-
       res.status(500).json({
         success: false,
         error: 'Failed to delete article'

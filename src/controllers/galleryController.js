@@ -2,19 +2,38 @@ const { v4: uuidv4 } = require('uuid');
 const fs = require('fs').promises;
 const path = require('path');
 const logger = require('../utils/logger');
-const cache = require('../storage/cache');
 const { validate } = require('../schemas');
 const { uploadDir, validateMagicNumber } = require('../middleware/upload');
-const config = require('../config');
+const contentRepository = require('../db/repositories/contentRepository');
+
+const normalizeSlug = (value) =>
+  String(value || '')
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9-]/g, '');
+
+const toV2GalleryItem = (item) => ({
+  id: item.id,
+  filename: item.file,
+  originalName: item.originalName,
+  category: item.category,
+  caption: item.caption,
+  uploadedBy: item.uploadedBy,
+  createdAt: item.createdAt,
+  size: item.size,
+  mimeType: item.mimeType
+});
 
 class GalleryController {
   async getAllGallery(req, res) {
     try {
-      const gallery = cache.get('gallery.json', []);
-      
+      const gallery = await contentRepository.getAllGalleryImages();
+      const uploadsOnly = gallery.filter(item => item.isUpload);
+
       res.json({
         success: true,
-        data: gallery
+        data: uploadsOnly.map(toV2GalleryItem)
       });
     } catch (error) {
       logger.error('Failed to retrieve gallery', { error: error.message });
@@ -28,10 +47,9 @@ class GalleryController {
   async getGalleryItem(req, res) {
     try {
       const { id } = req.params;
-      const gallery = cache.get('gallery.json', []);
-      const item = gallery.find(g => g.id === id);
+      const item = await contentRepository.getGalleryImageById(id);
 
-      if (!item) {
+      if (!item || !item.isUpload) {
         return res.status(404).json({
           success: false,
           error: 'Gallery item not found'
@@ -40,7 +58,7 @@ class GalleryController {
 
       res.json({
         success: true,
-        data: item
+        data: toV2GalleryItem(item)
       });
     } catch (error) {
       logger.error('Failed to retrieve gallery item', { error: error.message });
@@ -60,7 +78,10 @@ class GalleryController {
         });
       }
 
-      const { category, caption } = req.body;
+      const categoryInput = req.body.category || 'uploads';
+      const categorySlug = normalizeSlug(categoryInput) || 'uploads';
+      const categoryName = String(categoryInput).trim() || 'Uploads';
+      const { caption } = req.body;
       const userId = req.user.userId;
       const filePath = path.join(uploadDir, req.file.filename);
 
@@ -77,19 +98,40 @@ class GalleryController {
         });
       }
 
+      await contentRepository.addGalleryCategory({
+        name: categoryName,
+        slug: categorySlug,
+        folder: categorySlug,
+        filterClass: categorySlug
+      });
+
       const galleryItem = {
         id: uuidv4(),
-        filename: req.file.filename,
+        file: req.file.filename,
         originalName: req.file.originalname,
-        category,
+        category: categorySlug,
+        title: caption || req.file.originalname,
         caption,
         uploadedBy: userId,
         createdAt: new Date().toISOString(),
         size: req.file.size,
-        mimeType: req.file.mimetype
+        mimeType: req.file.mimetype,
+        isUpload: true
       };
 
-      const result = validate('gallery', galleryItem);
+      const validationPayload = {
+        id: galleryItem.id,
+        filename: galleryItem.file,
+        originalName: galleryItem.originalName,
+        category: galleryItem.category,
+        caption: galleryItem.caption,
+        uploadedBy: galleryItem.uploadedBy,
+        createdAt: galleryItem.createdAt,
+        size: galleryItem.size,
+        mimeType: galleryItem.mimeType
+      };
+
+      const result = validate('gallery', validationPayload);
       if (!result.valid) {
         await fs.unlink(filePath);
         return res.status(400).json({
@@ -99,14 +141,11 @@ class GalleryController {
         });
       }
 
-      await cache.update('gallery.json', (gallery) => {
-        gallery.push(galleryItem);
-        return gallery;
-      }, 'gallery');
+      const savedItem = await contentRepository.addGalleryImage(galleryItem);
 
       logger.info('Image uploaded', {
-        id: galleryItem.id,
-        filename: req.file.filename,
+        id: savedItem.id,
+        filename: savedItem.file,
         userId,
         ip: req.ip
       });
@@ -114,7 +153,7 @@ class GalleryController {
       res.status(201).json({
         success: true,
         message: 'Image uploaded successfully',
-        data: galleryItem
+        data: toV2GalleryItem(savedItem)
       });
     } catch (error) {
       logger.error('Failed to upload image', { error: error.message });
@@ -130,26 +169,22 @@ class GalleryController {
       const { id } = req.params;
       const userId = req.user.userId;
 
-      await cache.update('gallery.json', async (gallery) => {
-        const index = gallery.findIndex(g => g.id === id);
-        
-        if (index === -1) {
-          throw new Error('Gallery item not found');
-        }
+      const item = await contentRepository.getGalleryImageById(id);
+      if (!item || !item.isUpload) {
+        return res.status(404).json({
+          success: false,
+          error: 'Gallery item not found'
+        });
+      }
 
-        const item = gallery[index];
-        const filePath = path.join(uploadDir, item.filename);
+      const filePath = path.join(uploadDir, item.file);
+      try {
+        await fs.unlink(filePath);
+      } catch (err) {
+        logger.warn('Failed to delete file', { filePath, error: err.message });
+      }
 
-        try {
-          await fs.unlink(filePath);
-        } catch (err) {
-          logger.warn('Failed to delete file', { filePath, error: err.message });
-        }
-
-        gallery.splice(index, 1);
-        return gallery;
-      });
-
+      await contentRepository.deleteGalleryImageById(id);
       logger.info('Image deleted', { id, userId, ip: req.ip });
 
       res.json({
@@ -157,13 +192,6 @@ class GalleryController {
         message: 'Image deleted successfully'
       });
     } catch (error) {
-      if (error.message === 'Gallery item not found') {
-        return res.status(404).json({
-          success: false,
-          error: 'Gallery item not found'
-        });
-      }
-
       res.status(500).json({
         success: false,
         error: 'Failed to delete image'
@@ -174,7 +202,7 @@ class GalleryController {
   async serveImage(req, res) {
     try {
       const { filename } = req.params;
-      
+
       if (filename.includes('..')) {
         return res.status(400).json({
           success: false,
@@ -182,9 +210,7 @@ class GalleryController {
         });
       }
 
-      const gallery = cache.get('gallery.json', []);
-      const item = gallery.find(g => g.filename === filename);
-
+      const item = await contentRepository.getUploadedGalleryImageByFile(filename);
       if (!item) {
         return res.status(404).json({
           success: false,
@@ -193,8 +219,8 @@ class GalleryController {
       }
 
       const filePath = path.join(uploadDir, filename);
-      
-      if (!(await fs.access(filePath).then(() => true).catch(() => false))) {
+      const exists = await fs.access(filePath).then(() => true).catch(() => false);
+      if (!exists) {
         return res.status(404).json({
           success: false,
           error: 'File not found'

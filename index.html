@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <!--
 
 ******************
@@ -120,7 +120,7 @@ Author: Leona Kokerai - Ownuh
             document.addEventListener("DOMContentLoaded", function () {
                 const swiperContainer = document.getElementById("event-swiper");
 
-                fetch("data/events.json")
+                fetch("/api/events").catch(() => fetch("data/events.json"))
                     .then(res => res.json())
                     .then(events => {
                         const today = new Date().toISOString().split("T")[0];
@@ -825,7 +825,7 @@ Author: Leona Kokerai - Ownuh
                         </div>
                         <div class="col-lg-5">
                             <div class="copyright-text">
-                                <p>© 2026 <a class="text-primary" href="index.html">The African Apostolic Church</a> |
+                                <p>Â© 2026 <a class="text-primary" href="index.html">The African Apostolic Church</a> |
                                     All Rights
                                     Reserved
                                 </p>
@@ -895,7 +895,7 @@ Author: Leona Kokerai - Ownuh
             ],
 
             "February": [
-                { day: 17, year: 1956, text: "The African Apostolic Church was made Zion—the dwelling place of the Almighty when the Lord Jesus descended from heaven on a white cloud surrounded by singing angels." }
+                { day: 17, year: 1956, text: "The African Apostolic Church was made Zionâ€”the dwelling place of the Almighty when the Lord Jesus descended from heaven on a white cloud surrounded by singing angels." }
             ],
 
             "March": [

@@ -10,8 +10,25 @@ document.addEventListener("DOMContentLoaded", function () {
     let allImages = [];
     let categories = [];
 
-    fetch("/data/gallery.json")
-        .then(res => res.json())
+    const fetchGalleryData = async () => {
+        const sources = ["/api/gallery", "/data/gallery.json", "data/gallery.json"];
+        for (const source of sources) {
+            try {
+                const res = await fetch(source);
+                if (!res.ok) {
+                    continue;
+                }
+                const data = await res.json();
+                if (data && Array.isArray(data.categories) && Array.isArray(data.images)) {
+                    return data;
+                }
+            } catch {
+            }
+        }
+        return { categories: [], images: [] };
+    };
+
+    fetchGalleryData()
         .then(data => {
 
             categories = data.categories;
@@ -87,6 +104,9 @@ document.addEventListener("DOMContentLoaded", function () {
         paginatedItems.forEach(img => {
 
             const category = categories.find(c => c.slug === img.category);
+            if (!category) {
+                return;
+            }
             const imagePath = `/assets/images/gallery/${category.folder}/${img.file}`;
 
             galleryContainer.innerHTML += `

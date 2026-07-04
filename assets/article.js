@@ -6,11 +6,32 @@ let filteredPosts = [];
 const container = document.getElementById("blog-container");
 const paginationContainer = document.getElementById("pagination");
 
-// Fetch JSON
+const normalizeId = (value) => String(value || "").trim().toLowerCase();
+
+const fetchArticles = async () => {
+  const sources = ["/api/articles", "/data/article.json", "data/article.json"];
+  for (const source of sources) {
+    try {
+      const response = await fetch(source);
+      if (!response.ok) {
+        continue;
+      }
+      const payload = await response.json();
+      if (Array.isArray(payload)) {
+        return payload;
+      }
+      if (payload && Array.isArray(payload.data)) {
+        return payload.data;
+      }
+    } catch {
+    }
+  }
+  return [];
+};
+
 async function loadNews() {
   try {
-    const response = await fetch("/api/articles");
-    news = await response.json();
+    news = await fetchArticles();
     filteredPosts = [...news];
     renderCategories();  
     renderPosts();
@@ -142,13 +163,12 @@ function goToPage(page) {
 // Blog details page
 async function loadPostDetails() {
   const urlParams = new URLSearchParams(window.location.search);
-  const postId = urlParams.get("id");
+  const postId = normalizeId(urlParams.get("id"));
 
   if (!postId) return;
 
-  const response = await fetch("/api/articles");
-  const posts = await response.json();
-  const post = posts.find(p => String(p.id) === postId);
+  const posts = await fetchArticles();
+  const post = posts.find(p => normalizeId(p.id) === postId);
 
   if (!post) {
     document.getElementById("post-title").textContent = "Post not found";

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <!--
 
 ******************
@@ -113,7 +113,7 @@ Author: Leona Kokerai - Ownuh
   document.addEventListener("DOMContentLoaded", function () {
     const swiperContainer = document.getElementById("event-swiper");
 
-    fetch("data/events.json")
+    fetch("/api/events").catch(() => fetch("data/events.json"))
       .then(res => res.json())
       .then(events => {
         const today = new Date().toISOString().split("T")[0];
@@ -333,10 +333,10 @@ Author: Leona Kokerai - Ownuh
                         <div class="col-lg-6 d-flex align-content-start mt-4 mt-lg-0 flex-wrap ps-4">
                             <h2 class="fw-normal mb-3" data-aos="fade-up">Our History</h2>
                             <p data-aos="fade-up mb-2">
-                                The name “The African Apostolic Church, VaApostora VeAfrica” was revealed in 1957 to Paul Mwazha of Africa when he heard the voice of the Holy Spirit. 
+                                The name â€œThe African Apostolic Church, VaApostora VeAfricaâ€ was revealed in 1957 to Paul Mwazha of Africa when he heard the voice of the Holy Spirit. 
                             </p>
                             <p class="mb-0" data-aos="fade-up">
-                               At that time, the church had not yet been formed, and the words were received as prophetic utterances. From then on, Paul Mwazha’s ministry was marked by miraculous works—transforming lives, healing the sick, and delivering many from spiritual oppression, including witchcraft and demonic torment. In 1959, after receiving a direct and vivid instruction from the Holy Spirit, Archbishop Paul Mwazha formally established the African Apostolic Church.
+                               At that time, the church had not yet been formed, and the words were received as prophetic utterances. From then on, Paul Mwazhaâ€™s ministry was marked by miraculous worksâ€”transforming lives, healing the sick, and delivering many from spiritual oppression, including witchcraft and demonic torment. In 1959, after receiving a direct and vivid instruction from the Holy Spirit, Archbishop Paul Mwazha formally established the African Apostolic Church.
                             </p>
                         </div>
                     </div>
@@ -355,10 +355,10 @@ Author: Leona Kokerai - Ownuh
                             </div>
                             <h2 class="fw-normal" data-aos="fade-up">The Divine Commission</h2>
                             <p data-aos="fade-up">
-Prior to this, Paul Mwazha of Africa (the Arch-Bishop of The African Apostolic Church) had received his calling in 1951 when he heard the voice of the Lord saying, “who shall we send, who shall go for us?”.
+Prior to this, Paul Mwazha of Africa (the Arch-Bishop of The African Apostolic Church) had received his calling in 1951 when he heard the voice of the Lord saying, â€œwho shall we send, who shall go for us?â€.
                             </p>
                             <p class="mb-5" data-aos="fade-up">
-                                 He then went on to pray to God and saying, “I am here Lord, sent me to your people beginning in Africa first, then the rest of the world if be it your will Lord”.
+                                 He then went on to pray to God and saying, â€œI am here Lord, sent me to your people beginning in Africa first, then the rest of the world if be it your will Lordâ€.
                             </p>
                             <a href="contact.html" class="btn text-white rounded-5 btn-circle-arrow" data-aos="flip-up">
                                 <span>Become an Apostle of Jesus</span>
@@ -437,9 +437,9 @@ Prior to this, Paul Mwazha of Africa (the Arch-Bishop of The African Apostolic C
                                         <span class="sub-title fs-5">The church today</span>
                                     </div>
                                 </div>
-                                <h3 class="fw-medium" data-aos="fade-up">The African Apostolic Church — where hearts are open, spirits are lifted, and love abounds.</h3>
+                                <h3 class="fw-medium" data-aos="fade-up">The African Apostolic Church â€” where hearts are open, spirits are lifted, and love abounds.</h3>
                                 <p data-aos="fade-up fs-6 mb-0">
-                                  While the name “The African Apostolic Church (VaApostora VeAfrica)” reflects the church's origin, its mission is universal. The church carries a divine mandate to reach all nations with the Gospel of Jesus Christ, inviting people of every race, culture, and background to share in the saving message of the Kingdom of God.
+                                  While the name â€œThe African Apostolic Church (VaApostora VeAfrica)â€ reflects the church's origin, its mission is universal. The church carries a divine mandate to reach all nations with the Gospel of Jesus Christ, inviting people of every race, culture, and background to share in the saving message of the Kingdom of God.
                                 </p>
                             </div>
                             <div class="feature-list">
@@ -454,7 +454,7 @@ Prior to this, Paul Mwazha of Africa (the Arch-Bishop of The African Apostolic C
                                     <img class="align-self-start mb-3" src="assets/images/about/icon-sec5-1.png" alt="The African Apostolic Church - VaApostora VeAfrica">
                                     <div class="text-box ps-4">
                                         <h5 class="fw-medium">Our Mission</h5>
-                                        <p class="fs-6 mb-0">The mission of The African Apostolic Church is to re-establish God's Kingdom on earth by teaching individuals, families, and communities to transform their lives, cultures, and traditions in alignment with the Word of God. This is the gospel of Jesus Christ — a call to holiness, order, and divine purpose..</p>
+                                        <p class="fs-6 mb-0">The mission of The African Apostolic Church is to re-establish God's Kingdom on earth by teaching individuals, families, and communities to transform their lives, cultures, and traditions in alignment with the Word of God. This is the gospel of Jesus Christ â€” a call to holiness, order, and divine purpose..</p>
                                     </div>
                                 </div>
                                 <div class="feature-box d-flex p-4 ps-0">
@@ -517,7 +517,7 @@ Prior to this, Paul Mwazha of Africa (the Arch-Bishop of The African Apostolic C
                         </div>
                         <div class="col-lg-5">
                             <div class="copyright-text">
-                                <p>© 2026 <a class="text-primary" href="index.html">The African Apostolic Church</a> |
+                                <p>Â© 2026 <a class="text-primary" href="index.html">The African Apostolic Church</a> |
                                     All Rights
                                     Reserved
                                 </p>

@@ -436,6 +436,9 @@
                 <li><a href="articles.html">📝 Articles</a></li>
                 <li><a href="events.html">📅 Events</a></li>
                 <li><a href="gallery.html" class="active">🖼️ Gallery</a></li>
+<li><a href="approvals.html">Moderation Queue</a></li>
+<li><a href="audit-logs.html">Audit Logs</a></li>
+<li><a href="accounts.html">Account Management</a></li>
             </ul>
 
             <button class="logout-btn" id="logoutBtn">🚪 Logout</button>
@@ -515,6 +518,10 @@
 
                     if (!data.authenticated) {
                         window.location.href = "login.html";
+                        return;
+                    }
+                    if (data.requiresPasswordChange) {
+                        window.location.href = 'change-password.html';
                         return;
                     }
 
@@ -677,92 +684,10 @@
         /* =========================
         UPLOAD GALLERY IMAGE
         ========================= */
+        // NOTE: Server-side Express route snippets were removed from this browser script.
+        // Upload handling is provided by backend API endpoints under /api/gallery.
 
-        app.post('/api/gallery', authenticateAdmin, upload.single('image'), (req, res) => {
-
-            try {
-
-                const { title, description, category } = req.body;
-
-                if (!title || !category) {
-                    return res.status(400).json({
-                        error: "Title and category required"
-                    });
-                }
-
-                if (!req.file) {
-                    return res.status(400).json({
-                        error: "Image file required"
-                    });
-                }
-
-                const gallery = readJSON('./data/gallery.json');
-
-                /* Find category info */
-                const cat = gallery.categories.find(
-                    c => c.slug === category
-                );
-
-                if (!cat) {
-                    return res.status(400).json({
-                        error: "Invalid category"
-                    });
-                }
-
-                /* Category folder path */
-                const categoryFolder = path.join(
-                    __dirname,
-                    'assets/images/gallery',
-                    cat.folder
-                );
-
-                /* Create folder if missing */
-                if (!fs.existsSync(categoryFolder)) {
-                    fs.mkdirSync(categoryFolder, { recursive: true });
-                }
-
-                /* Move file from uploads → category folder */
-                const oldPath = path.join(__dirname, 'uploads', req.file.filename);
-
-                const newPath = path.join(
-                    categoryFolder,
-                    req.file.filename
-                );
-
-                /* ⭐ THIS IS THE MOST IMPORTANT LINE */
-                fs.renameSync(oldPath, newPath);
-
-                /* Save record to JSON */
-                const newImage = {
-                    id: Date.now().toString(),
-                    title,
-                    description: description || "",
-                    category,
-                    file: req.file.filename,
-                    date: new Date().toISOString().split("T")[0]
-                };
-
-                gallery.images.push(newImage);
-
-                writeJSON('./data/gallery.json', gallery);
-
-                res.json({
-                    success: true,
-                    image: newImage
-                });
-
-            } catch (err) {
-
-                console.error("Gallery upload error:", err);
-
-                res.status(500).json({
-                    error: "Upload failed"
-                });
-
-            }
-
-        });
-        /* =============================
+/* =============================
         DELETE IMAGE
         ============================= */
         function deleteImage(file) {
@@ -844,3 +769,7 @@
 </body>
 
 </html>
+
+
+
+

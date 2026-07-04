@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <!--
 
 ******************
@@ -119,7 +119,7 @@ Author: Leona Kokerai - Ownuh
   document.addEventListener("DOMContentLoaded", function () {
     const swiperContainer = document.getElementById("event-swiper");
 
-    fetch("data/events.json")
+    fetch("/api/events").catch(() => fetch("data/events.json"))
       .then(res => res.json())
       .then(events => {
         const today = new Date().toISOString().split("T")[0];
@@ -347,12 +347,12 @@ Author: Leona Kokerai - Ownuh
                                                 blog</strong>. This space is dedicated to sharing the life, light, and
                                                 legacy of our church through <strong>announcements, testimonies, church
                                                     history, biblical insights</strong>, and more.
-                                                <br>Here, you’ll also find <strong>Inspiration: Reflections on Sabbath
-                                                    Sermons</strong> – a weekly highlight designed to deepen our
+                                                <br>Here, youâ€™ll also find <strong>Inspiration: Reflections on Sabbath
+                                                    Sermons</strong> â€“ a weekly highlight designed to deepen our
                                                 understanding of the Word and encourage spiritual growth.
                                                 <br>May you find inspiration, encouragement, and a stronger connection
                                                 with God and His people through the published pieces of writing.
-                                                <br><em>"For we preach not ourselves, but Christ Jesus the Lord..." – 2
+                                                <br><em>"For we preach not ourselves, but Christ Jesus the Lord..." â€“ 2
                                                     Corinthians 4:5</em>
                                             </p>
 
@@ -425,7 +425,7 @@ Author: Leona Kokerai - Ownuh
                         </div>
                         <div class="col-lg-5">
                             <div class="copyright-text">
-                                <p>© 2026 <a class="text-primary" href="index.html">The African Apostolic Church</a> |
+                                <p>Â© 2026 <a class="text-primary" href="index.html">The African Apostolic Church</a> |
                                     All Rights
                                     Reserved
                                 </p>

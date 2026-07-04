@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <!--
 
 ******************
@@ -113,7 +113,7 @@ Author: Leona Kokerai - Ownuh
   document.addEventListener("DOMContentLoaded", function () {
     const swiperContainer = document.getElementById("event-swiper");
 
-    fetch("data/events.json")
+    fetch("/api/events").catch(() => fetch("data/events.json"))
       .then(res => res.json())
       .then(events => {
         const today = new Date().toISOString().split("T")[0];
@@ -299,7 +299,7 @@ Author: Leona Kokerai - Ownuh
                     <div class="d-flex text-center align-items-center flex-column">
                         <h1 class="text-dark fw-normal error">404</h1>
                         <h1 class="text-dar fw-semibold pb-3">Ooops! This Page Not Found</h1>
-                        <p class="text-300 fs-6 pb-4">We’re sorry but we can’t seem to find the page you requested. This might be
+                        <p class="text-300 fs-6 pb-4">Weâ€™re sorry but we canâ€™t seem to find the page you requested. This might be
                             <br> because you have typed the web address incorrectly.
                         </p>
                         <a href="index.html" class="btn text-white rounded-5 px-3 btn-circle-arrow">
@@ -329,7 +329,7 @@ Author: Leona Kokerai - Ownuh
                         </div>
                         <div class="col-lg-5">
                             <div class="copyright-text">
-                                <p>© 2026 <a class="text-primary" href="index.html">The African Apostolic Church</a> |
+                                <p>Â© 2026 <a class="text-primary" href="index.html">The African Apostolic Church</a> |
                                     All Rights
                                     Reserved
                                 </p>

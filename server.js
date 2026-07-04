@@ -2,58 +2,48 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const multer = require('multer');
-const bcrypt = require('bcryptjs');
 const session = require('express-session');
 const cors = require('cors');
+const { v4: uuidv4 } = require('uuid');
+const config = require('./src/config');
+const { loginLimiter } = require('./src/middleware/rateLimiter');
+const contentRepository = require('./src/db/repositories/contentRepository');
+const changeRequestRepository = require('./src/db/repositories/changeRequestRepository');
+const ResponseCache = require('./src/utils/responseCache');
+const { buildSessionOptions } = require('./src/services/sessionStore');
 
 const router = express.Router();
-const PORT = process.env.PORT || 3000;
-const dataPath = path.join(__dirname, "data", "article.json");
-let categories = [];
+const uploadsDir = path.resolve(config.paths.uploads);
+const galleryAssetsDir = path.resolve(config.paths.galleryAssets);
 
 // Middleware
 router.use(cors({
-  origin: true,
+  origin: config.cors.origin,
   credentials: true
 }));
 router.use(express.json({ limit: '50mb' }));
 router.use(express.urlencoded({ extended: true, limit: '50mb' }));
-router.use(express.static('.'));
-// Serve static gallery images properly
-router.use('/assets', express.static(path.join(__dirname, 'assets')));
-router.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Session configuration
-router.use(session({
-  secret: 'aac-gbeaaa-secret-key-2025',
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    secure: process.env.NODE_ENV === 'production',
-    httpOnly: true,
-    sameSite: process.env.NODE_ENV === 'production' ? "none" : "lax",
-    maxAge: 24 * 60 * 60 * 1000
-  }
-}));
+router.use(session(buildSessionOptions()));
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const uploadDir = 'uploads';
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir, { recursive: true });
     }
-    cb(null, uploadDir);
+    cb(null, uploadsDir);
   },
   filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, uniqueSuffix + path.extname(file.originalname));
+    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1E9)}`;
+    cb(null, `${uniqueSuffix}${path.extname(file.originalname)}`);
   }
 });
 
 const upload = multer({
-  storage: storage,
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+  storage,
+  limits: { fileSize: 10 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     const allowedTypes = /jpeg|jpg|png|gif|webp/;
     const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
@@ -65,60 +55,278 @@ const upload = multer({
   }
 });
 
+const AuthService = require('./src/services/authService');
+const ADMIN_ROLES = AuthService.ADMIN_ROLES || {
+  SUPER: 'super',
+  EDITOR: 'editor',
+  MODERATOR: 'moderator'
+};
+
 // Authentication middleware
 const authenticateAdmin = (req, res, next) => {
   try {
-    if (!req.session || !req.session.admin) throw new Error();
+    if (!req.session || !req.session.admin) {
+      throw new Error();
+    }
+
     const payload = AuthService.verifyAccessToken(req.session.admin.accessToken);
-    if (!payload || payload.role !== 'admin') throw new Error();
+    if (!payload) {
+      throw new Error();
+    }
+
+    const role = AuthService.normalizeRole(payload.role || req.session.admin.role);
+    req.admin = {
+      username: payload.username || req.session.admin.username,
+      role,
+      requiresPasswordChange: Boolean(payload.mustChangePassword)
+    };
+    req.session.admin.role = role;
+    req.session.admin.requiresPasswordChange = Boolean(payload.mustChangePassword);
+
     next();
   } catch {
     res.status(401).json({ error: 'Unauthorized. Please login.' });
   }
 };
 
-// Helper function to read JSON files
-const readJSON = (filepath) => {
-  try {
-    if (!fs.existsSync(filepath)) {
-      return [];
+const requireAdminRole = (...roles) => (req, res, next) => {
+  if (!req.admin) {
+    return res.status(401).json({ error: 'Unauthorized. Please login.' });
+  }
+
+  if (!roles.includes(req.admin.role)) {
+    AuthService.logAudit(
+      'authorization_denied',
+      'admin_route',
+      req.originalUrl,
+      req.admin.username,
+      {
+        requiredRoles: roles,
+        role: req.admin.role,
+        method: req.method,
+        ip: req.ip
+      },
+      'warning'
+    ).catch(() => {});
+    return res.status(403).json({ error: 'Insufficient permissions for this action' });
+  }
+
+  next();
+};
+
+const requireContentWriteAccess = requireAdminRole(ADMIN_ROLES.SUPER, ADMIN_ROLES.EDITOR);
+const requireApprovalViewAccess = requireAdminRole(ADMIN_ROLES.SUPER, ADMIN_ROLES.MODERATOR);
+const requireModeratorApproval = requireAdminRole(ADMIN_ROLES.MODERATOR);
+
+const requirePasswordChangeComplete = (req, res, next) => {
+  if (req.admin?.requiresPasswordChange) {
+    return res.status(403).json({
+      success: false,
+      error: 'Password change required before continuing',
+      requiresPasswordChange: true
+    });
+  }
+
+  next();
+};
+
+const getPermissionSet = (role) => ({
+  canViewContent: true,
+  canEditContent: role === ADMIN_ROLES.SUPER || role === ADMIN_ROLES.EDITOR,
+  canManageUsers: role === ADMIN_ROLES.SUPER,
+  canApproveChanges: role === ADMIN_ROLES.MODERATOR,
+  canViewChangeQueue: role === ADMIN_ROLES.SUPER || role === ADMIN_ROLES.MODERATOR,
+  canViewAuditLogs: role === ADMIN_ROLES.SUPER || role === ADMIN_ROLES.MODERATOR
+});
+
+const regenerateSession = (req) => new Promise((resolve, reject) => {
+  if (!req.session || typeof req.session.regenerate !== 'function') {
+    resolve();
+    return;
+  }
+
+  req.session.regenerate((err) => {
+    if (err) {
+      reject(err);
+      return;
     }
-    const data = fs.readFileSync(filepath, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    console.error(`Error reading ${filepath}:`, error);
-    return [];
+    resolve();
+  });
+});
+
+const normalizeSlug = (value) =>
+  String(value || '')
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9-]/g, '');
+
+const generateExcerpt = (text, length = 150) => {
+  if (!text) return '';
+  return text.substring(0, length) + (text.length > length ? '...' : '');
+};
+
+const hotCache = new ResponseCache({
+  enabled: config.cache.enabled,
+  defaultTtlMs: config.cache.hotTtlMs
+});
+const HOT_CACHE_KEYS = Object.freeze({
+  events: 'hot:events:list',
+  articles: 'hot:articles:list',
+  principles: 'hot:principles:why_we_do'
+});
+
+const invalidateHotKey = (key) => {
+  hotCache.del(key);
+};
+
+const readOrLoadHot = async (key, loader) => {
+  const cached = hotCache.get(key);
+  if (cached) {
+    return cached;
+  }
+
+  const fresh = await loader();
+  hotCache.set(key, fresh);
+  return fresh;
+};
+
+const auditAction = async (req, action, resource, resourceId, details = {}, severity = 'info') => {
+  try {
+    await AuthService.logAudit(
+      action,
+      resource,
+      resourceId,
+      req.admin?.username || req.session?.admin?.username || null,
+      {
+        ...details,
+        ip: req.ip
+      },
+      severity
+    );
+  } catch {
+    // Do not block request flow when audit persistence fails.
   }
 };
 
-// Helper function to write JSON files
-const writeJSON = (filepath, data) => {
-  try {
-    fs.writeFileSync(filepath, JSON.stringify(data, null, 2), 'utf8');
-    return true;
-  } catch (error) {
-    console.error(`Error writing ${filepath}:`, error);
-    return false;
-  }
+const queueChangeRequest = async (req, {
+  resourceType,
+  operation,
+  resourceId = null,
+  payload = {}
+}) => {
+  const requestRecord = await changeRequestRepository.createChangeRequest({
+    id: uuidv4(),
+    resourceType,
+    operation,
+    resourceId,
+    payload,
+    status: 'pending',
+    requestedBy: req.admin.username
+  });
+
+  await auditAction(req, 'queue_change_request', resourceType, resourceId, {
+    operation,
+    changeRequestId: requestRecord.id
+  });
+
+  return requestRecord;
 };
+
+const applyApprovedChange = async (changeRequest) => {
+  const { resourceType, operation, payload } = changeRequest;
+
+  if (resourceType === 'article') {
+    if (operation === 'create') {
+      const saved = await contentRepository.createArticle(payload.article);
+      invalidateHotKey(HOT_CACHE_KEYS.articles);
+      return saved;
+    }
+
+    if (operation === 'update') {
+      const saved = await contentRepository.updateArticle(payload.id, payload.article);
+      invalidateHotKey(HOT_CACHE_KEYS.articles);
+      return saved;
+    }
+
+    if (operation === 'delete') {
+      const deleted = await contentRepository.deleteArticle(payload.id);
+      invalidateHotKey(HOT_CACHE_KEYS.articles);
+      return deleted;
+    }
+  }
+
+  if (resourceType === 'event') {
+    if (operation === 'create') {
+      const saved = await contentRepository.createEvent(payload.event);
+      invalidateHotKey(HOT_CACHE_KEYS.events);
+      return saved;
+    }
+
+    if (operation === 'update') {
+      const saved = await contentRepository.updateEvent(payload.id, payload.event);
+      invalidateHotKey(HOT_CACHE_KEYS.events);
+      return saved;
+    }
+
+    if (operation === 'delete') {
+      const deleted = await contentRepository.deleteEvent(payload.id);
+      invalidateHotKey(HOT_CACHE_KEYS.events);
+      return deleted;
+    }
+  }
+
+  if (resourceType === 'gallery_category' && operation === 'create') {
+    const category = await contentRepository.addGalleryCategory(payload.category);
+    const folderPath = path.join(galleryAssetsDir, category.folder);
+    if (!fs.existsSync(folderPath)) {
+      fs.mkdirSync(folderPath, { recursive: true });
+    }
+    return category;
+  }
+
+  if (resourceType === 'gallery_image' && operation === 'delete') {
+    return contentRepository.deleteGalleryImagesByFile(payload.file);
+  }
+
+  throw new Error('Unsupported change request payload');
+};
+
 // ==================== AUTH ROUTES ====================
 
-const AuthService = require('./src/services/authService');
-
-// Admin login
-router.post('/admin/login', async (req, res) => {
+router.post('/admin/login', loginLimiter, async (req, res) => {
   try {
     const { username, password } = req.body;
     const tokens = await AuthService.authenticateUser(username, password, req.ip, req.headers['user-agent']);
-    // Optionally store accessToken in session if you want
-    req.session.admin = { username, accessToken: tokens.accessToken, refreshToken: tokens.refreshToken };
-    res.json({ success: true, tokens });
+    const payload = AuthService.verifyAccessToken(tokens.accessToken);
+    const role = AuthService.normalizeRole(payload?.role || tokens?.user?.role);
+
+    await regenerateSession(req);
+    req.session.admin = {
+      username: tokens.user?.username || username,
+      role,
+      requiresPasswordChange: Boolean(tokens.user?.requiresPasswordChange),
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken
+    };
+    res.json({
+      success: true,
+      tokens: {
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken
+      },
+      user: {
+        username: req.session.admin.username,
+        role,
+        requiresPasswordChange: Boolean(tokens.user?.requiresPasswordChange),
+        permissions: getPermissionSet(role)
+      }
+    });
   } catch (err) {
     res.status(401).json({ success: false, error: err.message });
   }
 });
 
-// Admin logout
 router.post('/admin/logout', async (req, res) => {
   try {
     if (req.session && req.session.admin) {
@@ -131,155 +339,493 @@ router.post('/admin/logout', async (req, res) => {
   }
 });
 
-// Check admin session
 router.get('/admin/check', (req, res) => {
   if (req.session && req.session.admin) {
     const valid = AuthService.verifyAccessToken(req.session.admin.accessToken);
-    res.json({ authenticated: !!valid, username: req.session.admin.username });
+    if (!valid) {
+      return res.json({ authenticated: false });
+    }
+
+    const role = AuthService.normalizeRole(valid.role || req.session.admin.role);
+    req.session.admin.role = role;
+    req.session.admin.requiresPasswordChange = Boolean(valid.mustChangePassword);
+
+    return res.json({
+      authenticated: true,
+      username: valid.username || req.session.admin.username,
+      role,
+      requiresPasswordChange: Boolean(valid.mustChangePassword),
+      permissions: getPermissionSet(role)
+    });
   } else {
     res.json({ authenticated: false });
   }
 });
 
-// ==================== ARTICLES ROUTES ====================
+router.post('/admin/change-password', authenticateAdmin, async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        error: 'Current password and new password are required'
+      });
+    }
 
-// Get all articles
-router.get('/articles', (req, res) => {
-  const articles = readJSON(dataPath);
-  res.json(articles);
-});
+    await AuthService.changePassword(
+      req.admin.username,
+      currentPassword,
+      newPassword,
+      req.ip,
+      req.headers['user-agent']
+    );
 
-// Get single article
-router.get('/articles/:id', (req, res) => {
-  const articles = readJSON(dataPath);
-  const article = articles.find(a => a.id === req.params.id);
-  if (article) {
-    res.json(article);
-  } else {
-    res.status(404).json({ error: 'Article not found' });
+    const refreshedSession = await AuthService.authenticateUser(
+      req.admin.username,
+      newPassword,
+      req.ip,
+      req.headers['user-agent']
+    );
+    const payload = AuthService.verifyAccessToken(refreshedSession.accessToken);
+    const role = AuthService.normalizeRole(payload?.role || refreshedSession?.user?.role);
+    req.session.admin = {
+      username: refreshedSession.user?.username || req.admin.username,
+      role,
+      requiresPasswordChange: Boolean(refreshedSession.user?.requiresPasswordChange),
+      accessToken: refreshedSession.accessToken,
+      refreshToken: refreshedSession.refreshToken
+    };
+
+    res.json({
+      success: true,
+      message: 'Password changed successfully',
+      user: {
+        username: req.session.admin.username,
+        role,
+        requiresPasswordChange: Boolean(refreshedSession.user?.requiresPasswordChange),
+        permissions: getPermissionSet(role)
+      }
+    });
+  } catch (err) {
+    const message = err?.message || 'Failed to change password';
+    const badInput = [
+      'Current password is incorrect',
+      'New password must be different from current password',
+      'Password must be'
+    ].some(prefix => message.startsWith(prefix));
+
+    res.status(badInput ? 400 : 500).json({ success: false, error: message });
   }
 });
 
-function generateExcerpt(text, length = 150) {
-  if (!text) return "";
-  return text.substring(0, length) + (text.length > length ? "..." : "");
-}
-// Create article// Create article (Only required fields)
-router.post('/articles', authenticateAdmin, (req, res) => {
-
+router.get('/admin/users', authenticateAdmin, requirePasswordChangeComplete, requireAdminRole(ADMIN_ROLES.SUPER), async (req, res) => {
   try {
+    const users = await AuthService.listAdminAccounts();
+    await auditAction(req, 'list_admin_users', 'admin', null, {
+      userCount: users.length
+    });
+    res.json({ success: true, users });
+  } catch {
+    res.status(500).json({ success: false, error: 'Failed to load admin users' });
+  }
+});
 
+router.post('/admin/users', authenticateAdmin, requirePasswordChangeComplete, requireAdminRole(ADMIN_ROLES.SUPER), async (req, res) => {
+  try {
+    const { username, password, role } = req.body || {};
+    const created = await AuthService.createAdminAccount(req.admin.username, {
+      username,
+      password,
+      role
+    });
+    res.status(201).json({ success: true, user: created });
+  } catch (err) {
+    const message = err?.message || 'Failed to create admin user';
+    const badInput = [
+      'Username',
+      'Password',
+      'Invalid role',
+      'already exists'
+    ].some(fragment => message.includes(fragment));
+    res.status(badInput ? 400 : 500).json({ success: false, error: message });
+  }
+});
+
+router.put('/admin/users/:username/role', authenticateAdmin, requirePasswordChangeComplete, requireAdminRole(ADMIN_ROLES.SUPER), async (req, res) => {
+  try {
+    const updated = await AuthService.updateAdminRole(
+      req.admin.username,
+      req.params.username,
+      req.body?.role
+    );
+    res.json({ success: true, user: updated });
+  } catch (err) {
+    const message = err?.message || 'Failed to update user role';
+    const badInput = [
+      'Invalid role',
+      'not found',
+      'must remain',
+      'Username'
+    ].some(fragment => message.includes(fragment));
+    res.status(badInput ? 400 : 500).json({ success: false, error: message });
+  }
+});
+
+router.put('/admin/users/:username/password', authenticateAdmin, requirePasswordChangeComplete, requireAdminRole(ADMIN_ROLES.SUPER), async (req, res) => {
+  try {
+    const resetResult = await AuthService.resetAdminPassword(
+      req.admin.username,
+      req.params.username,
+      req.body?.newPassword
+    );
+    res.json({ success: true, message: 'Password reset successfully', ...resetResult });
+  } catch (err) {
+    const message = err?.message || 'Failed to reset password';
+    const badInput = [
+      'Password',
+      'not found',
+      'Username'
+    ].some(fragment => message.includes(fragment));
+    res.status(badInput ? 400 : 500).json({ success: false, error: message });
+  }
+});
+
+router.post('/admin/users/:username/temporary-password', authenticateAdmin, requirePasswordChangeComplete, requireAdminRole(ADMIN_ROLES.SUPER), async (req, res) => {
+  try {
+    const validityHours = Number.parseInt(req.body?.validityHours, 10);
+    const result = await AuthService.issueTemporaryPassword(
+      req.admin.username,
+      req.params.username,
+      Number.isFinite(validityHours) && validityHours > 0 ? validityHours : 12
+    );
+    res.json({ success: true, ...result });
+  } catch (err) {
+    const message = err?.message || 'Failed to issue temporary password';
+    const badInput = [
+      'not found',
+      'Username'
+    ].some(fragment => message.includes(fragment));
+    res.status(badInput ? 400 : 500).json({ success: false, error: message });
+  }
+});
+
+router.delete('/admin/users/:username', authenticateAdmin, requirePasswordChangeComplete, requireAdminRole(ADMIN_ROLES.SUPER), async (req, res) => {
+  try {
+    await AuthService.deleteAdminAccount(req.admin.username, req.params.username);
+    res.json({ success: true, message: 'Admin user deleted' });
+  } catch (err) {
+    const message = err?.message || 'Failed to delete admin user';
+    const badInput = [
+      'cannot delete your own account',
+      'not found',
+      'must remain',
+      'Username'
+    ].some(fragment => message.includes(fragment));
+    res.status(badInput ? 400 : 500).json({ success: false, error: message });
+  }
+});
+
+router.get('/admin/changes/pending', authenticateAdmin, requirePasswordChangeComplete, requireApprovalViewAccess, async (req, res) => {
+  try {
+    const requests = await changeRequestRepository.listPendingChangeRequests();
+    await auditAction(req, 'view_pending_change_requests', 'change_request', null, {
+      count: requests.length
+    });
+    res.json({ success: true, requests });
+  } catch {
+    res.status(500).json({ success: false, error: 'Failed to load pending changes' });
+  }
+});
+
+router.get('/admin/changes/recent', authenticateAdmin, requirePasswordChangeComplete, requireApprovalViewAccess, async (req, res) => {
+  try {
+    const requests = await changeRequestRepository.listRecentChangeRequests(100);
+    await auditAction(req, 'view_recent_change_requests', 'change_request', null, {
+      count: requests.length
+    });
+    res.json({ success: true, requests });
+  } catch {
+    res.status(500).json({ success: false, error: 'Failed to load change history' });
+  }
+});
+
+router.post('/admin/changes/:id/approve', authenticateAdmin, requirePasswordChangeComplete, requireModeratorApproval, async (req, res) => {
+  try {
+    const changeRequest = await changeRequestRepository.getChangeRequestById(req.params.id);
+    if (!changeRequest) {
+      return res.status(404).json({ success: false, error: 'Change request not found' });
+    }
+    if (changeRequest.status !== 'pending') {
+      return res.status(400).json({ success: false, error: 'Change request already processed' });
+    }
+    if (changeRequest.requestedBy === req.admin.username) {
+      return res.status(403).json({ success: false, error: 'You cannot approve your own change request' });
+    }
+
+    const result = await applyApprovedChange(changeRequest);
+    const updated = await changeRequestRepository.updateChangeRequestReview({
+      id: changeRequest.id,
+      status: 'approved',
+      reviewedBy: req.admin.username,
+      reviewNote: req.body?.reviewNote || null
+    });
+
+    await auditAction(req, 'approve_change_request', changeRequest.resourceType, changeRequest.resourceId, {
+      changeRequestId: changeRequest.id
+    });
+
+    res.json({ success: true, request: updated, result });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err?.message || 'Failed to approve change request' });
+  }
+});
+
+router.post('/admin/changes/:id/reject', authenticateAdmin, requirePasswordChangeComplete, requireModeratorApproval, async (req, res) => {
+  try {
+    const changeRequest = await changeRequestRepository.getChangeRequestById(req.params.id);
+    if (!changeRequest) {
+      return res.status(404).json({ success: false, error: 'Change request not found' });
+    }
+    if (changeRequest.status !== 'pending') {
+      return res.status(400).json({ success: false, error: 'Change request already processed' });
+    }
+    if (changeRequest.requestedBy === req.admin.username) {
+      return res.status(403).json({ success: false, error: 'You cannot reject your own change request' });
+    }
+
+    const updated = await changeRequestRepository.updateChangeRequestReview({
+      id: changeRequest.id,
+      status: 'rejected',
+      reviewedBy: req.admin.username,
+      reviewNote: req.body?.reviewNote || null
+    });
+
+    await auditAction(req, 'reject_change_request', changeRequest.resourceType, changeRequest.resourceId, {
+      changeRequestId: changeRequest.id
+    });
+
+    res.json({ success: true, request: updated });
+  } catch {
+    res.status(500).json({ success: false, error: 'Failed to reject change request' });
+  }
+});
+
+router.get('/admin/audit-logs', authenticateAdmin, requirePasswordChangeComplete, requireApprovalViewAccess, async (req, res) => {
+  try {
+    const limit = Number.parseInt(req.query?.limit, 10);
+    const logs = await AuthService.listAuditLogs({
+      limit: Number.isFinite(limit) && limit > 0 ? limit : 100,
+      action: req.query?.action || undefined,
+      username: req.query?.username || undefined,
+      severity: req.query?.severity || undefined
+    });
+
+    await auditAction(req, 'view_audit_logs', 'audit_log', null, {
+      resultCount: logs.length,
+      filters: {
+        action: req.query?.action || null,
+        username: req.query?.username || null,
+        severity: req.query?.severity || null
+      }
+    });
+
+    res.json({ success: true, logs });
+  } catch (err) {
+    const message = String(err?.message || '');
+    const isBadInput = message.includes('Username') || message.includes('severity');
+    res.status(isBadInput ? 400 : 500).json({
+      success: false,
+      error: message || 'Failed to load audit logs'
+    });
+  }
+});
+
+// ==================== ARTICLES ROUTES ====================
+
+router.get('/articles', async (req, res) => {
+  try {
+    const articles = await readOrLoadHot(HOT_CACHE_KEYS.articles, () => contentRepository.getAllArticles());
+    res.json(articles);
+  } catch {
+    res.status(500).json({ error: 'Failed to load articles' });
+  }
+});
+
+router.get('/articles/:id', async (req, res) => {
+  try {
+    const article = await contentRepository.getArticleById(req.params.id);
+    if (article) {
+      res.json(article);
+    } else {
+      res.status(404).json({ error: 'Article not found' });
+    }
+  } catch {
+    res.status(500).json({ error: 'Failed to load article' });
+  }
+});
+
+router.post('/articles', authenticateAdmin, requirePasswordChangeComplete, requireContentWriteAccess, async (req, res) => {
+  try {
     const { title, content, author, date, category } = req.body;
 
     if (!title || !content) {
       return res.status(400).json({
         success: false,
-        error: "Title and Content required"
+        error: 'Title and Content required'
       });
     }
-
-    let articles = readJSON(dataPath);
 
     const newArticle = {
       id: Date.now().toString(),
       title,
       content,
-      author: author || "Admin",
+      author: author || req.admin.username,
       excerpt: generateExcerpt(content),
       date: date || new Date().toISOString().split('T')[0],
-      category: category || "General"
+      category: category || 'General',
+      tags: [],
+      imageUrl: null,
+      published: false,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
     };
 
-    articles.unshift(newArticle);
+    if (req.admin.role === ADMIN_ROLES.EDITOR) {
+      const queued = await queueChangeRequest(req, {
+        resourceType: 'article',
+        operation: 'create',
+        payload: { article: newArticle }
+      });
 
-    /* ⭐ FIXED */
-    writeJSON(dataPath, articles);
+      return res.status(202).json({
+        success: true,
+        pendingApproval: true,
+        changeRequestId: queued.id,
+        message: 'Article create request submitted for moderator approval'
+      });
+    }
+
+    const saved = await contentRepository.createArticle(newArticle);
+    invalidateHotKey(HOT_CACHE_KEYS.articles);
+    await auditAction(req, 'create_article', 'article', saved.id);
 
     res.status(201).json({
       success: true,
-      article: newArticle
+      article: saved
     });
-
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ success: false, error: "Server error" });
+  } catch {
+    res.status(500).json({ success: false, error: 'Server error' });
   }
-
 });
 
-// Update article
-router.put('/articles/:id', authenticateAdmin, (req, res) => {
+router.put('/articles/:id', authenticateAdmin, requirePasswordChangeComplete, requireContentWriteAccess, async (req, res) => {
   try {
-    let articles = readJSON(dataPath);
-    const index = articles.findIndex(a => a.id === req.params.id);
-
-    if (index === -1) {
+    const existing = await contentRepository.getArticleById(req.params.id);
+    if (!existing) {
       return res.status(404).json({ error: 'Article not found' });
     }
 
-    articles[index] = {
-      ...articles[index],
-      title: req.body.title || articles[index].title,
-      content: req.body.content || articles[index].content,
-      author: req.body.author || articles[index].author,
-      date: req.body.date || articles[index].date,
-      category: req.body.category || articles[index].category
+    const updatePayload = {
+      ...existing,
+      title: req.body.title || existing.title,
+      content: req.body.content || existing.content,
+      author: req.body.author || existing.author,
+      date: req.body.date || existing.date,
+      category: req.body.category || existing.category,
+      excerpt: req.body.excerpt || generateExcerpt(req.body.content || existing.content),
+      updatedAt: new Date().toISOString()
     };
 
-    if (writeJSON(dataPath, articles)) {
-      res.json({ success: true, message: 'Article updated', article: articles[index] });
-    } else {
-      res.status(500).json({ error: 'Failed to update article' });
+    if (req.admin.role === ADMIN_ROLES.EDITOR) {
+      const queued = await queueChangeRequest(req, {
+        resourceType: 'article',
+        operation: 'update',
+        resourceId: req.params.id,
+        payload: {
+          id: req.params.id,
+          article: updatePayload
+        }
+      });
+
+      return res.status(202).json({
+        success: true,
+        pendingApproval: true,
+        changeRequestId: queued.id,
+        message: 'Article update request submitted for moderator approval'
+      });
     }
-  } catch (error) {
+
+    const updated = await contentRepository.updateArticle(req.params.id, updatePayload);
+    invalidateHotKey(HOT_CACHE_KEYS.articles);
+    await auditAction(req, 'update_article', 'article', req.params.id);
+
+    res.json({ success: true, message: 'Article updated', article: updated });
+  } catch {
     res.status(500).json({ error: 'Failed to update article' });
   }
 });
 
-// Delete article
-router.delete('/articles/:id', authenticateAdmin, (req, res) => {
+router.delete('/articles/:id', authenticateAdmin, requirePasswordChangeComplete, requireContentWriteAccess, async (req, res) => {
   try {
-    let articles = readJSON(dataPath);
-    const initialLength = articles.length;
-    articles = articles.filter(article => article.id !== req.params.id);
+    if (req.admin.role === ADMIN_ROLES.EDITOR) {
+      const existing = await contentRepository.getArticleById(req.params.id);
+      if (!existing) {
+        return res.status(404).json({ error: 'Article not found' });
+      }
 
-    if (articles.length === initialLength) {
+      const queued = await queueChangeRequest(req, {
+        resourceType: 'article',
+        operation: 'delete',
+        resourceId: req.params.id,
+        payload: { id: req.params.id }
+      });
+
+      return res.status(202).json({
+        success: true,
+        pendingApproval: true,
+        changeRequestId: queued.id,
+        message: 'Article delete request submitted for moderator approval'
+      });
+    }
+
+    const deleted = await contentRepository.deleteArticle(req.params.id);
+    if (!deleted) {
       return res.status(404).json({ error: 'Article not found' });
     }
+    invalidateHotKey(HOT_CACHE_KEYS.articles);
+    await auditAction(req, 'delete_article', 'article', req.params.id);
 
-    if (writeJSON(dataPath, articles)) {
-      res.json({ success: true, message: 'Article deleted' });
-    } else {
-      res.status(500).json({ error: 'Failed to delete article' });
-    }
-  } catch (error) {
+    res.json({ success: true, message: 'Article deleted' });
+  } catch {
     res.status(500).json({ error: 'Failed to delete article' });
   }
 });
 
 // ==================== EVENTS ROUTES ====================
 
-// Get all events
-router.get('/events', (req, res) => {
-  const events = readJSON('./data/events.json');
-  res.json(events);
-});
-
-// Get single event
-router.get('/events/:id', (req, res) => {
-  const events = readJSON('./data/events.json');
-  const event = events.find(e => e.id === req.params.id);
-  if (event) {
-    res.json(event);
-  } else {
-    res.status(404).json({ error: 'Event not found' });
+router.get('/events', async (req, res) => {
+  try {
+    const events = await readOrLoadHot(HOT_CACHE_KEYS.events, () => contentRepository.getAllEvents());
+    res.json(events);
+  } catch {
+    res.status(500).json({ error: 'Failed to load events' });
   }
 });
 
-// Create event 
-const { v4: uuidv4 } = require('uuid');
+router.get('/events/:id', async (req, res) => {
+  try {
+    const event = await contentRepository.getEventById(req.params.id);
+    if (event) {
+      res.json(event);
+    } else {
+      res.status(404).json({ error: 'Event not found' });
+    }
+  } catch {
+    res.status(500).json({ error: 'Failed to load event' });
+  }
+});
 
-router.post('/events', authenticateAdmin, upload.single('image'), (req, res) => {
+router.post('/events', authenticateAdmin, requirePasswordChangeComplete, requireContentWriteAccess, upload.single('image'), async (req, res) => {
   try {
     const {
       title,
@@ -298,8 +844,6 @@ router.post('/events', authenticateAdmin, upload.single('image'), (req, res) => 
       });
     }
 
-    let events = readJSON('./data/events.json');
-
     const newEvent = {
       id: uuidv4(),
       title,
@@ -311,254 +855,271 @@ router.post('/events', authenticateAdmin, upload.single('image'), (req, res) => 
       category: category || null,
       details_url: details_url || null,
       image: req.file ? `/uploads/${req.file.filename}` : null,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      createdBy: req.admin.username,
+      published: false
     };
 
-    events.push(newEvent);
-
-    if (writeJSON('./data/events.json', events)) {
-      res.status(201).json({
-        success: true,
-        message: 'Event created successfully',
-        event: newEvent
+    if (req.admin.role === ADMIN_ROLES.EDITOR) {
+      const queued = await queueChangeRequest(req, {
+        resourceType: 'event',
+        operation: 'create',
+        payload: { event: newEvent }
       });
-    } else {
-      res.status(500).json({ error: 'Failed to save event' });
+
+      return res.status(202).json({
+        success: true,
+        pendingApproval: true,
+        changeRequestId: queued.id,
+        message: 'Event create request submitted for moderator approval'
+      });
     }
 
-  } catch (error) {
-    console.error(error);
+    const saved = await contentRepository.createEvent(newEvent);
+    invalidateHotKey(HOT_CACHE_KEYS.events);
+    await auditAction(req, 'create_event', 'event', saved.id);
+
+    res.status(201).json({
+      success: true,
+      message: 'Event created successfully',
+      event: saved
+    });
+  } catch {
     res.status(500).json({ error: 'Failed to create event' });
   }
 });
 
-// Update event
-router.put('/events/:id', authenticateAdmin, upload.single('image'), (req, res) => {
+router.put('/events/:id', authenticateAdmin, requirePasswordChangeComplete, requireContentWriteAccess, upload.single('image'), async (req, res) => {
   try {
-    let events = readJSON('./data/events.json');
-    const index = events.findIndex(e => e.id === req.params.id);
-
-    if (index === -1) {
+    const existing = await contentRepository.getEventById(req.params.id);
+    if (!existing) {
       return res.status(404).json({ error: 'Event not found' });
     }
 
-    events[index] = {
-      ...events[index],
-      title: req.body.title || events[index].title,
-      description: req.body.description || events[index].description,
-      date: req.body.date || events[index].date,
-      end_date: req.body.end_date || events[index].end_date,
-      time: req.body.time || events[index].time,
-      location: req.body.location || events[index].location, image: req.file
+    const updatePayload = {
+      ...existing,
+      title: req.body.title || existing.title,
+      description: req.body.description || existing.description,
+      date: req.body.date || existing.date,
+      end_date: req.body.end_date || existing.end_date,
+      time: req.body.time || existing.time,
+      location: req.body.location || existing.location,
+      image: req.file
         ? `/uploads/${req.file.filename}`
-        : req.body.image || events[index].image,
-      category: req.body.category || events[index].category,
-      details_url: req.body.details_url || events[index].details_url
+        : req.body.image || existing.image,
+      category: req.body.category || existing.category,
+      details_url: req.body.details_url || existing.details_url,
+      updatedAt: new Date().toISOString()
     };
 
-    if (writeJSON('./data/events.json', events)) {
-      res.json({ success: true, message: 'Event updated', event: events[index] });
-    } else {
-      res.status(500).json({ error: 'Failed to update event' });
+    if (req.admin.role === ADMIN_ROLES.EDITOR) {
+      const queued = await queueChangeRequest(req, {
+        resourceType: 'event',
+        operation: 'update',
+        resourceId: req.params.id,
+        payload: {
+          id: req.params.id,
+          event: updatePayload
+        }
+      });
+
+      return res.status(202).json({
+        success: true,
+        pendingApproval: true,
+        changeRequestId: queued.id,
+        message: 'Event update request submitted for moderator approval'
+      });
     }
-  } catch (error) {
+
+    const updated = await contentRepository.updateEvent(req.params.id, updatePayload);
+    invalidateHotKey(HOT_CACHE_KEYS.events);
+    await auditAction(req, 'update_event', 'event', req.params.id);
+
+    res.json({ success: true, message: 'Event updated', event: updated });
+  } catch {
     res.status(500).json({ error: 'Failed to update event' });
   }
 });
 
-// Delete event
-router.delete('/events/:id', authenticateAdmin, (req, res) => {
+router.delete('/events/:id', authenticateAdmin, requirePasswordChangeComplete, requireContentWriteAccess, async (req, res) => {
   try {
-    let events = readJSON('./data/events.json');
-    const initialLength = events.length;
-    events = events.filter(event => event.id !== req.params.id);
+    if (req.admin.role === ADMIN_ROLES.EDITOR) {
+      const existing = await contentRepository.getEventById(req.params.id);
+      if (!existing) {
+        return res.status(404).json({ error: 'Event not found' });
+      }
 
-    if (events.length === initialLength) {
+      const queued = await queueChangeRequest(req, {
+        resourceType: 'event',
+        operation: 'delete',
+        resourceId: req.params.id,
+        payload: { id: req.params.id }
+      });
+
+      return res.status(202).json({
+        success: true,
+        pendingApproval: true,
+        changeRequestId: queued.id,
+        message: 'Event delete request submitted for moderator approval'
+      });
+    }
+
+    const deleted = await contentRepository.deleteEvent(req.params.id);
+    if (!deleted) {
       return res.status(404).json({ error: 'Event not found' });
     }
+    invalidateHotKey(HOT_CACHE_KEYS.events);
+    await auditAction(req, 'delete_event', 'event', req.params.id);
 
-    if (writeJSON('./data/events.json', events)) {
-      res.json({ success: true, message: 'Event deleted' });
-    } else {
-      res.status(500).json({ error: 'Failed to delete event' });
-    }
-  } catch (error) {
+    res.json({ success: true, message: 'Event deleted' });
+  } catch {
     res.status(500).json({ error: 'Failed to delete event' });
   }
 });
 
 // ==================== GALLERY ROUTES ====================
-// Get categories
-router.get('/gallery/categories', (req, res) => {
-  const gallery = readJSON('./data/gallery.json');
 
-  res.json(gallery.categories || []);
-});
-// Get all gallery images
-router.get('/gallery', (req, res) => {
-
+router.get('/gallery/categories', async (req, res) => {
   try {
+    const categories = await contentRepository.getAllGalleryCategories();
+    res.json(categories);
+  } catch {
+    res.status(500).json({ error: 'Failed to load gallery categories' });
+  }
+});
 
-    const gallery = readJSON('./data/gallery.json');
+router.get('/gallery', async (req, res) => {
+  try {
+    const categories = await contentRepository.getAllGalleryCategories();
+    const images = await contentRepository.getAllGalleryImages();
 
     res.json({
-      categories: gallery.categories || [],
-      images: gallery.images || []
+      categories,
+      images: images.map(item => ({
+        title: item.title || item.file,
+        category: item.category,
+        file: item.file,
+        date: item.date
+      }))
     });
-
-  } catch (err) {
-    res.status(500).json({ error: "Gallery load failed" });
+  } catch {
+    res.status(500).json({ error: 'Gallery load failed' });
   }
-
 });
-// Add category
-router.post('/gallery/categories', authenticateAdmin, (req, res) => {
 
+router.post('/gallery/categories', authenticateAdmin, requirePasswordChangeComplete, requireContentWriteAccess, async (req, res) => {
   try {
-
     const { name, slug, folder, filterClass } = req.body;
 
-    if (!name || !slug) {
+    if (!name && !slug) {
       return res.status(400).json({
-        error: "Name and slug required"
+        error: 'Name or slug required'
       });
     }
 
-    const gallery = readJSON('./data/gallery.json');
-
-    // Prevent duplicates
-    const exists = gallery.categories.some(
-      c => c.slug === slug
-    );
-
-    if (exists) {
+    const normalizedSlug = normalizeSlug(slug || name);
+    if (!normalizedSlug) {
       return res.status(400).json({
-        error: "Category already exists"
+        error: 'Invalid category slug'
       });
     }
 
-    // ✅ Create category FIRST
-    const newCategory = {
-      name,
-      slug,
-      folder: folder || slug,
-      filterClass: filterClass || slug
+    const categoryPayload = {
+      name: name || normalizedSlug,
+      slug: normalizedSlug,
+      folder: folder || normalizedSlug,
+      filterClass: filterClass || normalizedSlug
     };
 
-    // ✅ Create folder AFTER category is created
-    const folderPath = path.join(
-      __dirname,
-      'assets/images/gallery',
-      newCategory.folder
-    );
+    if (req.admin.role === ADMIN_ROLES.EDITOR) {
+      const queued = await queueChangeRequest(req, {
+        resourceType: 'gallery_category',
+        operation: 'create',
+        resourceId: normalizedSlug,
+        payload: {
+          category: categoryPayload
+        }
+      });
 
+      return res.status(202).json({
+        success: true,
+        pendingApproval: true,
+        changeRequestId: queued.id,
+        message: 'Gallery category request submitted for moderator approval'
+      });
+    }
+
+    const category = await contentRepository.addGalleryCategory(categoryPayload);
+
+    const folderPath = path.join(galleryAssetsDir, category.folder);
     if (!fs.existsSync(folderPath)) {
       fs.mkdirSync(folderPath, { recursive: true });
     }
 
-    // Save category
-    gallery.categories.push(newCategory);
-    writeJSON('./data/gallery.json', gallery);
+    await auditAction(req, 'create_gallery_category', 'gallery_category', category.slug);
 
     res.json({
       success: true,
-      category: newCategory
+      category
     });
-
-  } catch (err) {
+  } catch {
     res.status(500).json({
-      error: "Failed to add category"
+      error: 'Failed to add category'
     });
   }
-
 });
 
-router.post('/gallery/categories', authenticateAdmin, (req, res) => {
-
+router.get('/gallery/count', async (req, res) => {
   try {
-
-    const { name } = req.body;
-
-    if (!name) {
-      return res.status(400).json({ error: "Category name required" });
-    }
-
-    const gallery = readJSON('./data/gallery.json');
-
-    const slug = name.toLowerCase().replace(/\s+/g, '-');
-
-    const exists = gallery.categories.some(
-      c => c.slug === slug
-    );
-
-    if (exists) {
-      return res.status(400).json({ error: "Category exists" });
-    }
-
-    const newCategory = {
-      name,
-      slug,
-      folder: slug,
-      filterClass: slug
-    };
-
-    // Create folder automatically
-    const folderPath = path.join(
-      __dirname,
-      'assets/images/gallery',
-      slug
-    );
-
-    if (!fs.existsSync(folderPath)) {
-      fs.mkdirSync(folderPath, { recursive: true });
-    }
-
-    gallery.categories.push(newCategory);
-
-    writeJSON('./data/gallery.json', gallery);
-
-    res.json({
-      success: true,
-      category: newCategory
-    });
-
-  } catch (err) {
-    res.status(500).json({ error: "Category creation failed" });
-  }
-
-});
-// Count gallery images
-router.get('/gallery/count', (req, res) => {
-  try {
-    const gallery = readJSON('./data/gallery.json');
-
-    res.json({
-      count: (gallery.images || []).length
-    });
-
-  } catch (err) {
-    res.status(500).json({ error: "Count failed" });
+    const count = await contentRepository.countGalleryImages();
+    res.json({ count });
+  } catch {
+    res.status(500).json({ error: 'Count failed' });
   }
 });
-// Delete gallery image
-router.delete('/gallery/:file', authenticateAdmin, (req, res) => {
 
+router.delete('/gallery/:file', authenticateAdmin, requirePasswordChangeComplete, requireContentWriteAccess, async (req, res) => {
   try {
+    if (req.admin.role === ADMIN_ROLES.EDITOR) {
+      const queued = await queueChangeRequest(req, {
+        resourceType: 'gallery_image',
+        operation: 'delete',
+        resourceId: req.params.file,
+        payload: { file: req.params.file }
+      });
 
-    const galleryData = readJSON('./data/gallery.json');
+      return res.status(202).json({
+        success: true,
+        pendingApproval: true,
+        changeRequestId: queued.id,
+        message: 'Gallery delete request submitted for moderator approval'
+      });
+    }
 
-    galleryData.images = galleryData.images.filter(
-      img => img.file !== req.params.file
-    );
-
-    writeJSON('./data/gallery.json', galleryData);
-
+    await contentRepository.deleteGalleryImagesByFile(req.params.file);
+    await auditAction(req, 'delete_gallery_image', 'gallery_image', req.params.file);
     res.json({ success: true });
-
-  } catch (err) {
-    res.status(500).json({ error: "Delete failed" });
+  } catch {
+    res.status(500).json({ error: 'Delete failed' });
   }
+});
 
+router.get('/principles', async (req, res) => {
+  try {
+    const content = await readOrLoadHot(HOT_CACHE_KEYS.principles, () => contentRepository.getContentBlob('why_we_do'));
+    if (!content) {
+      return res.json({
+        sectionTitle: 'Why We Do What We Do',
+        organization: 'The Africa Apostolic Church',
+        items: []
+      });
+    }
+
+    res.json(content);
+  } catch {
+    res.status(500).json({ error: 'Failed to load principles content' });
+  }
 });
 
 // ==================== ERROR HANDLING ====================

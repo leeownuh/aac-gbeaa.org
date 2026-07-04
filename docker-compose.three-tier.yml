@@ -1,0 +1,103 @@
+name: aac-gbeaa
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    init: true
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-aac_gbeaa}
+      POSTGRES_USER: ${POSTGRES_USER:-aac}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-aac} -d ${POSTGRES_DB:-aac_gbeaa}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+    init: true
+    depends_on:
+      postgres:
+        condition: service_healthy
+    expose:
+      - "3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      SERVE_STATIC: "false"
+      DATA_ROOT: /mnt/data
+      TRUST_PROXY_HOPS: "1"
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:8080}
+      DATABASE_URL: ${DATABASE_URL:?Set DATABASE_URL in .env}
+      HOT_CACHE_ENABLED: ${HOT_CACHE_ENABLED:-true}
+      HOT_CACHE_TTL_MS: ${HOT_CACHE_TTL_MS:-30000}
+      REDIS_URL: ${REDIS_URL:-}
+      REDIS_SESSION_PREFIX: ${REDIS_SESSION_PREFIX:-aac:sess:}
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in .env} 
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:?Set JWT_REFRESH_SECRET in .env}
+      SESSION_SECRET: ${SESSION_SECRET:?Set SESSION_SECRET in .env}
+      SESSION_COOKIE_SECURE: ${SESSION_COOKIE_SECURE:-false}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:?Set ENCRYPTION_KEY in .env}
+      ADMIN_BOOTSTRAP_PASSWORD: ${ADMIN_BOOTSTRAP_PASSWORD:?Set ADMIN_BOOTSTRAP_PASSWORD in .env}
+      ADMIN_SUPER_USERNAME: ${ADMIN_SUPER_USERNAME:-superadmin}
+      ADMIN_SUPER_PASSWORD: ${ADMIN_SUPER_PASSWORD:-}
+      ADMIN_EDITOR_USERNAME: ${ADMIN_EDITOR_USERNAME:-editoradmin}
+      ADMIN_EDITOR_PASSWORD: ${ADMIN_EDITOR_PASSWORD:-}
+      ADMIN_MODERATOR_USERNAME: ${ADMIN_MODERATOR_USERNAME:-moderatoradmin}
+      ADMIN_MODERATOR_PASSWORD: ${ADMIN_MODERATOR_PASSWORD:-}
+      ADMIN_VIEWER_USERNAME: ${ADMIN_VIEWER_USERNAME:-moderatoradmin}
+      ADMIN_VIEWER_PASSWORD: ${ADMIN_VIEWER_PASSWORD:-}
+      TEMP_PASSWORD_VALID_HOURS: ${TEMP_PASSWORD_VALID_HOURS:-12}
+      PASSWORD_MAX_AGE_DAYS: ${PASSWORD_MAX_AGE_DAYS:-90}
+      TEMP_PASSWORD_MIN_HOURS: ${TEMP_PASSWORD_MIN_HOURS:-1}
+      TEMP_PASSWORD_MAX_HOURS: ${TEMP_PASSWORD_MAX_HOURS:-24}
+    volumes:
+      - app_data:/mnt/data
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"http=require('http');http.get('http://127.0.0.1:3000/api/ready',res=>process.exit(res.statusCode===200?0:1)).on('error',()=>process.exit(1))\""]
+      interval: 15s
+      timeout: 5s
+      retries: 8
+      start_period: 20s
+    restart: unless-stopped
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    init: true
+    depends_on:
+      app:
+        condition: service_healthy
+    ports:
+      - "${WEB_PORT:-8080}:80"
+    volumes:
+      - app_data:/mnt/data:ro
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1/ || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  app_data:
+  postgres_data:

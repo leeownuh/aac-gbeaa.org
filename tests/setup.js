@@ -26,3 +26,7 @@ global.TEST_DIR = TEST_DIR;
 
 beforeAll(setupTestEnvironment);
 afterAll(cleanupTestEnvironment);
+
+module.exports = {
+  TEST_DIR
+};

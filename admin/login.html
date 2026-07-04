@@ -176,7 +176,7 @@ fetch('/api/admin/check', {
 .then(response => response.json())
 .then(data => {
     if (data.authenticated) {
-        window.location.href = 'dashboard.html';
+        window.location.href = data.requiresPasswordChange ? 'change-password.html' : 'dashboard.html';
     }
 });
 
@@ -210,7 +210,8 @@ loginForm.addEventListener('submit', async (e) => {
             successMessage.style.display = 'block';
 
             setTimeout(() => {
-                window.location.href = 'dashboard.html';
+                const requiresPasswordChange = Boolean(result.user && result.user.requiresPasswordChange);
+                window.location.href = requiresPasswordChange ? 'change-password.html' : 'dashboard.html';
             }, 1000);
 
         } else {
@@ -226,20 +227,23 @@ loginForm.addEventListener('submit', async (e) => {
     }
 });
 // Add this to your JS file that runs after the DOM is ready
-document.getElementById('logoutBtn').addEventListener('click', () => {
-    if (confirm('Are you sure you want to logout?')) {
-        fetch('/api/admin/logout', { 
-            method: 'POST', 
-            credentials: 'include'  // important for session cookies
-        })
-        .then(() => {
-            window.location.href = 'login.html';
-        })
-        .catch(err => {
-            console.error('Logout failed', err);
-        });
-    }
-});
+const logoutBtn = document.getElementById('logoutBtn');
+if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => {
+        if (confirm('Are you sure you want to logout?')) {
+            fetch('/api/admin/logout', { 
+                method: 'POST', 
+                credentials: 'include'  // important for session cookies
+            })
+            .then(() => {
+                window.location.href = 'login.html';
+            })
+            .catch(err => {
+                console.error('Logout failed', err);
+            });
+        }
+    });
+}
 </script>
 </body>
 </html>

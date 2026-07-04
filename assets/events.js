@@ -12,9 +12,42 @@ document.addEventListener('DOMContentLoaded', function () {
   let currentPage = 1;
   let currentCategory = null;
 
-  // Fetch Events from JSON
-  fetch('data/events.json')
-    .then(res => res.json())
+  const normalizeEventsPayload = (payload) => {
+    if (Array.isArray(payload)) {
+      return payload;
+    }
+    if (payload && Array.isArray(payload.data)) {
+      return payload.data;
+    }
+    return [];
+  };
+
+  const fetchEvents = async () => {
+    const sources = ['/api/events', '/data/events.json', 'data/events.json'];
+    for (const source of sources) {
+      try {
+        const res = await fetch(source);
+        if (!res.ok) {
+          continue;
+        }
+        const payload = await res.json();
+        const normalized = normalizeEventsPayload(payload);
+        if (normalized.length > 0) {
+          return normalized;
+        }
+      } catch {
+      }
+    }
+
+    try {
+      return JSON.parse(localStorage.getItem('events')) || [];
+    } catch {
+      return [];
+    }
+  };
+
+  // Fetch Events with fallback
+  fetchEvents()
     .then(data => {
       events = data.sort((a, b) => new Date(a.date) - new Date(b.date));
       localStorage.setItem('events', JSON.stringify(events));
@@ -22,7 +55,7 @@ document.addEventListener('DOMContentLoaded', function () {
       renderHolyCommunion();
       renderSlider();
     })
-    .catch(err => console.error('Failed to load events.json:', err));
+    .catch(err => console.error('Failed to load events:', err));
 
   // Paginate Events
   function paginate(eventsArray, page) {

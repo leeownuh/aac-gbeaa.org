@@ -149,24 +149,35 @@ const validateUser = [
   
   body('role')
     .optional()
-    .isIn(['admin', 'editor', 'user'])
-    .withMessage('Role must be admin, editor, or user'),
+    .isIn(['admin', 'super', 'editor', 'moderator', 'viewer', 'user'])
+    .withMessage('Role must be super, editor, moderator, viewer, admin, or user'),
   
   handleValidationErrors
 ];
 
 const validatePassword = [
-  body('password')
+  body('currentPassword')
+    .isString()
+    .isLength({ min: 1 })
+    .withMessage('Current password is required'),
+
+  body('newPassword')
     .isLength({ min: config.security.passwordMinLength })
-    .withMessage(`Password must be at least ${config.security.passwordMinLength} characters`)
+    .withMessage(`New password must be at least ${config.security.passwordMinLength} characters`)
     .matches(/[A-Z]/)
-    .withMessage('Password must contain at least one uppercase letter')
+    .withMessage('New password must contain at least one uppercase letter')
     .matches(/[a-z]/)
-    .withMessage('Password must contain at least one lowercase letter')
+    .withMessage('New password must contain at least one lowercase letter')
     .matches(/[0-9]/)
-    .withMessage('Password must contain at least one number')
+    .withMessage('New password must contain at least one number')
     .matches(/[!@#$%^&*(),.?":{}|<>]/)
-    .withMessage('Password must contain at least one special character'),
+    .withMessage('New password must contain at least one special character')
+    .custom((value, { req }) => {
+      if (value === req.body.currentPassword) {
+        throw new Error('New password must be different from current password');
+      }
+      return true;
+    }),
   
   handleValidationErrors
 ];

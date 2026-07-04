@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Audit Logs - AAC GBEAAA</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; min-height: 100vh; }
+    .container { display: flex; min-height: 100vh; }
+    .sidebar { width: 250px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; padding: 20px; position: fixed; height: 100vh; overflow-y: auto; }
+    .sidebar-header { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.2); }
+    .sidebar-header h2 { font-size: 20px; margin-bottom: 5px; }
+    .nav-menu { list-style: none; }
+    .nav-menu li { margin-bottom: 10px; }
+    .nav-menu a { display: block; padding: 12px 15px; color: #fff; text-decoration: none; border-radius: 5px; font-size: 14px; }
+    .nav-menu a:hover, .nav-menu a.active { background: rgba(255,255,255,0.2); }
+    .logout-btn { margin-top: 30px; width: 100%; padding: 12px 15px; border: none; border-radius: 5px; background: rgba(255,255,255,0.2); color: #fff; cursor: pointer; }
+    .main-content { margin-left: 250px; flex: 1; padding: 30px; }
+    .header { margin-bottom: 16px; }
+    .header h1 { color: #333; margin-bottom: 8px; }
+    .header p { color: #666; }
+    .status { min-height: 20px; margin-bottom: 12px; font-size: 14px; }
+    .success { color: #0a7f2e; }
+    .error { color: #b00000; }
+    .card { background: #fff; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 18px; margin-bottom: 14px; }
+    .filters { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); margin-bottom: 10px; }
+    label { display: block; font-size: 12px; color: #333; margin-bottom: 4px; }
+    input, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; }
+    .btn { border: none; border-radius: 6px; padding: 10px 14px; cursor: pointer; font-weight: 600; }
+    .btn-primary { background: #667eea; color: #fff; }
+    .btn-secondary { background: #e6e6e6; color: #333; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; border-bottom: 1px solid #eee; padding: 10px 8px; font-size: 13px; vertical-align: top; }
+    th { color: #444; font-size: 12px; text-transform: uppercase; }
+    .details-cell { max-width: 480px; white-space: pre-wrap; word-break: break-word; font-family: Consolas, monospace; font-size: 12px; }
+    @media (max-width: 768px) {
+      .sidebar { position: relative; width: 100%; height: auto; }
+      .main-content { margin-left: 0; }
+      table { display: block; overflow-x: auto; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <h2>AAC GBEAAA</h2>
+        <p>Admin Panel</p>
+      </div>
+      <ul class="nav-menu">
+        <li><a href="dashboard.html">Dashboard</a></li>
+        <li><a href="articles.html">Articles</a></li>
+        <li><a href="events.html">Events</a></li>
+        <li><a href="gallery.html">Gallery</a></li>
+        <li><a href="approvals.html">Moderation Queue</a></li>
+        <li><a href="audit-logs.html" class="active">Audit Logs</a></li>
+        <li><a href="accounts.html">Account Management</a></li>
+      </ul>
+      <button class="logout-btn" id="logoutBtn">Logout</button>
+    </div>
+
+    <div class="main-content">
+      <div class="header">
+        <h1>Audit Logs</h1>
+        <p id="whoami">Checking access...</p>
+      </div>
+      <div id="status" class="status"></div>
+
+      <div class="card">
+        <div class="filters">
+          <div>
+            <label for="filterAction">Action</label>
+            <input id="filterAction" placeholder="e.g. login">
+          </div>
+          <div>
+            <label for="filterUsername">Username</label>
+            <input id="filterUsername" placeholder="e.g. editoradmin">
+          </div>
+          <div>
+            <label for="filterSeverity">Severity</label>
+            <select id="filterSeverity">
+              <option value="">Any</option>
+              <option value="info">info</option>
+              <option value="warning">warning</option>
+              <option value="error">error</option>
+              <option value="critical">critical</option>
+            </select>
+          </div>
+          <div>
+            <label for="filterLimit">Limit</label>
+            <input id="filterLimit" type="number" min="1" max="500" value="100">
+          </div>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap: wrap;">
+          <button class="btn btn-primary" id="applyFiltersBtn">Apply Filters</button>
+          <button class="btn btn-secondary" id="resetFiltersBtn">Reset</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <table>
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Severity</th>
+              <th>User</th>
+              <th>Action</th>
+              <th>Resource</th>
+              <th>Details</th>
+            </tr>
+          </thead>
+          <tbody id="auditBody">
+            <tr><td colspan="6">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function setStatus(message, type) {
+      const element = document.getElementById('status');
+      element.textContent = message || '';
+      element.className = `status ${type || ''}`.trim();
+    }
+
+    function escapeHtml(value) {
+      const div = document.createElement('div');
+      div.textContent = String(value ?? '');
+      return div.innerHTML;
+    }
+
+    function toLocalDate(value) {
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return value || '-';
+      return date.toLocaleString();
+    }
+
+    function buildQuery() {
+      const params = new URLSearchParams();
+      const action = document.getElementById('filterAction').value.trim();
+      const username = document.getElementById('filterUsername').value.trim();
+      const severity = document.getElementById('filterSeverity').value.trim();
+      const limit = Number.parseInt(document.getElementById('filterLimit').value, 10);
+
+      if (action) params.set('action', action);
+      if (username) params.set('username', username);
+      if (severity) params.set('severity', severity);
+      if (Number.isFinite(limit)) params.set('limit', String(limit));
+      return params.toString();
+    }
+
+    function renderLogs(logs) {
+      const body = document.getElementById('auditBody');
+      if (!Array.isArray(logs) || !logs.length) {
+        body.innerHTML = '<tr><td colspan="6">No audit entries found.</td></tr>';
+        return;
+      }
+
+      body.innerHTML = logs.map(item => `
+        <tr>
+          <td>${escapeHtml(toLocalDate(item.createdAt))}</td>
+          <td>${escapeHtml(item.severity || 'info')}</td>
+          <td>${escapeHtml(item.username || '-')}</td>
+          <td>${escapeHtml(item.action || '-')}</td>
+          <td>${escapeHtml(item.resource || '-')} ${item.resourceId ? `(${escapeHtml(item.resourceId)})` : ''}</td>
+          <td class="details-cell">${escapeHtml(JSON.stringify(item.details || {}, null, 2))}</td>
+        </tr>
+      `).join('');
+    }
+
+    function loadLogs() {
+      setStatus('Loading audit logs...');
+      const query = buildQuery();
+      const url = `/api/admin/audit-logs${query ? `?${query}` : ''}`;
+      return fetch(url, { credentials: 'include' })
+        .then(r => r.json())
+        .then((payload) => {
+          if (!payload.success) {
+            throw new Error(payload.error || 'Failed to load audit logs');
+          }
+          renderLogs(payload.logs || []);
+          setStatus(`Loaded ${(payload.logs || []).length} audit records.`, 'success');
+        })
+        .catch((err) => {
+          setStatus(err.message || 'Failed to load audit logs', 'error');
+        });
+    }
+
+    fetch('/api/admin/check', { credentials: 'include' })
+      .then(r => r.json())
+      .then((data) => {
+        if (!data.authenticated) {
+          window.location.href = 'login.html';
+          return;
+        }
+        if (data.requiresPasswordChange) {
+          window.location.href = 'change-password.html';
+          return;
+        }
+        if (!(data.permissions && data.permissions.canViewAuditLogs)) {
+          setStatus('You do not have permission to view audit logs.', 'error');
+          return;
+        }
+        document.getElementById('whoami').textContent = `Signed in as ${data.username} (${data.role || 'unknown'})`;
+        loadLogs();
+      })
+      .catch(() => {
+        window.location.href = 'login.html';
+      });
+
+    document.getElementById('applyFiltersBtn').addEventListener('click', loadLogs);
+    document.getElementById('resetFiltersBtn').addEventListener('click', () => {
+      document.getElementById('filterAction').value = '';
+      document.getElementById('filterUsername').value = '';
+      document.getElementById('filterSeverity').value = '';
+      document.getElementById('filterLimit').value = '100';
+      loadLogs();
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      if (!confirm('Are you sure you want to logout?')) return;
+      fetch('/api/admin/logout', { method: 'POST', credentials: 'include' })
+        .finally(() => {
+          window.location.href = 'login.html';
+        });
+    });
+  </script>
+</body>
+</html>

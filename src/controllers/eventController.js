@@ -1,14 +1,14 @@
 const { v4: uuidv4 } = require('uuid');
 const logger = require('../utils/logger');
-const cache = require('../storage/cache');
 const { validate } = require('../schemas');
 const intrusionDetection = require('../services/intrusionDetection');
+const contentRepository = require('../db/repositories/contentRepository');
 
 class EventController {
   async getAllEvents(req, res) {
     try {
-      const events = cache.get('events.json', []);
-      
+      const events = await contentRepository.getAllEvents();
+
       logger.info('Events retrieved', {
         count: events.length,
         ip: req.ip
@@ -30,8 +30,7 @@ class EventController {
   async getEventById(req, res) {
     try {
       const { id } = req.params;
-      const events = cache.get('events.json', []);
-      const event = events.find(e => e.id === id);
+      const event = await contentRepository.getEventById(id);
 
       if (!event) {
         return res.status(404).json({
@@ -75,10 +74,18 @@ class EventController {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         createdBy: userId,
+        category: req.body.category || null,
+        details_url: req.body.details_url || null,
+        end_date: req.body.end_date || null,
+        time: req.body.time || null,
+        image: req.body.image || null,
         published: false
       };
 
-      const result = validate('event', event);
+      const result = validate('event', {
+        ...event,
+        date: new Date(event.date).toISOString()
+      });
       if (!result.valid) {
         return res.status(400).json({
           success: false,
@@ -87,18 +94,11 @@ class EventController {
         });
       }
 
-      await cache.update('events.json', (events) => {
-        const existing = events.find(e => e.id === event.id);
-        if (existing) {
-          throw new Error('Event ID already exists');
-        }
-        events.push(event);
-        return events;
-      }, 'event');
+      const savedEvent = await contentRepository.createEvent(event);
 
       logger.info('Event created', {
-        eventId: event.id,
-        title: event.title,
+        eventId: savedEvent.id,
+        title: savedEvent.title,
         userId,
         username,
         ip: req.ip
@@ -107,7 +107,7 @@ class EventController {
       res.status(201).json({
         success: true,
         message: 'Event created successfully',
-        data: event
+        data: savedEvent
       });
     } catch (error) {
       logger.error('Failed to create event', {
@@ -115,13 +115,6 @@ class EventController {
         userId: req.user?.userId,
         ip: req.ip
       });
-
-      if (error.message === 'Event ID already exists') {
-        return res.status(409).json({
-          success: false,
-          error: 'Event ID already exists'
-        });
-      }
 
       res.status(500).json({
         success: false,
@@ -135,32 +128,36 @@ class EventController {
       const { id } = req.params;
       const updates = req.body;
       const userId = req.user.userId;
+      const existing = await contentRepository.getEventById(id);
 
-      const events = await cache.update('events.json', (events) => {
-        const index = events.findIndex(e => e.id === id);
-        
-        if (index === -1) {
-          throw new Error('Event not found');
-        }
+      if (!existing) {
+        return res.status(404).json({
+          success: false,
+          error: 'Event not found'
+        });
+      }
 
-        const updatedEvent = {
-          ...events[index],
-          ...updates,
-          id: events[index].id,
-          createdAt: events[index].createdAt,
-          updatedAt: new Date().toISOString()
-        };
+      const updatedEvent = {
+        ...existing,
+        ...updates,
+        id: existing.id,
+        createdAt: existing.createdAt,
+        updatedAt: new Date().toISOString()
+      };
 
-        const result = validate('event', updatedEvent);
-        if (!result.valid) {
-          throw new Error(JSON.stringify(result.errors));
-        }
+      const result = validate('event', {
+        ...updatedEvent,
+        date: new Date(updatedEvent.date).toISOString()
+      });
+      if (!result.valid) {
+        return res.status(400).json({
+          success: false,
+          error: 'Validation failed',
+          details: result.errors
+        });
+      }
 
-        events[index] = updatedEvent;
-        return events;
-      }, 'event');
-
-      const event = events.find(e => e.id === id);
+      const savedEvent = await contentRepository.updateEvent(id, updatedEvent);
 
       logger.info('Event updated', {
         eventId: id,
@@ -171,16 +168,9 @@ class EventController {
       res.json({
         success: true,
         message: 'Event updated successfully',
-        data: event
+        data: savedEvent
       });
     } catch (error) {
-      if (error.message === 'Event not found') {
-        return res.status(404).json({
-          success: false,
-          error: 'Event not found'
-        });
-      }
-
       logger.error('Failed to update event', {
         eventId: req.params.id,
         error: error.message
@@ -198,16 +188,13 @@ class EventController {
       const { id } = req.params;
       const userId = req.user.userId;
 
-      const events = await cache.update('events.json', (events) => {
-        const index = events.findIndex(e => e.id === id);
-        
-        if (index === -1) {
-          throw new Error('Event not found');
-        }
-
-        const deleted = events.splice(index, 1)[0];
-        return events;
-      });
+      const deleted = await contentRepository.deleteEvent(id);
+      if (!deleted) {
+        return res.status(404).json({
+          success: false,
+          error: 'Event not found'
+        });
+      }
 
       intrusionDetection.trackSuspiciousAction('deletes', {
         userId,
@@ -227,13 +214,6 @@ class EventController {
         message: 'Event deleted successfully'
       });
     } catch (error) {
-      if (error.message === 'Event not found') {
-        return res.status(404).json({
-          success: false,
-          error: 'Event not found'
-        });
-      }
-
       logger.error('Failed to delete event', {
         eventId: req.params.id,
         error: error.message

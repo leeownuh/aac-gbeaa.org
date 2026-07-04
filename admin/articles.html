@@ -363,6 +363,9 @@
 <li><a href="articles.html" class="active">📝 Articles</a></li>
 <li><a href="events.html">📅 Events</a></li>
 <li><a href="gallery.html">🖼️ Gallery</a></li>
+<li><a href="approvals.html">Moderation Queue</a></li>
+<li><a href="audit-logs.html">Audit Logs</a></li>
+<li><a href="accounts.html">Account Management</a></li>
 </ul>
 
 <button class="logout-btn" onclick="logout()">🚪 Logout</button>
@@ -447,6 +450,10 @@ fetch('/api/admin/check',{credentials:'include'})
 if(!d.authenticated){
 window.location.href='login.html';
 }else{
+if(d.requiresPasswordChange){
+window.location.href='change-password.html';
+return;
+}
 loadArticles();
 }
 });
@@ -616,3 +623,6 @@ document.getElementById('logoutBtn').addEventListener('click', () => {
 </body>
 
 </html>
+
+
+

@@ -1,330 +1,189 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - AAC GBEAAA</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - AAC GBEAAA</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; min-height: 100vh; }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f5f5f5;
-            min-height: 100vh;
-        }
+    .container { display: flex; min-height: 100vh; }
+    .sidebar { width: 250px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; padding: 20px; position: fixed; height: 100vh; overflow-y: auto; }
+    .sidebar-header { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.2); }
+    .sidebar-header h2 { font-size: 20px; margin-bottom: 5px; }
+    .sidebar-header p { font-size: 12px; opacity: 0.85; }
 
-        .dashboard-container {
-            display: flex;
-            min-height: 100vh;
-        }
+    .nav-menu { list-style: none; }
+    .nav-menu li { margin-bottom: 10px; }
+    .nav-menu a { display: block; padding: 12px 15px; color: #fff; text-decoration: none; border-radius: 5px; font-size: 14px; }
+    .nav-menu a:hover, .nav-menu a.active { background: rgba(255,255,255,0.2); }
 
-        .sidebar {
-            width: 250px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
-            position: fixed;
-            height: 100vh;
-            overflow-y: auto;
-        }
+    .logout-btn { margin-top: 30px; width: 100%; padding: 12px 15px; border: none; border-radius: 5px; background: rgba(255,255,255,0.2); color: #fff; cursor: pointer; font-size: 14px; }
 
-        .sidebar-header {
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-        }
+    .main-content { margin-left: 250px; flex: 1; padding: 30px; }
+    .header { margin-bottom: 16px; }
+    .header h1 { color: #333; margin-bottom: 8px; font-size: 28px; }
+    .welcome-text { color: #666; font-size: 14px; }
 
-        .sidebar-header h2 {
-            font-size: 20px;
-            margin-bottom: 5px;
-        }
+    .loading { text-align: center; padding: 50px; color: #666; }
 
-        .sidebar-header p {
-            font-size: 12px;
-            opacity: 0.8;
-        }
+    .card { background: #fff; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 18px; margin-bottom: 14px; }
+    .card h2 { color: #333; font-size: 20px; margin-bottom: 12px; }
 
-        .nav-menu {
-            list-style: none;
-        }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 14px; }
+    .stat-card h3 { color: #666; font-size: 13px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.02em; }
+    .stat-card .number { color: #333; font-size: 34px; font-weight: 800; }
+    .stat-card.articles { border-left: 4px solid #667eea; }
+    .stat-card.events { border-left: 4px solid #764ba2; }
+    .stat-card.gallery { border-left: 4px solid #f093fb; }
 
-        .nav-menu li {
-            margin-bottom: 10px;
-        }
+    .actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+    .btn { border: none; border-radius: 6px; padding: 12px 14px; cursor: pointer; font-weight: 700; display: block; text-align: center; text-decoration: none; transition: transform 0.15s ease, box-shadow 0.15s ease; }
+    .btn-primary { background: #667eea; color: #fff; }
+    .btn-secondary { background: #e6e6e6; color: #333; }
+    .btn:hover { transform: translateY(-1px); box-shadow: 0 10px 24px rgba(0,0,0,0.08); }
 
-        .nav-menu a {
-            display: block;
-            padding: 12px 15px;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            transition: background 0.3s;
-            font-size: 14px;
-        }
-
-        .nav-menu a:hover,
-        .nav-menu a.active {
-            background: rgba(255, 255, 255, 0.2);
-        }
-
-        .nav-menu a i {
-            margin-right: 10px;
-        }
-
-        .logout-btn {
-            margin-top: 30px;
-            padding: 12px 15px;
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            width: 100%;
-            font-size: 14px;
-            transition: background 0.3s;
-        }
-
-        .logout-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-
-        .main-content {
-            margin-left: 250px;
-            flex: 1;
-            padding: 30px;
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-        }
-
-        .header h1 {
-            color: #333;
-            font-size: 28px;
-        }
-
-        .welcome-text {
-            color: #666;
-            font-size: 14px;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .stat-card {
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .stat-card h3 {
-            color: #666;
-            font-size: 14px;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-        }
-
-        .stat-card .number {
-            color: #333;
-            font-size: 36px;
-            font-weight: bold;
-        }
-
-        .stat-card.articles {
-            border-left: 4px solid #667eea;
-        }
-
-        .stat-card.events {
-            border-left: 4px solid #764ba2;
-        }
-
-        .stat-card.gallery {
-            border-left: 4px solid #f093fb;
-        }
-
-        .quick-actions {
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .quick-actions h2 {
-            color: #333;
-            font-size: 20px;
-            margin-bottom: 20px;
-        }
-
-        .action-buttons {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-        }
-
-        .action-btn {
-            padding: 15px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            transition: transform 0.2s, box-shadow 0.2s;
-            text-decoration: none;
-            text-align: center;
-            display: block;
-        }
-
-        .action-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-
-        .loading {
-            text-align: center;
-            padding: 50px;
-            color: #666;
-        }
-
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 100%;
-                position: relative;
-                height: auto;
-            }
-
-            .main-content {
-                margin-left: 0;
-            }
-        }
-    </style>
+    @media (max-width: 768px) {
+      .sidebar { width: 100%; position: relative; height: auto; }
+      .main-content { margin-left: 0; }
+    }
+  </style>
 </head>
 <body>
-    <div class="dashboard-container">
-        <div class="sidebar">
-            <div class="sidebar-header">
-                <h2>AAC GBEAAA</h2>
-                <p>Admin Panel</p>
-            </div>
+  <div class="container">
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <h2>AAC GBEAAA</h2>
+        <p>Admin Panel</p>
+      </div>
 
-            <ul class="nav-menu">
-                <li><a href="dashboard.html" class="active">📊 Dashboard</a></li>
-                <li><a href="articles.html">📝 Articles</a></li>
-                <li><a href="events.html">📅 Events</a></li>
-                <li><a href="gallery.html">🖼️ Gallery</a></li>
-            </ul>
+      <ul class="nav-menu">
+        <li><a href="dashboard.html" class="active">Dashboard</a></li>
+        <li><a href="articles.html">Articles</a></li>
+        <li><a href="events.html">Events</a></li>
+        <li><a href="gallery.html">Gallery</a></li>
+        <li><a href="approvals.html">Moderation Queue</a></li>
+        <li><a href="audit-logs.html" id="auditNavLink" style="display:none">Audit Logs</a></li>
+        <li><a href="accounts.html" id="accountsNavLink" style="display:none">Account Management</a></li>
+      </ul>
 
-            <button class="logout-btn" id="logoutBtn">🚪 Logout</button>
-        </div>
-
-        <div class="main-content">
-            <div class="header">
-                <div>
-                    <h1>Dashboard</h1>
-                    <p class="welcome-text">Welcome back, <span id="adminUsername">Admin</span>!</p>
-                </div>
-            </div>
-
-            <div id="loading" class="loading">Loading dashboard...</div>
-
-            <div id="dashboardContent" style="display: none;">
-                <div class="stats-grid">
-                    <div class="stat-card articles">
-                        <h3>Total Articles</h3>
-                        <div class="number" id="articlesCount">0</div>
-                    </div>
-                    <div class="stat-card events">
-                        <h3>Total Events</h3>
-                        <div class="number" id="eventsCount">0</div>
-                    </div>
-                    <div class="stat-card gallery">
-                        <h3>Gallery Images</h3>
-                        <div class="number" id="galleryCount">0</div>
-                    </div>
-                </div>
-
-                <div class="quick-actions">
-                    <h2>Quick Actions</h2>
-                    <div class="action-buttons">
-                        <a href="articles.html" class="action-btn">➕ Add New Article</a>
-                        <a href="events.html" class="action-btn">➕ Add New Event</a>
-                        <a href="gallery.html" class="action-btn">➕ Upload Image</a>
-                        <a href="../index.html" class="action-btn">🌐 View Website</a>
-                    </div>
-                </div>
-            </div>
-        </div>
+      <button class="logout-btn" id="logoutBtn">Logout</button>
     </div>
 
-    <script>
-    // Check authentication
-    fetch('/api/admin/check', { 
-        credentials: 'include' 
-    })
-    .then(response => response.json())
-    .then(data => {
+    <div class="main-content">
+      <div class="header">
+        <h1>Dashboard</h1>
+        <p class="welcome-text">Welcome back, <span id="adminUsername">Admin</span>! Role: <span id="adminRole">moderator</span></p>
+      </div>
+
+      <div id="loading" class="loading">Loading dashboard...</div>
+
+      <div id="dashboardContent" style="display: none;">
+        <div class="stats-grid">
+          <div class="card stat-card articles">
+            <h3>Total Articles</h3>
+            <div class="number" id="articlesCount">0</div>
+          </div>
+          <div class="card stat-card events">
+            <h3>Total Events</h3>
+            <div class="number" id="eventsCount">0</div>
+          </div>
+          <div class="card stat-card gallery">
+            <h3>Gallery Images</h3>
+            <div class="number" id="galleryCount">0</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Quick Actions</h2>
+          <div class="actions">
+            <a href="articles.html" class="btn btn-primary content-action">Add New Article</a>
+            <a href="events.html" class="btn btn-primary content-action">Add New Event</a>
+            <a href="gallery.html" class="btn btn-primary content-action">Upload Image</a>
+            <a href="accounts.html" class="btn btn-primary" id="manageUsersAction" style="display:none">Manage Accounts</a>
+            <a href="../index.html" class="btn btn-secondary">View Website</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    fetch('/api/admin/check', { credentials: 'include' })
+      .then(response => response.json())
+      .then(data => {
         if (!data.authenticated) {
-            window.location.href = 'login.html';
-        } else {
-            document.getElementById('adminUsername').textContent = data.username;
-            loadDashboard();
+          window.location.href = 'login.html';
+          return;
         }
-    })
-    .catch(() => {
+
+        if (data.requiresPasswordChange) {
+          window.location.href = 'change-password.html';
+          return;
+        }
+
+        document.getElementById('adminUsername').textContent = data.username;
+        document.getElementById('adminRole').textContent = data.role || 'moderator';
+
+        const canManageUsers = Boolean(data.permissions && data.permissions.canManageUsers);
+        const canEditContent = Boolean(data.permissions && data.permissions.canEditContent);
+        const canViewAuditLogs = Boolean(data.permissions && data.permissions.canViewAuditLogs);
+
+        if (canManageUsers) {
+          document.getElementById('accountsNavLink').style.display = 'block';
+          document.getElementById('manageUsersAction').style.display = 'block';
+        }
+
+        if (canViewAuditLogs) {
+          document.getElementById('auditNavLink').style.display = 'block';
+        }
+
+        if (!canEditContent) {
+          document.querySelectorAll('.content-action').forEach((element) => {
+            element.textContent = 'View Content';
+          });
+        }
+
+        loadDashboard();
+      })
+      .catch(() => {
         window.location.href = 'login.html';
-    });
+      });
 
     function loadDashboard() {
-        Promise.all([
-            fetch('/api/articles', { credentials: 'include' }).then(r => r.json()),
-            fetch('/api/events', { credentials: 'include' }).then(r => r.json()),
-            fetch('/api/gallery', { credentials: 'include' }).then(r => r.json())
-        ])
+      Promise.all([
+        fetch('/api/articles', { credentials: 'include' }).then(r => r.json()),
+        fetch('/api/events', { credentials: 'include' }).then(r => r.json()),
+        fetch('/api/gallery', { credentials: 'include' }).then(r => r.json())
+      ])
         .then(([articles, events, gallery]) => {
-            document.getElementById('articlesCount').textContent = articles.length;
-            document.getElementById('eventsCount').textContent = events.length;
-            document.getElementById('galleryCount').textContent = (gallery.images || []).length;
-            document.getElementById('loading').style.display = 'none';
-            document.getElementById('dashboardContent').style.display = 'block';
+          document.getElementById('articlesCount').textContent = articles.length;
+          document.getElementById('eventsCount').textContent = events.length;
+          document.getElementById('galleryCount').textContent = (gallery.images || []).length;
+          document.getElementById('loading').style.display = 'none';
+          document.getElementById('dashboardContent').style.display = 'block';
         })
         .catch(error => {
-            console.error('Error loading dashboard:', error);
-            document.getElementById('loading').textContent = 'Error loading dashboard';
+          console.error('Error loading dashboard:', error);
+          document.getElementById('loading').textContent = 'Error loading dashboard';
         });
     }
-    // Add this to your JS file that runs after the DOM is ready
-document.getElementById('logoutBtn').addEventListener('click', () => {
-    if (confirm('Are you sure you want to logout?')) {
-        fetch('/api/admin/logout', { 
-            method: 'POST', 
-            credentials: 'include'  // important for session cookies
+
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      if (confirm('Are you sure you want to logout?')) {
+        fetch('/api/admin/logout', {
+          method: 'POST',
+          credentials: 'include'
         })
-        .then(() => {
+          .then(() => {
             window.location.href = 'login.html';
-        })
-        .catch(err => {
+          })
+          .catch(err => {
             console.error('Logout failed', err);
-        });
-    }
-});
-</script>
+          });
+      }
+    });
+  </script>
 </body>
 </html>

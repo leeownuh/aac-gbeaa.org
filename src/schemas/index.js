@@ -12,7 +12,7 @@ const userSchema = {
     username: { type: 'string', minLength: 3, maxLength: 50 },
     password: { type: 'string', minLength: config.security.passwordMinLength },
     email: { type: 'string', format: 'email' },
-    role: { type: 'string', enum: ['admin', 'editor', 'user'] },
+    role: { type: 'string', enum: ['admin', 'super', 'editor', 'moderator', 'viewer', 'user'] },
     createdAt: { type: 'string', format: 'date-time' },
     updatedAt: { type: 'string', format: 'date-time' },
     failedAttempts: { type: 'number', minimum: 0 },

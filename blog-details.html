@@ -120,7 +120,7 @@ Author: Leona Kokerai - Ownuh
             document.addEventListener("DOMContentLoaded", function () {
                 const swiperContainer = document.getElementById("event-swiper");
 
-                fetch("data/events.json")
+                fetch("/api/events").catch(() => fetch("data/events.json"))
                     .then(res => res.json())
                     .then(events => {
                         const today = new Date().toISOString().split("T")[0];

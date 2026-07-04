@@ -6,6 +6,9 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "node --watch src/index.js",
+    "seed:data": "node scripts/seedData.js",
+    "secrets:generate": "node scripts/generateSecrets.js",
+    "preflight": "node scripts/preflight.js",
     "build": "echo Build complete",
     "test": "jest --coverage",
     "test:watch": "jest --watch",
@@ -17,6 +20,7 @@
     "ajv-formats": "^2.1.1",
     "bcrypt": "^5.1.1",
     "bcryptjs": "^3.0.3",
+    "connect-redis": "^8.1.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
@@ -29,12 +33,17 @@
     "jsonwebtoken": "^9.0.3",
     "multer": "^1.4.5-lts.2",
     "path": "^0.12.7",
+    "pg": "^8.20.0",
     "proper-lockfile": "^4.1.2",
+    "redis": "^4.7.1",
     "uuid": "^9.0.1",
     "winston": "^3.19.0"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "eslint": "^8.57.1",
+    "eslint-plugin-react": "^7.37.5",
+    "globals": "^17.4.0",
     "jest": "^29.7.0",
     "supertest": "^6.3.4"
   },

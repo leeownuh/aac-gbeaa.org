@@ -120,7 +120,7 @@ Author: Leona Kokerai - Ownuh
             document.addEventListener("DOMContentLoaded", function () {
                 const swiperContainer = document.getElementById("event-swiper");
 
-                fetch("data/events.json")
+                fetch("/api/events").catch(() => fetch("data/events.json"))
                     .then(res => res.json())
                     .then(events => {
                         const today = new Date().toISOString().split("T")[0];
@@ -405,30 +405,88 @@ Author: Leona Kokerai - Ownuh
         </section>
     </main>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', async function () {
+            const normalizeId = (value) => String(value || '').trim().toLowerCase();
             const urlParams = new URLSearchParams(window.location.search);
-            const eventId = urlParams.get('id');
+            const rawId = urlParams.get('id');
+            const requestedId = normalizeId(rawId);
 
-            const events = JSON.parse(localStorage.getItem('events')) || [];
-            const event = events.find(e => e.id === eventId);
+            const candidateIds = [requestedId];
+            if (requestedId.startsWith('id')) {
+                candidateIds.push(requestedId.slice(2));
+            } else {
+                candidateIds.push(`id${requestedId}`);
+            }
+
+            const fromStorage = () => {
+                try {
+                    return JSON.parse(localStorage.getItem('events')) || [];
+                } catch {
+                    return [];
+                }
+            };
+
+            let events = [];
+            try {
+                const response = await fetch('/api/events');
+                if (!response.ok) {
+                    throw new Error('Failed to load events');
+                }
+                events = await response.json();
+                localStorage.setItem('events', JSON.stringify(events));
+            } catch {
+                try {
+                    const fallbackSources = ['/data/events.json', 'data/events.json'];
+                    for (const source of fallbackSources) {
+                        const fallbackResponse = await fetch(source);
+                        if (!fallbackResponse.ok) {
+                            continue;
+                        }
+                        events = await fallbackResponse.json();
+                        localStorage.setItem('events', JSON.stringify(events));
+                        break;
+                    }
+                    if (!Array.isArray(events) || events.length === 0) {
+                        events = fromStorage();
+                    }
+                } catch {
+                    events = fromStorage();
+                }
+            }
+
+            const event = events.find((item) => candidateIds.includes(normalizeId(item.id)));
 
             if (!event) {
                 document.getElementById('post-title').textContent = "Event Not Found";
                 return;
             }
 
-            // Update all dynamic fields
-            document.getElementById('post-title').textContent = event.title;
-            document.getElementById('event-date').textContent = `${event.date} | ${event.time}`;
-            document.querySelector('.btn-blur').textContent = event.category;
-            document.querySelector('.fw-medium.pb-3').textContent = event.title;
-            document.querySelector('.img-fluid').src = event.image;
-            document.querySelector('.img-fluid').alt = event.title;
-            document.querySelector('a[download]').href = event.image;
+            document.getElementById('post-title').textContent = event.title || 'Event';
+            document.getElementById('event-date').textContent = `${event.date || ''} | ${event.time || ''}`.trim();
 
-            // Optional: Replace placeholder description if exists
+            const tagButton = document.querySelector('.btn-blur');
+            if (tagButton) {
+                tagButton.textContent = event.category || 'Event';
+            }
+
+            const titleElement = document.querySelector('.fw-medium.pb-3');
+            if (titleElement) {
+                titleElement.textContent = event.title || 'Event';
+            }
+
+            const image = document.querySelector('.img-fluid');
+            if (image && event.image) {
+                image.src = event.image;
+                image.alt = event.title || 'Event Image';
+            }
+
+            const downloadLink = document.querySelector('a[download]');
+            if (downloadLink && event.image) {
+                downloadLink.href = event.image;
+            }
+
             const descriptionParagraph = document.querySelector('.fw-medium.pb-3 + p');
-            if (descriptionParagraph) {
+            if (descriptionParagraph && event.description) {
                 descriptionParagraph.textContent = event.description;
             }
         });
