@@ -14,7 +14,21 @@ document.addEventListener('DOMContentLoaded', function () {
   let sliderInstance = null;
   const defaultEventTimeZone = 'Africa/Harare';
   const browserTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
-  const timeZoneOptions = [
+  const preferredTimeZones = [
+    browserTimeZone,
+    defaultEventTimeZone,
+    'Africa/Johannesburg',
+    'Africa/Lagos',
+    'Africa/Nairobi',
+    'Europe/London',
+    'Europe/Paris',
+    'Asia/Kolkata',
+    'America/New_York',
+    'America/Chicago',
+    'America/Los_Angeles',
+    'UTC',
+  ];
+  const fallbackTimeZones = [
     browserTimeZone,
     'Africa/Harare',
     'Africa/Johannesburg',
@@ -27,8 +41,48 @@ document.addEventListener('DOMContentLoaded', function () {
     'America/Chicago',
     'America/Los_Angeles',
     'UTC',
-  ].filter((value, index, list) => value && list.indexOf(value) === index);
+  ];
   let selectedTimeZone = localStorage.getItem('preferredEventTimeZone') || browserTimeZone;
+
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text || '';
+    return div.innerHTML;
+  }
+
+  function getSupportedTimeZones() {
+    const supportedTimeZones = typeof Intl.supportedValuesOf === 'function'
+      ? Intl.supportedValuesOf('timeZone')
+      : fallbackTimeZones;
+
+    const timeZones = [...new Set([...preferredTimeZones, ...supportedTimeZones])]
+      .filter(Boolean)
+      .sort((a, b) => {
+        const aIndex = preferredTimeZones.indexOf(a);
+        const bIndex = preferredTimeZones.indexOf(b);
+
+        if (aIndex !== -1 || bIndex !== -1) {
+          if (aIndex === -1) return 1;
+          if (bIndex === -1) return -1;
+          return aIndex - bIndex;
+        }
+
+        return a.localeCompare(b);
+      });
+
+    if (!timeZones.includes(selectedTimeZone)) {
+      timeZones.unshift(selectedTimeZone);
+    }
+
+    return timeZones;
+  }
+
+  function getTimeZoneLabel(timeZone) {
+    if (timeZone === browserTimeZone) return `${timeZone} (your local time)`;
+    if (timeZone === defaultEventTimeZone) return `${timeZone} (church default)`;
+
+    return timeZone.replace(/_/g, ' ');
+  }
 
   function getTimeZoneOffsetMs(date, timeZone) {
     const parts = new Intl.DateTimeFormat('en-US', {
@@ -123,8 +177,10 @@ document.addEventListener('DOMContentLoaded', function () {
     wrapper.innerHTML = `
       <label for="event-timezone-select" class="fs-8 mb-0">Event times shown in</label>
       <select id="event-timezone-select" class="form-select form-select-sm w-auto">
-        ${timeZoneOptions.map(timeZone => `
-          <option value="${timeZone}" ${timeZone === selectedTimeZone ? 'selected' : ''}>${timeZone}</option>
+        ${getSupportedTimeZones().map(timeZone => `
+          <option value="${escapeHtml(timeZone)}" ${timeZone === selectedTimeZone ? 'selected' : ''}>
+            ${escapeHtml(getTimeZoneLabel(timeZone))}
+          </option>
         `).join('')}
       </select>
     `;
