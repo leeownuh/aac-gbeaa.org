@@ -11004,6 +11004,39 @@ blockquote p {
   float: left;
   margin-left: 15px;
 }
+
+@media (max-width: 991.98px) {
+  .footer-social {
+    margin-top: 10px;
+    text-align: center;
+  }
+
+  .footer-social .tiny-footer-menu.d-none,
+  .tgmobile__menu-bottom .social-links .tiny-footer-menu.d-none {
+    display: flex !important;
+    float: none !important;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 18px;
+    width: 100%;
+    margin: 10px 0 0;
+    padding: 0;
+  }
+
+  .footer-social .tiny-footer-menu li,
+  .tgmobile__menu-bottom .social-links .tiny-footer-menu li {
+    display: inline-flex;
+    float: none;
+    margin-left: 0;
+  }
+
+  .footer-social .tiny-footer-menu li a,
+  .tgmobile__menu-bottom .social-links .tiny-footer-menu li a {
+    margin-right: 0;
+    font-size: 18px;
+  }
+}
 /*=============================
     00. Keyframe Animation
 ===============================*/
