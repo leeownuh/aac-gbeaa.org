@@ -415,6 +415,66 @@
             justify-content: center;
         }
 
+        .category-manager {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 25px;
+            padding: 20px;
+        }
+
+        .category-manager-header {
+            align-items: center;
+            display: flex;
+            gap: 15px;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .category-manager-header h2 {
+            color: #333;
+            font-size: 20px;
+        }
+
+        .category-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .category-chip {
+            align-items: center;
+            background: #f4f6ff;
+            border: 1px solid #dce2ff;
+            border-radius: 999px;
+            display: flex;
+            gap: 8px;
+            padding: 8px 10px 8px 14px;
+        }
+
+        .category-chip span {
+            color: #333;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .category-chip button {
+            border: none;
+            border-radius: 999px;
+            color: white;
+            cursor: pointer;
+            font-size: 11px;
+            padding: 5px 8px;
+        }
+
+        .category-edit-btn {
+            background: #667eea;
+        }
+
+        .category-delete-btn {
+            background: #e74c3c;
+        }
+
         @media (max-width: 768px) {
             .sidebar {
                 width: 100%;
@@ -458,6 +518,14 @@
             <div class="header">
                 <h1>Manage Gallery</h1>
                 <button class="add-btn" onclick="openModal()">➕ Add Image</button>
+            </div>
+
+            <div class="category-manager">
+                <div class="category-manager-header">
+                    <h2>Gallery Categories</h2>
+                    <button class="add-btn" type="button" onclick="addGalleryCategory()">Add Category</button>
+                </div>
+                <div id="galleryCategoryList" class="category-list"></div>
             </div>
 
             <div id="loading" class="loading">Loading gallery...</div>
@@ -667,9 +735,89 @@
                 .then(r => r.json())
                 .then(data => {
                     categories = data || [];
+                    renderGalleryCategories();
                     populateCategoryDropdown();
                 });
 
+        }
+
+        function handleCategoryResponse(response) {
+            return response.json().then(data => {
+                if (!response.ok || data.success === false) {
+                    throw new Error(data.error || "Category request failed");
+                }
+                return data;
+            });
+        }
+
+        function renderGalleryCategories() {
+            const container = document.getElementById("galleryCategoryList");
+            if (!container) return;
+
+            if (categories.length === 0) {
+                container.innerHTML = "<div class='empty-state'>No categories yet</div>";
+                return;
+            }
+
+            container.innerHTML = categories.map(category => `
+                <div class="category-chip">
+                    <span>${escapeHtml(category.name)}</span>
+                    <button type="button" class="category-edit-btn" onclick="editGalleryCategory('${escapeAttr(category.slug)}')">Edit</button>
+                    <button type="button" class="category-delete-btn" onclick="deleteGalleryCategory('${escapeAttr(category.slug)}')">Delete</button>
+                </div>
+            `).join("");
+        }
+
+        function addGalleryCategory() {
+            const name = prompt("Enter new category name");
+            if (!name || !name.trim()) return;
+
+            fetch('/api/gallery/categories', {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                credentials: 'include',
+                body: JSON.stringify({ name: name.trim() })
+            })
+                .then(handleCategoryResponse)
+                .then(() => loadCategories())
+                .catch(error => alert(error.message));
+        }
+
+        function editGalleryCategory(slug) {
+            const category = categories.find(item => item.slug === slug);
+            if (!category) return;
+            const name = prompt("Edit gallery category name", category.name);
+            if (!name || !name.trim() || name.trim() === category.name) return;
+
+            fetch(`/api/gallery/categories/${encodeURIComponent(slug)}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                credentials: 'include',
+                body: JSON.stringify({ name: name.trim() })
+            })
+                .then(handleCategoryResponse)
+                .then(() => {
+                    loadCategories();
+                    loadGallery();
+                })
+                .catch(error => alert(error.message));
+        }
+
+        function deleteGalleryCategory(slug) {
+            const category = categories.find(item => item.slug === slug);
+            if (!category || !confirm(`Delete gallery category "${category.name}"?`)) return;
+
+            fetch(`/api/gallery/categories/${encodeURIComponent(slug)}`, {
+                method: "DELETE",
+                credentials: 'include'
+            })
+                .then(handleCategoryResponse)
+                .then(() => loadCategories())
+                .catch(error => alert(error.message));
         }
 
         /* =============================
@@ -698,22 +846,7 @@
 
                 if (e.target.value === "ADD_NEW") {
 
-                    const name = prompt("Enter new category name");
-
-                    if (!name) return;
-
-                    fetch('/api/gallery/categories', {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        credentials: 'include',
-                        body: JSON.stringify({ name })
-                    })
-                        .then(r => r.json())
-                        .then(() => {
-                            loadCategories();
-                        });
+                    addGalleryCategory();
 
                     e.target.value = "";
                 }

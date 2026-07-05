@@ -349,6 +349,66 @@
             color: #666;
         }
 
+        .category-manager {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 25px;
+            padding: 20px;
+        }
+
+        .category-manager-header {
+            align-items: center;
+            display: flex;
+            gap: 15px;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .category-manager-header h2 {
+            color: #333;
+            font-size: 20px;
+        }
+
+        .category-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .category-chip {
+            align-items: center;
+            background: #f4f6ff;
+            border: 1px solid #dce2ff;
+            border-radius: 999px;
+            display: flex;
+            gap: 8px;
+            padding: 8px 10px 8px 14px;
+        }
+
+        .category-chip span {
+            color: #333;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .category-chip button {
+            border: none;
+            border-radius: 999px;
+            color: white;
+            cursor: pointer;
+            font-size: 11px;
+            padding: 5px 8px;
+        }
+
+        .category-edit-btn {
+            background: #667eea;
+        }
+
+        .category-delete-btn {
+            background: #e74c3c;
+        }
+
         @media (max-width: 768px) {
             .sidebar {
                 width: 100%;
@@ -405,6 +465,14 @@
             <div class="header">
                 <h1>Manage Events</h1>
                 <button class="add-btn" onclick="openModal()">➕ Add Event</button>
+            </div>
+
+            <div class="category-manager">
+                <div class="category-manager-header">
+                    <h2>Event Categories</h2>
+                    <button class="add-btn" type="button" onclick="addEventCategory()">Add Category</button>
+                </div>
+                <div id="eventCategoryList" class="category-list"></div>
             </div>
 
             <div id="loading" class="loading">Loading events...</div>
@@ -467,14 +535,7 @@
 
                     <div class="form-group">
                         <label for="category">Category</label>
-                        <select id="category" name="category">
-                            <option value="General">General</option>
-                            <option value="National">National</option>
-                            <option value="Provincial">Provincial</option>
-                            <option value="District">District</option>
-                            <option value="Holy Communion">Holy Communion</option>
-                            <option value="Conference">Conference</option>
-                        </select>
+                        <select id="category" name="category"></select>
                     </div>
                 </div>
 
@@ -735,6 +796,7 @@ document.getElementById('logoutBtn').addEventListener('click', () => {
             'UTC'
         ];
         let events = [];
+        let eventCategories = [];
         let currentEditId = null;
 
         populateTimeZoneSelect(DEFAULT_EVENT_TIME_ZONE);
@@ -753,6 +815,7 @@ document.getElementById('logoutBtn').addEventListener('click', () => {
                 }
 
                 loadEvents();
+                loadEventCategories();
             })
             .catch(() => {
                 window.location.href = '/admin/login';
@@ -762,6 +825,111 @@ document.getElementById('logoutBtn').addEventListener('click', () => {
             const div = document.createElement('div');
             div.textContent = text || '';
             return div.innerHTML;
+        }
+
+        function escapeAttr(text) {
+            return escapeHtml(text).replace(/"/g, '&quot;');
+        }
+
+        function handleCategoryResponse(response) {
+            return response.json().then(data => {
+                if (!response.ok || data.success === false) {
+                    throw new Error(data.error || 'Category request failed');
+                }
+                return data;
+            });
+        }
+
+        function loadEventCategories() {
+            return fetch('/api/event-categories', { credentials: 'include' })
+                .then(response => response.json())
+                .then(data => {
+                    eventCategories = Array.isArray(data) ? data : data.data || [];
+                    renderEventCategories();
+                    populateEventCategorySelect();
+                })
+                .catch(error => {
+                    console.error('Error loading event categories:', error);
+                });
+        }
+
+        function renderEventCategories() {
+            const container = document.getElementById('eventCategoryList');
+            if (!container) return;
+
+            if (eventCategories.length === 0) {
+                container.innerHTML = '<div class="empty-state">No categories yet</div>';
+                return;
+            }
+
+            container.innerHTML = eventCategories.map(category => `
+                <div class="category-chip">
+                    <span>${escapeHtml(category.name)}</span>
+                    <button type="button" class="category-edit-btn" onclick="editEventCategory('${escapeAttr(category.slug)}')">Edit</button>
+                    <button type="button" class="category-delete-btn" onclick="deleteEventCategory('${escapeAttr(category.slug)}')">Delete</button>
+                </div>
+            `).join('');
+        }
+
+        function populateEventCategorySelect(selectedValue) {
+            const select = document.getElementById('category');
+            if (!select) return;
+            const selected = selectedValue || select.value || 'General';
+            const options = eventCategories.length ? eventCategories : [{ name: 'General' }];
+
+            select.innerHTML = options.map(category => `
+                <option value="${escapeAttr(category.name)}"${category.name === selected ? ' selected' : ''}>
+                    ${escapeHtml(category.name)}
+                </option>
+            `).join('');
+        }
+
+        function addEventCategory() {
+            const name = prompt('Enter event category name');
+            if (!name || !name.trim()) return;
+
+            fetch('/api/event-categories', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ name: name.trim() })
+            })
+                .then(handleCategoryResponse)
+                .then(() => loadEventCategories())
+                .catch(error => alert(error.message));
+        }
+
+        function editEventCategory(slug) {
+            const category = eventCategories.find(item => item.slug === slug);
+            if (!category) return;
+            const name = prompt('Edit event category name', category.name);
+            if (!name || !name.trim() || name.trim() === category.name) return;
+
+            fetch(`/api/event-categories/${encodeURIComponent(slug)}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ name: name.trim() })
+            })
+                .then(handleCategoryResponse)
+                .then(() => {
+                    loadEventCategories();
+                    loadEvents();
+                })
+                .catch(error => alert(error.message));
+        }
+
+        function deleteEventCategory(slug) {
+            const category = eventCategories.find(item => item.slug === slug);
+            if (!category || !confirm(`Delete event category "${category.name}"?`)) return;
+
+            fetch(`/api/event-categories/${encodeURIComponent(slug)}`, {
+                method: 'DELETE',
+                credentials: 'include'
+            })
+                .then(handleCategoryResponse)
+                .then(() => loadEventCategories())
+                .catch(error => alert(error.message));
         }
 
         function normalizeEditableText(text) {
@@ -1013,6 +1181,7 @@ document.getElementById('logoutBtn').addEventListener('click', () => {
 
             form.reset();
             populateTimeZoneSelect(DEFAULT_EVENT_TIME_ZONE);
+            populateEventCategorySelect(event ? event.category : undefined);
             imagePreview.classList.remove('active');
             imagePreview.src = '';
 
@@ -1034,7 +1203,7 @@ document.getElementById('logoutBtn').addEventListener('click', () => {
                 populateTimeZoneSelect(timeZone);
                 document.getElementById('timezone').value = timeZone;
                 document.getElementById('location').value = event.location || '';
-                document.getElementById('category').value = event.category || 'General';
+                populateEventCategorySelect(event.category || 'General');
 
                 if (event.image) {
                     imagePreview.src = event.image;

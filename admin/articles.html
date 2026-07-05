@@ -325,6 +325,66 @@
             color: #666;
         }
 
+        .category-manager {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 25px;
+            padding: 20px;
+        }
+
+        .category-manager-header {
+            align-items: center;
+            display: flex;
+            gap: 15px;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .category-manager-header h2 {
+            color: #333;
+            font-size: 20px;
+        }
+
+        .category-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .category-chip {
+            align-items: center;
+            background: #f4f6ff;
+            border: 1px solid #dce2ff;
+            border-radius: 999px;
+            display: flex;
+            gap: 8px;
+            padding: 8px 10px 8px 14px;
+        }
+
+        .category-chip span {
+            color: #333;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .category-chip button {
+            border: none;
+            border-radius: 999px;
+            color: white;
+            cursor: pointer;
+            font-size: 11px;
+            padding: 5px 8px;
+        }
+
+        .category-edit-btn {
+            background: #667eea;
+        }
+
+        .category-delete-btn {
+            background: #e74c3c;
+        }
+
         @media (max-width: 768px) {
             .sidebar {
                 width: 100%;
@@ -378,6 +438,14 @@
 <button class="add-btn" onclick="openModal()">➕ Add Article</button>
 </div>
 
+<div class="category-manager">
+<div class="category-manager-header">
+<h2>Article Categories</h2>
+<button class="add-btn" type="button" onclick="addArticleCategory()">Add Category</button>
+</div>
+<div id="articleCategoryList" class="category-list"></div>
+</div>
+
 <div id="loading" class="loading">Loading articles...</div>
 <div id="articlesList" class="articles-list" style="display:none"></div>
 
@@ -414,13 +482,7 @@
 
 <div class="form-group">
 <label>Category</label>
-<select id="category">
-<option>General</option>
-<option>Announcement</option>
-<option>News</option>
-<option>Sermon</option>
-<option>Event</option>
-</select>
+<select id="category"></select>
 </div>
 
 <div class="form-group">
@@ -441,6 +503,7 @@
 <script>
 
 let articles=[];
+let articleCategories=[];
 let currentEditId=null;
 
 /* AUTH CHECK */
@@ -455,8 +518,107 @@ window.location.href='/admin/change-password';
 return;
 }
 loadArticles();
+loadArticleCategories();
 }
 });
+
+function handleCategoryResponse(response){
+return response.json().then(data=>{
+if(!response.ok || data.success===false){
+throw new Error(data.error || 'Category request failed');
+}
+return data;
+});
+}
+
+function loadArticleCategories(){
+return fetch('/api/article-categories',{credentials:'include'})
+.then(r=>r.json())
+.then(data=>{
+articleCategories=Array.isArray(data) ? data : data.data || [];
+renderArticleCategories();
+populateArticleCategorySelect();
+})
+.catch(error=>{
+console.error('Error loading article categories:',error);
+});
+}
+
+function renderArticleCategories(){
+const container=document.getElementById('articleCategoryList');
+if(!container) return;
+
+if(articleCategories.length===0){
+container.innerHTML='<div class="empty-state">No categories yet</div>';
+return;
+}
+
+container.innerHTML=articleCategories.map(category=>`
+<div class="category-chip">
+<span>${escapeHtml(category.name)}</span>
+<button type="button" class="category-edit-btn" onclick="editArticleCategory('${escapeAttr(category.slug)}')">Edit</button>
+<button type="button" class="category-delete-btn" onclick="deleteArticleCategory('${escapeAttr(category.slug)}')">Delete</button>
+</div>
+`).join('');
+}
+
+function populateArticleCategorySelect(selectedValue){
+const select=document.getElementById('category');
+if(!select) return;
+const selected=selectedValue || select.value || 'General';
+const options=articleCategories.length ? articleCategories : [{name:'General'}];
+select.innerHTML=options.map(category=>`
+<option value="${escapeAttr(category.name)}"${category.name===selected ? ' selected' : ''}>${escapeHtml(category.name)}</option>
+`).join('');
+}
+
+function addArticleCategory(){
+const name=prompt('Enter article category name');
+if(!name || !name.trim()) return;
+
+fetch('/api/article-categories',{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+credentials:'include',
+body:JSON.stringify({name:name.trim()})
+})
+.then(handleCategoryResponse)
+.then(()=>loadArticleCategories())
+.catch(error=>alert(error.message));
+}
+
+function editArticleCategory(slug){
+const category=articleCategories.find(item=>item.slug===slug);
+if(!category) return;
+const name=prompt('Edit article category name',category.name);
+if(!name || !name.trim() || name.trim()===category.name) return;
+
+fetch(`/api/article-categories/${encodeURIComponent(slug)}`,{
+method:'PUT',
+headers:{'Content-Type':'application/json'},
+credentials:'include',
+body:JSON.stringify({name:name.trim()})
+})
+.then(handleCategoryResponse)
+.then(()=>{
+loadArticleCategories();
+loadArticles();
+})
+.catch(error=>alert(error.message));
+}
+
+function deleteArticleCategory(slug){
+const category=articleCategories.find(item=>item.slug===slug);
+if(!category || !confirm(`Delete article category "${category.name}"?`)) return;
+
+fetch(`/api/article-categories/${encodeURIComponent(slug)}`,{
+method:'DELETE',
+credentials:'include'
+})
+.then(handleCategoryResponse)
+.then(()=>loadArticleCategories())
+.catch(error=>alert(error.message));
+}
 
 /* LOAD ARTICLES */
 function loadArticles(){
@@ -487,7 +649,7 @@ container.innerHTML=articles.map(article=>`
 <h3>${escapeHtml(article.title)}</h3>
 <p>${escapeHtml(article.content.substring(0,150))}...</p>
 <div class="article-meta">
-${article.author} • ${article.date} • ${article.category}
+${escapeHtml(article.author)} • ${escapeHtml(article.date)} • ${escapeHtml(article.category)}
 </div>
 </div>
 
@@ -511,6 +673,7 @@ const modal=document.getElementById("modal");
 const title=document.getElementById("modalTitle");
 
 document.getElementById("articleForm").reset();
+populateArticleCategorySelect(article ? article.category : undefined);
 
 if(article){
 title.textContent="Edit Article";
@@ -519,7 +682,7 @@ currentEditId=article.id;
 document.getElementById("title").value=article.title;
 document.getElementById("content").value=article.content;
 document.getElementById("author").value=article.author;
-document.getElementById("category").value=article.category;
+populateArticleCategorySelect(article.category);
 document.getElementById("date").value=article.date;
 
 }else{
@@ -591,8 +754,12 @@ if(article) openModal(article);
 
 function escapeHtml(text){
 const div=document.createElement("div");
-div.textContent=text;
+div.textContent=text || "";
 return div.innerHTML;
+}
+
+function escapeAttr(text){
+return escapeHtml(text).replace(/"/g,'&quot;');
 }
 
 function logout(){
@@ -604,7 +771,7 @@ credentials:'include'
 }
 
 // Add this to your JS file that runs after the DOM is ready
-document.getElementById('logoutBtn').addEventListener('click', () => {
+document.getElementById('logoutBtn')?.addEventListener('click', () => {
     if (confirm('Are you sure you want to logout?')) {
         fetch('/api/admin/logout', { 
             method: 'POST', 

@@ -1,4 +1,5 @@
 let news = [];
+let articleCategories = [];
 const postsPerPage = 3;
 let currentPage = 1;
 let filteredPosts = [];
@@ -8,6 +9,22 @@ const paginationContainer = document.getElementById("pagination");
 
 const normalizeId = (value) => String(value || "").trim().toLowerCase();
 
+function escapeHtml(text) {
+  const div = document.createElement("div");
+  div.textContent = text || "";
+  return div.innerHTML;
+}
+
+function escapeAttr(text) {
+  return escapeHtml(text).replace(/"/g, "&quot;");
+}
+
+function normalizeArticlesPayload(payload) {
+  if (Array.isArray(payload)) return payload;
+  if (payload && Array.isArray(payload.data)) return payload.data;
+  return [];
+}
+
 const fetchArticles = async () => {
   const sources = ["/api/articles", "/data/article.json", "data/article.json"];
   for (const source of sources) {
@@ -16,12 +33,9 @@ const fetchArticles = async () => {
       if (!response.ok) {
         continue;
       }
-      const payload = await response.json();
-      if (Array.isArray(payload)) {
-        return payload;
-      }
-      if (payload && Array.isArray(payload.data)) {
-        return payload.data;
+      const normalized = normalizeArticlesPayload(await response.json());
+      if (normalized.length > 0) {
+        return normalized;
       }
     } catch {
     }
@@ -29,38 +43,63 @@ const fetchArticles = async () => {
   return [];
 };
 
+const fetchArticleCategories = async () => {
+  try {
+    const response = await fetch("/api/article-categories");
+    if (!response.ok) return [];
+    return normalizeArticlesPayload(await response.json());
+  } catch {
+    return [];
+  }
+};
+
+function getCategoryNames() {
+  const defined = articleCategories.map(category => category.name).filter(Boolean);
+  const used = news.map(post => post.category).filter(Boolean);
+  return [...new Set([...defined, ...used])];
+}
+
 async function loadNews() {
   try {
-    news = await fetchArticles();
+    const [posts, categories] = await Promise.all([
+      fetchArticles(),
+      fetchArticleCategories()
+    ]);
+
+    news = posts;
+    articleCategories = categories;
     filteredPosts = [...news];
-    renderCategories();  
+    renderCategories();
     renderPosts();
   } catch (error) {
     console.error("Error loading articles:", error);
   }
 }
 
-function renderPosts(page = 1) {
+function renderPosts(page = currentPage) {
+  if (!container) return;
+
   container.innerHTML = "";
   const start = (page - 1) * postsPerPage;
   const end = start + postsPerPage;
   const postsToRender = filteredPosts.slice(start, end);
 
   postsToRender.forEach(post => {
-    container.insertAdjacentHTML('beforeend', `
+    const id = encodeURIComponent(post.id);
+    container.insertAdjacentHTML("beforeend", `
       <div class="col-lg-4 col-md-6 col-12 mb-4">
         <div class="card-blog-1 rounded-2 overflow-hidden bg-white shadow-1 hover-up">
           <div class="card-body p-4">
             <h5 class="font-body text-dark fs-5 lh-base">
-              <a href="/blog-details?id=${post.id}">${post.title}</a>
+              <a href="/blog-details?id=${id}">${escapeHtml(post.title)}</a>
             </h5>
             <div class="meta-1 fs-7 mb-3">
-              <span class="author">by ${post.author}</span><br>
-              <span class="date ms-1">${post.date}</span>
-              <span class="badge bg-primary ms-2">${post.category}</span>
+              <span class="author">by ${escapeHtml(post.author)}</span><br>
+              <span class="date ms-1">${escapeHtml(post.date)}</span>
+              <span class="badge bg-primary ms-2">${escapeHtml(post.category)}</span>
             </div>
-            <p class="fs-7 mb-4 text-dark">${post.excerpt}</p>
-            <a href="/blog-details?id=${post.id}" class="text-decoration-underline fs-7">Read More</a>
+            <p class="fs-7 mb-4 text-dark">${escapeHtml(post.excerpt)}</p>
+            <a href="/blog-details?id=${id}" class="text-decoration-underline fs-7">Read More</a>
           </div>
         </div>
       </div>
@@ -69,12 +108,11 @@ function renderPosts(page = 1) {
 
   renderPagination();
 }
+
 function renderCategories() {
   const categoryContainer = document.getElementById("category-container");
 
   if (!categoryContainer) return;
-
-  const categories = [...new Set(news.map(post => post.category))];
 
   categoryContainer.innerHTML = `
     <a href="javascript:" class="btn rounded-5 btn-tag-outline active" data-category="all">
@@ -82,18 +120,16 @@ function renderCategories() {
     </a>
   `;
 
-  categories.forEach(category => {
+  getCategoryNames().forEach(category => {
     categoryContainer.insertAdjacentHTML("beforeend", `
-      <a href="javascript:" class="btn rounded-5 btn-tag-outline" data-category="${category}">
-        <span>${category}</span>
+      <a href="javascript:" class="btn rounded-5 btn-tag-outline" data-category="${escapeAttr(category)}">
+        <span>${escapeHtml(category)}</span>
       </a>
     `);
   });
 
-  // Click events
   categoryContainer.querySelectorAll("[data-category]").forEach(btn => {
     btn.addEventListener("click", () => {
-
       document.querySelectorAll("#category-container .btn")
         .forEach(b => b.classList.remove("active"));
 
@@ -101,52 +137,56 @@ function renderCategories() {
 
       const category = btn.dataset.category;
 
-      if (category === "all") {
-        filteredPosts = [...news];
-      } else {
-        filteredPosts = news.filter(post => post.category === category);
-      }
+      filteredPosts = category === "all"
+        ? [...news]
+        : news.filter(post => post.category === category);
 
       currentPage = 1;
       renderPosts();
     });
   });
-} 
+}
+
 function renderBlogPosts() {
-    const container = document.getElementById("blog-container");
+  const blogContainer = document.getElementById("blog-container");
+  if (!blogContainer) return;
 
-    // Show latest 3 posts
-    const latestPosts = news.slice(-3).reverse();
+  const latestPosts = news.slice(-3).reverse();
 
-    container.innerHTML = latestPosts.map(post => `
-        <div class="col-lg-4 col-md-6 col-12">
-            <div class="card-blog-1 mb-4 mb-lg-0 rounded-2 overflow-hidden bg-white shadow-1 hover-up">
-                <div class="card-body p-4">
-                    <h5 class="font-body text-dark fs-5 lh-base">
-                        <a href="/blog-details?id=${post.id}">${post.title}</a>
-                    </h5>
-                    <div class="meta-1 fs-7 mb-3">
-                        <span class="author">
-                            by <a href="/blog-details?id=${post.id}" class="text-decoration-underline">${post.author}</a>
-                        </span>
-                        <span class="date ms-1">${post.date}</span>
-                        <span class="badge bg-primary ms-2">${post.category.toUpperCase()}</span>
-                    </div>
-                    <p class="fs-7 mb-4 text-dark">${post.excerpt}</p>
-                    <a href="/blog-details?id=${post.id}" class="text-decoration-underline fs-7">Read More</a>
-                </div>
+  blogContainer.innerHTML = latestPosts.map(post => {
+    const id = encodeURIComponent(post.id);
+    return `
+      <div class="col-lg-4 col-md-6 col-12">
+        <div class="card-blog-1 mb-4 mb-lg-0 rounded-2 overflow-hidden bg-white shadow-1 hover-up">
+          <div class="card-body p-4">
+            <h5 class="font-body text-dark fs-5 lh-base">
+              <a href="/blog-details?id=${id}">${escapeHtml(post.title)}</a>
+            </h5>
+            <div class="meta-1 fs-7 mb-3">
+              <span class="author">
+                by <a href="/blog-details?id=${id}" class="text-decoration-underline">${escapeHtml(post.author)}</a>
+              </span>
+              <span class="date ms-1">${escapeHtml(post.date)}</span>
+              <span class="badge bg-primary ms-2">${escapeHtml(String(post.category || "").toUpperCase())}</span>
             </div>
+            <p class="fs-7 mb-4 text-dark">${escapeHtml(post.excerpt)}</p>
+            <a href="/blog-details?id=${id}" class="text-decoration-underline fs-7">Read More</a>
+          </div>
         </div>
-    `).join("");
+      </div>
+    `;
+  }).join("");
 }
 
 function renderPagination() {
+  if (!paginationContainer) return;
+
   paginationContainer.innerHTML = "";
   const totalPages = Math.ceil(filteredPosts.length / postsPerPage);
 
   for (let i = 1; i <= totalPages; i++) {
-    paginationContainer.insertAdjacentHTML('beforeend', `
-      <li class="page-item ${currentPage === i ? 'active' : ''}">
+    paginationContainer.insertAdjacentHTML("beforeend", `
+      <li class="page-item ${currentPage === i ? "active" : ""}">
         <a class="page-link" href="javascript:void(0)" onclick="goToPage(${i})">${i}</a>
       </li>
     `);
@@ -160,7 +200,6 @@ function goToPage(page) {
   renderPosts(currentPage);
 }
 
-// Blog details page
 async function loadPostDetails() {
   const urlParams = new URLSearchParams(window.location.search);
   const postId = normalizeId(urlParams.get("id"));
@@ -175,38 +214,36 @@ async function loadPostDetails() {
     return;
   }
 
-  document.getElementById("post-title").textContent = post.title;
-  document.getElementById("post-author").textContent = post.author;
-  document.getElementById("post-date").textContent = post.date;
-  document.getElementById("post-excerpt").textContent = post.excerpt;
+  document.getElementById("post-title").textContent = post.title || "";
+  document.getElementById("post-author").textContent = post.author || "";
+  document.getElementById("post-date").textContent = post.date || "";
+  document.getElementById("post-excerpt").textContent = post.excerpt || "";
 
-  const formattedContent = post.content
+  const formattedContent = String(post.content || "")
     .split("\n\n")
-    .map(p => `<p>${p}</p>`)
+    .map(p => `<p>${escapeHtml(p)}</p>`)
     .join("");
 
   document.getElementById("post-content").innerHTML = formattedContent;
-  // Find current index
-const index = posts.findIndex(p => String(p.id) === String(postId));
 
-// Previous post
-const prevPost = posts[index - 1];
-if (prevPost) {
-  document.getElementById("prev-link").href = `/blog-details?id=${prevPost.id}`;
-  document.getElementById("prev-title").textContent = prevPost.title;
-} else {
-  document.getElementById("prev-link").style.display = "none";
+  const index = posts.findIndex(p => normalizeId(p.id) === postId);
+  const prevPost = posts[index - 1];
+  if (prevPost) {
+    document.getElementById("prev-link").href = `/blog-details?id=${encodeURIComponent(prevPost.id)}`;
+    document.getElementById("prev-title").textContent = prevPost.title || "";
+  } else {
+    document.getElementById("prev-link").style.display = "none";
+  }
+
+  const nextPost = posts[index + 1];
+  if (nextPost) {
+    document.getElementById("next-link").href = `/blog-details?id=${encodeURIComponent(nextPost.id)}`;
+    document.getElementById("next-title").textContent = nextPost.title || "";
+  } else {
+    document.getElementById("next-link").style.display = "none";
+  }
 }
 
-// Next post
-const nextPost = posts[index + 1];
-if (nextPost) {
-  document.getElementById("next-link").href = `/blog-details?id=${nextPost.id}`;
-  document.getElementById("next-title").textContent = nextPost.title;
-} else {
-  document.getElementById("next-link").style.display = "none";
-}
-}
 document.addEventListener("DOMContentLoaded", () => {
   if (document.getElementById("blog-container")) {
     loadNews();

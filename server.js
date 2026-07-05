@@ -189,6 +189,7 @@ const requireAdminRole = (...roles) => (req, res, next) => {
 };
 
 const requireContentWriteAccess = requireAdminRole(ADMIN_ROLES.SUPER, ADMIN_ROLES.EDITOR);
+const requireSuperAdmin = requireAdminRole(ADMIN_ROLES.SUPER);
 const requireApprovalViewAccess = requireAdminRole(ADMIN_ROLES.SUPER, ADMIN_ROLES.MODERATOR);
 const requireModeratorApproval = requireAdminRole(ADMIN_ROLES.MODERATOR);
 
@@ -406,6 +407,27 @@ const queueChangeRequest = async (req, {
   });
 
   return requestRecord;
+};
+
+const handleCategoryError = (res, err, fallbackMessage = 'Category operation failed') => {
+  if (err?.code === 'CATEGORY_IN_USE') {
+    return res.status(409).json({
+      success: false,
+      error: 'Category is still used by content. Move or edit that content before deleting it.'
+    });
+  }
+
+  if (err?.code === '23505') {
+    return res.status(409).json({
+      success: false,
+      error: 'A category with that name already exists'
+    });
+  }
+
+  return res.status(500).json({
+    success: false,
+    error: fallbackMessage
+  });
 };
 
 const applyApprovedChange = async (changeRequest) => {
@@ -830,6 +852,138 @@ router.get('/admin/audit-logs', authenticateAdmin, requirePasswordChangeComplete
       success: false,
       error: message || 'Failed to load audit logs'
     });
+  }
+});
+
+// ==================== CATEGORY ROUTES ====================
+
+router.get('/article-categories', async (req, res) => {
+  try {
+    res.json(await contentRepository.getAllArticleCategories());
+  } catch {
+    res.status(500).json({ error: 'Failed to load article categories' });
+  }
+});
+
+router.post('/article-categories', authenticateAdmin, requirePasswordChangeComplete, requireSuperAdmin, async (req, res) => {
+  try {
+    const name = String(req.body.name || '').trim();
+    if (!name) {
+      return res.status(400).json({ success: false, error: 'Category name is required' });
+    }
+
+    const category = await contentRepository.addArticleCategory({
+      name,
+      slug: normalizeSlug(req.body.slug || name)
+    });
+    await auditAction(req, 'create_article_category', 'article_category', category.slug);
+    res.status(201).json({ success: true, category });
+  } catch (err) {
+    handleCategoryError(res, err, 'Failed to create article category');
+  }
+});
+
+router.put('/article-categories/:slug', validateRouteId('slug'), authenticateAdmin, requirePasswordChangeComplete, requireSuperAdmin, async (req, res) => {
+  try {
+    const name = String(req.body.name || '').trim();
+    if (!name) {
+      return res.status(400).json({ success: false, error: 'Category name is required' });
+    }
+
+    const category = await contentRepository.updateArticleCategory(req.params.slug, {
+      name,
+      slug: normalizeSlug(req.body.slug || name)
+    });
+    if (!category) {
+      return res.status(404).json({ success: false, error: 'Category not found' });
+    }
+
+    invalidateHotKey(HOT_CACHE_KEYS.articles);
+    await auditAction(req, 'update_article_category', 'article_category', req.params.slug, {
+      newSlug: category.slug
+    });
+    res.json({ success: true, category });
+  } catch (err) {
+    handleCategoryError(res, err, 'Failed to update article category');
+  }
+});
+
+router.delete('/article-categories/:slug', validateRouteId('slug'), authenticateAdmin, requirePasswordChangeComplete, requireSuperAdmin, async (req, res) => {
+  try {
+    const category = await contentRepository.deleteArticleCategory(req.params.slug);
+    if (!category) {
+      return res.status(404).json({ success: false, error: 'Category not found' });
+    }
+
+    await auditAction(req, 'delete_article_category', 'article_category', req.params.slug);
+    res.json({ success: true, category });
+  } catch (err) {
+    handleCategoryError(res, err, 'Failed to delete article category');
+  }
+});
+
+router.get('/event-categories', async (req, res) => {
+  try {
+    res.json(await contentRepository.getAllEventCategories());
+  } catch {
+    res.status(500).json({ error: 'Failed to load event categories' });
+  }
+});
+
+router.post('/event-categories', authenticateAdmin, requirePasswordChangeComplete, requireSuperAdmin, async (req, res) => {
+  try {
+    const name = String(req.body.name || '').trim();
+    if (!name) {
+      return res.status(400).json({ success: false, error: 'Category name is required' });
+    }
+
+    const category = await contentRepository.addEventCategory({
+      name,
+      slug: normalizeSlug(req.body.slug || name)
+    });
+    await auditAction(req, 'create_event_category', 'event_category', category.slug);
+    res.status(201).json({ success: true, category });
+  } catch (err) {
+    handleCategoryError(res, err, 'Failed to create event category');
+  }
+});
+
+router.put('/event-categories/:slug', validateRouteId('slug'), authenticateAdmin, requirePasswordChangeComplete, requireSuperAdmin, async (req, res) => {
+  try {
+    const name = String(req.body.name || '').trim();
+    if (!name) {
+      return res.status(400).json({ success: false, error: 'Category name is required' });
+    }
+
+    const category = await contentRepository.updateEventCategory(req.params.slug, {
+      name,
+      slug: normalizeSlug(req.body.slug || name)
+    });
+    if (!category) {
+      return res.status(404).json({ success: false, error: 'Category not found' });
+    }
+
+    invalidateHotKey(HOT_CACHE_KEYS.events);
+    await auditAction(req, 'update_event_category', 'event_category', req.params.slug, {
+      newSlug: category.slug
+    });
+    res.json({ success: true, category });
+  } catch (err) {
+    handleCategoryError(res, err, 'Failed to update event category');
+  }
+});
+
+router.delete('/event-categories/:slug', validateRouteId('slug'), authenticateAdmin, requirePasswordChangeComplete, requireSuperAdmin, async (req, res) => {
+  try {
+    const category = await contentRepository.deleteEventCategory(req.params.slug);
+    if (!category) {
+      return res.status(404).json({ success: false, error: 'Category not found' });
+    }
+
+    await auditAction(req, 'delete_event_category', 'event_category', req.params.slug);
+    res.json({ success: true, category });
+  } catch (err) {
+    handleCategoryError(res, err, 'Failed to delete event category');
   }
 });
 
@@ -1285,6 +1439,43 @@ router.post('/gallery/categories', authenticateAdmin, requirePasswordChangeCompl
     res.status(500).json({
       error: 'Failed to add category'
     });
+  }
+});
+
+router.put('/gallery/categories/:slug', validateRouteId('slug'), authenticateAdmin, requirePasswordChangeComplete, requireSuperAdmin, async (req, res) => {
+  try {
+    const name = String(req.body.name || '').trim();
+    if (!name) {
+      return res.status(400).json({ success: false, error: 'Category name is required' });
+    }
+
+    const category = await contentRepository.updateGalleryCategory(req.params.slug, {
+      name,
+      folder: req.body.folder,
+      filterClass: req.body.filterClass
+    });
+    if (!category) {
+      return res.status(404).json({ success: false, error: 'Category not found' });
+    }
+
+    await auditAction(req, 'update_gallery_category', 'gallery_category', req.params.slug);
+    res.json({ success: true, category });
+  } catch (err) {
+    handleCategoryError(res, err, 'Failed to update gallery category');
+  }
+});
+
+router.delete('/gallery/categories/:slug', validateRouteId('slug'), authenticateAdmin, requirePasswordChangeComplete, requireSuperAdmin, async (req, res) => {
+  try {
+    const category = await contentRepository.deleteGalleryCategory(req.params.slug);
+    if (!category) {
+      return res.status(404).json({ success: false, error: 'Category not found' });
+    }
+
+    await auditAction(req, 'delete_gallery_category', 'gallery_category', req.params.slug);
+    res.json({ success: true, category });
+  } catch (err) {
+    handleCategoryError(res, err, 'Failed to delete gallery category');
   }
 });
 

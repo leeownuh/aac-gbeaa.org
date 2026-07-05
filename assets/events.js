@@ -5,10 +5,11 @@ document.addEventListener('DOMContentLoaded', function () {
   const container = document.getElementById('event-list');
   const holyCommunionContainer = document.getElementById('holy-communion-list');
   const sliderContainer = document.querySelector('.blessed-event-slider .swiper-wrapper');
-  const categoryButtons = document.querySelectorAll('.btn-tag-outline');
+  const categoryContainer = document.getElementById('event-category-container');
   const EVENTS_PER_PAGE = 4;
 
   let events = [];
+  let eventCategories = [];
   let currentPage = 1;
   let currentCategory = null;
   let sliderInstance = null;
@@ -266,14 +267,57 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   };
 
+  const fetchEventCategories = async () => {
+    try {
+      const res = await fetch('/api/event-categories');
+      if (!res.ok) return [];
+      const payload = await res.json();
+      return normalizeEventsPayload(payload);
+    } catch {
+      return [];
+    }
+  };
+
+  function getEventCategoryNames() {
+    const defined = eventCategories.map(category => category.name).filter(Boolean);
+    const used = events.map(event => event.category).filter(Boolean);
+    return [...new Set([...defined, ...used])];
+  }
+
+  function renderCategoryFilters() {
+    if (!categoryContainer) return;
+
+    categoryContainer.innerHTML = `
+      <a href="javascript:" class="btn rounded-5 btn-tag-outline active" data-category="">
+        <span>View All</span>
+      </a>
+      ${getEventCategoryNames().map(category => `
+        <a href="javascript:" class="btn rounded-5 btn-tag-outline" data-category="${escapeAttr(category)}">
+          <span>${escapeHtml(category)}</span>
+        </a>
+      `).join('')}
+    `;
+
+    categoryContainer.querySelectorAll('[data-category]').forEach(button => {
+      button.addEventListener('click', () => {
+        categoryContainer.querySelectorAll('.btn-tag-outline').forEach(btn => btn.classList.remove('active'));
+        button.classList.add('active');
+        currentPage = 1;
+        renderEvents(button.dataset.category || null);
+      });
+    });
+  }
+
   // Fetch Events with fallback
-  fetchEvents()
-    .then(data => {
+  Promise.all([fetchEvents(), fetchEventCategories()])
+    .then(([data, categories]) => {
       events = data
         .filter(isActiveOrUpcomingEvent)
         .sort((a, b) => new Date(a.date) - new Date(b.date));
+      eventCategories = categories;
       localStorage.setItem('events', JSON.stringify(events));
       renderTimeZoneSelector();
+      renderCategoryFilters();
       renderEvents();
       renderHolyCommunion();
       renderSlider();
@@ -387,17 +431,6 @@ document.addEventListener('DOMContentLoaded', function () {
     renderPagination(filtered);
     if (typeof feather !== 'undefined') feather.replace();
   }
-
-  // Category Filter Buttons
-  categoryButtons.forEach(button => {
-    button.addEventListener('click', () => {
-      categoryButtons.forEach(btn => btn.classList.remove('active'));
-      button.classList.add('active');
-      currentPage = 1;
-      const cat = button.textContent.trim();
-      renderEvents(cat === "View All" ? null : cat);
-    });
-  });
 
   // Holy Communion Sidebar
   function renderHolyCommunion() {

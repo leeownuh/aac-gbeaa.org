@@ -52,6 +52,11 @@ const mapCategoryRow = (row) => ({
   filterClass: row.filter_class
 });
 
+const mapNamedCategoryRow = (row) => ({
+  name: row.name,
+  slug: row.slug
+});
+
 const mapGalleryImageRow = (row) => ({
   id: row.id,
   title: row.title,
@@ -66,6 +71,175 @@ const mapGalleryImageRow = (row) => ({
   mimeType: row.mime_type,
   isUpload: row.is_upload
 });
+
+const normalizeSlug = (value) =>
+  String(value || '')
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9-]/g, '');
+
+const getAllArticleCategories = async () => {
+  const result = await query(
+    `SELECT slug, name
+     FROM article_categories
+     ORDER BY name ASC`
+  );
+  return result.rows.map(mapNamedCategoryRow);
+};
+
+const addArticleCategory = async (category) => {
+  const name = String(category.name || category.slug || '').trim();
+  const slug = normalizeSlug(category.slug || name);
+  const result = await query(
+    `INSERT INTO article_categories (slug, name, updated_at)
+     VALUES ($1, $2, NOW())
+     ON CONFLICT (slug)
+     DO UPDATE SET name = EXCLUDED.name, updated_at = NOW()
+     RETURNING slug, name`,
+    [slug, name]
+  );
+  return mapNamedCategoryRow(result.rows[0]);
+};
+
+const updateArticleCategory = async (slug, category) => {
+  const existing = await query(
+    `SELECT slug, name
+     FROM article_categories
+     WHERE slug = $1`,
+    [slug]
+  );
+  if (!existing.rows[0]) return null;
+
+  const nextName = String(category.name || existing.rows[0].name).trim();
+  const nextSlug = normalizeSlug(category.slug || nextName);
+  const result = await query(
+    `UPDATE article_categories
+     SET slug = $2, name = $3, updated_at = NOW()
+     WHERE slug = $1
+     RETURNING slug, name`,
+    [slug, nextSlug, nextName]
+  );
+
+  await query(
+    `UPDATE articles
+     SET category = $2
+     WHERE category = $1`,
+    [existing.rows[0].name, nextName]
+  );
+
+  return result.rows[0] ? mapNamedCategoryRow(result.rows[0]) : null;
+};
+
+const deleteArticleCategory = async (slug) => {
+  const existing = await query(
+    `SELECT slug, name
+     FROM article_categories
+     WHERE slug = $1`,
+    [slug]
+  );
+  if (!existing.rows[0]) return null;
+
+  const usage = await query(
+    `SELECT COUNT(*)::int AS count
+     FROM articles
+     WHERE category = $1`,
+    [existing.rows[0].name]
+  );
+  if ((usage.rows[0]?.count || 0) > 0) {
+    const error = new Error('Category is in use');
+    error.code = 'CATEGORY_IN_USE';
+    throw error;
+  }
+
+  await query(
+    `DELETE FROM article_categories
+     WHERE slug = $1`,
+    [slug]
+  );
+  return mapNamedCategoryRow(existing.rows[0]);
+};
+
+const getAllEventCategories = async () => {
+  const result = await query(
+    `SELECT slug, name
+     FROM event_categories
+     ORDER BY name ASC`
+  );
+  return result.rows.map(mapNamedCategoryRow);
+};
+
+const addEventCategory = async (category) => {
+  const name = String(category.name || category.slug || '').trim();
+  const slug = normalizeSlug(category.slug || name);
+  const result = await query(
+    `INSERT INTO event_categories (slug, name, updated_at)
+     VALUES ($1, $2, NOW())
+     ON CONFLICT (slug)
+     DO UPDATE SET name = EXCLUDED.name, updated_at = NOW()
+     RETURNING slug, name`,
+    [slug, name]
+  );
+  return mapNamedCategoryRow(result.rows[0]);
+};
+
+const updateEventCategory = async (slug, category) => {
+  const existing = await query(
+    `SELECT slug, name
+     FROM event_categories
+     WHERE slug = $1`,
+    [slug]
+  );
+  if (!existing.rows[0]) return null;
+
+  const nextName = String(category.name || existing.rows[0].name).trim();
+  const nextSlug = normalizeSlug(category.slug || nextName);
+  const result = await query(
+    `UPDATE event_categories
+     SET slug = $2, name = $3, updated_at = NOW()
+     WHERE slug = $1
+     RETURNING slug, name`,
+    [slug, nextSlug, nextName]
+  );
+
+  await query(
+    `UPDATE events
+     SET category = $2
+     WHERE category = $1`,
+    [existing.rows[0].name, nextName]
+  );
+
+  return result.rows[0] ? mapNamedCategoryRow(result.rows[0]) : null;
+};
+
+const deleteEventCategory = async (slug) => {
+  const existing = await query(
+    `SELECT slug, name
+     FROM event_categories
+     WHERE slug = $1`,
+    [slug]
+  );
+  if (!existing.rows[0]) return null;
+
+  const usage = await query(
+    `SELECT COUNT(*)::int AS count
+     FROM events
+     WHERE category = $1`,
+    [existing.rows[0].name]
+  );
+  if ((usage.rows[0]?.count || 0) > 0) {
+    const error = new Error('Category is in use');
+    error.code = 'CATEGORY_IN_USE';
+    throw error;
+  }
+
+  await query(
+    `DELETE FROM event_categories
+     WHERE slug = $1`,
+    [slug]
+  );
+  return mapNamedCategoryRow(existing.rows[0]);
+};
 
 const getAllArticles = async () => {
   const result = await query(
@@ -287,6 +461,61 @@ const addGalleryCategory = async (category) => {
   return mapCategoryRow(result.rows[0]);
 };
 
+const updateGalleryCategory = async (slug, category) => {
+  const existing = await query(
+    `SELECT *
+     FROM gallery_categories
+     WHERE slug = $1`,
+    [slug]
+  );
+  if (!existing.rows[0]) return null;
+
+  const result = await query(
+    `UPDATE gallery_categories
+     SET name = $2,
+         folder = $3,
+         filter_class = $4
+     WHERE slug = $1
+     RETURNING *`,
+    [
+      slug,
+      category.name || existing.rows[0].name,
+      category.folder || existing.rows[0].folder,
+      category.filterClass || category.filter_class || existing.rows[0].filter_class
+    ]
+  );
+  return result.rows[0] ? mapCategoryRow(result.rows[0]) : null;
+};
+
+const deleteGalleryCategory = async (slug) => {
+  const existing = await query(
+    `SELECT *
+     FROM gallery_categories
+     WHERE slug = $1`,
+    [slug]
+  );
+  if (!existing.rows[0]) return null;
+
+  const usage = await query(
+    `SELECT COUNT(*)::int AS count
+     FROM gallery_images
+     WHERE category_slug = $1`,
+    [slug]
+  );
+  if ((usage.rows[0]?.count || 0) > 0) {
+    const error = new Error('Category is in use');
+    error.code = 'CATEGORY_IN_USE';
+    throw error;
+  }
+
+  await query(
+    `DELETE FROM gallery_categories
+     WHERE slug = $1`,
+    [slug]
+  );
+  return mapCategoryRow(existing.rows[0]);
+};
+
 const getAllGalleryImages = async () => {
   const result = await query(
     `SELECT *
@@ -439,8 +668,18 @@ module.exports = {
   createEvent,
   updateEvent,
   deleteEvent,
+  getAllArticleCategories,
+  addArticleCategory,
+  updateArticleCategory,
+  deleteArticleCategory,
+  getAllEventCategories,
+  addEventCategory,
+  updateEventCategory,
+  deleteEventCategory,
   getAllGalleryCategories,
   addGalleryCategory,
+  updateGalleryCategory,
+  deleteGalleryCategory,
   getAllGalleryImages,
   getGalleryImageById,
   getUploadedGalleryImageByFile,

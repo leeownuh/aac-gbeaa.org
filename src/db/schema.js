@@ -64,6 +64,28 @@ const schemaStatements = [
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
   )`,
+  `CREATE TABLE IF NOT EXISTS article_categories (
+    slug TEXT PRIMARY KEY,
+    name TEXT NOT NULL UNIQUE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  )`,
+  `INSERT INTO article_categories (slug, name)
+    VALUES
+      ('general', 'General'),
+      ('announcement', 'Announcement'),
+      ('news', 'News'),
+      ('sermon', 'Sermon'),
+      ('event', 'Event')
+    ON CONFLICT (slug) DO NOTHING`,
+  `INSERT INTO article_categories (slug, name)
+    SELECT DISTINCT
+      LOWER(REGEXP_REPLACE(REGEXP_REPLACE(TRIM(category), '[^A-Za-z0-9]+', '-', 'g'), '(^-|-$)', '', 'g')),
+      TRIM(category)
+    FROM articles
+    WHERE category IS NOT NULL
+      AND TRIM(category) <> ''
+    ON CONFLICT (slug) DO NOTHING`,
   `CREATE TABLE IF NOT EXISTS events (
     id TEXT PRIMARY KEY,
     title TEXT NOT NULL,
@@ -83,6 +105,29 @@ const schemaStatements = [
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
   )`,
+  `CREATE TABLE IF NOT EXISTS event_categories (
+    slug TEXT PRIMARY KEY,
+    name TEXT NOT NULL UNIQUE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  )`,
+  `INSERT INTO event_categories (slug, name)
+    VALUES
+      ('general', 'General'),
+      ('national', 'National'),
+      ('provincial', 'Provincial'),
+      ('district', 'District'),
+      ('holy-communion', 'Holy Communion'),
+      ('conference', 'Conference')
+    ON CONFLICT (slug) DO NOTHING`,
+  `INSERT INTO event_categories (slug, name)
+    SELECT DISTINCT
+      LOWER(REGEXP_REPLACE(REGEXP_REPLACE(TRIM(category), '[^A-Za-z0-9]+', '-', 'g'), '(^-|-$)', '', 'g')),
+      TRIM(category)
+    FROM events
+    WHERE category IS NOT NULL
+      AND TRIM(category) <> ''
+    ON CONFLICT (slug) DO NOTHING`,
   `ALTER TABLE events
     ADD COLUMN IF NOT EXISTS start_at TIMESTAMPTZ`,
   `ALTER TABLE events
