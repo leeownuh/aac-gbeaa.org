@@ -367,11 +367,9 @@ Author: Leona Kokerai - Ownuh
 
                         <h4 class="fw-medium pb-2">Event Details</h4>
                         <ul class="fs-6 pb-3 list-style">
-                            <li><span class="fw-semibold text-dark">Dates: </span>Every Wednesday evening from 26 March
-                                2025 to 26 September 2025</li>
-                            <li><span class="fw-semibold text-dark">Time: </span>7:00 PM to 8:30 PM</li>
-                            <li><span class="fw-semibold text-dark">Location: </span>The African Apostolic Church
-                                Sanctuary</li>
+                            <li><span class="fw-semibold text-dark">Dates: </span><span id="event-detail-dates"></span></li>
+                            <li><span class="fw-semibold text-dark">Time: </span><span id="event-detail-time"></span></li>
+                            <li><span class="fw-semibold text-dark">Location: </span><span id="event-detail-location"></span></li>
                         </ul>
 
                         <h4 class="fw-medium pb-3">In the Name of Jesus</h4>
@@ -493,6 +491,20 @@ Author: Leona Kokerai - Ownuh
                 return end ? `${start} - ${end}` : start;
             }
 
+            function formatEventDates(event) {
+                const startDate = event.date || '';
+                const endDate = event.end_date || '';
+
+                return endDate && endDate !== startDate ? `${startDate} to ${endDate}` : startDate;
+            }
+
+            function setText(selector, value) {
+                const element = document.querySelector(selector);
+                if (element) {
+                    element.textContent = value || 'To be announced';
+                }
+            }
+
             const urlParams = new URLSearchParams(window.location.search);
             const rawId = urlParams.get('id');
             const requestedId = normalizeId(rawId);
@@ -549,6 +561,9 @@ Author: Leona Kokerai - Ownuh
 
             document.getElementById('post-title').textContent = event.title || 'Event';
             document.getElementById('event-date').textContent = `${event.date || ''} | ${formatEventTime(event)}`.trim();
+            setText('#event-detail-dates', formatEventDates(event));
+            setText('#event-detail-time', formatEventTime(event));
+            setText('#event-detail-location', event.location);
 
             const tagButton = document.querySelector('.btn-blur');
             if (tagButton) {
