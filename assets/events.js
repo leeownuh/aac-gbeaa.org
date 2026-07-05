@@ -50,6 +50,25 @@ document.addEventListener('DOMContentLoaded', function () {
     return div.innerHTML;
   }
 
+  function escapeAttr(text) {
+    return escapeHtml(text).replace(/"/g, '&quot;');
+  }
+
+  function normalizeEditableText(text) {
+    return String(text || '')
+      .replace(/<br\s*\/?>/gi, '\n')
+      .replace(/<\/p>\s*<p>/gi, '\n\n')
+      .replace(/<\/?p>/gi, '')
+      .replace(/\r\n?/g, '\n')
+      .trim();
+  }
+
+  function formatTextWithBreaks(text) {
+    return escapeHtml(normalizeEditableText(text))
+      .replace(/\n{3,}/g, '\n\n')
+      .replace(/\n/g, '<br>');
+  }
+
   function getSupportedTimeZones() {
     const supportedTimeZones = typeof Intl.supportedValuesOf === 'function'
       ? Intl.supportedValuesOf('timeZone')
@@ -165,6 +184,24 @@ document.addEventListener('DOMContentLoaded', function () {
     return end ? `${start} - ${end}` : start;
   }
 
+  function getEventEndInstant(event) {
+    const legacyTimes = parseLegacyEventTimes(event);
+    const explicitEnd = event.end_at || event.endAt || legacyTimes.endAt;
+    if (explicitEnd) {
+      const end = new Date(explicitEnd);
+      if (!Number.isNaN(end.getTime())) return end;
+    }
+
+    const endDate = event.end_date || event.date;
+    const endAt = zonedDateTimeToUtc(endDate, '23:59', event.timezone || defaultEventTimeZone);
+    return endAt ? new Date(endAt) : null;
+  }
+
+  function isActiveOrUpcomingEvent(event) {
+    const end = getEventEndInstant(event);
+    return end ? end >= new Date() : true;
+  }
+
   function renderTimeZoneSelector() {
     if (document.getElementById('event-timezone-control')) return;
 
@@ -232,7 +269,9 @@ document.addEventListener('DOMContentLoaded', function () {
   // Fetch Events with fallback
   fetchEvents()
     .then(data => {
-      events = data.sort((a, b) => new Date(a.date) - new Date(b.date));
+      events = data
+        .filter(isActiveOrUpcomingEvent)
+        .sort((a, b) => new Date(a.date) - new Date(b.date));
       localStorage.setItem('events', JSON.stringify(events));
       renderTimeZoneSelector();
       renderEvents();
@@ -316,21 +355,21 @@ document.addEventListener('DOMContentLoaded', function () {
     const paginated = paginate(filtered, currentPage);
 
     container.innerHTML = paginated.map(event => `
-      <div class="col-lg-6 d-flex mb-4" data-category="${event.category}">
+      <div class="col-lg-6 d-flex mb-4" data-category="${escapeAttr(event.category)}">
         <div class="position-relative w-100 event-card-1 hover-up d-flex flex-column justify-content-between">
           <div class="content-event rounded p-3 d-flex flex-column h-100">
-            <span class="badge bg-primary mb-2">${event.category}</span>
+            <span class="badge bg-primary mb-2">${escapeHtml(event.category)}</span>
             <h4 class="mt-2 fw-medium">
-              <a href="/event-details?id=${event.id}">${event.title}</a>
+              <a href="/event-details?id=${encodeURIComponent(event.id)}">${escapeHtml(event.title)}</a>
             </h4>
-            <p class="content-p pb-2">${event.description}</p>
+            <p class="content-p pb-2">${formatTextWithBreaks(event.description)}</p>
             <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between">
               <div class="times mb-2">
-                <p class="time fs-8 mb-1"><i data-feather="clock" class="size-12"></i> <span>${formatEventTime(event)}</span></p>
-                <p class="location fs-8"><i data-feather="map-pin" class="size-12"></i> <span>${event.location}</span></p>
+                <p class="time fs-8 mb-1"><i data-feather="clock" class="size-12"></i> <span>${escapeHtml(formatEventTime(event))}</span></p>
+                <p class="location fs-8"><i data-feather="map-pin" class="size-12"></i> <span>${escapeHtml(event.location)}</span></p>
               </div>
               <div class="button mb-2">
-                <a href="/event-details?id=${event.id}" class="d-inline-flex rounded-5 tc-btn-md fs-8 text-center">
+                <a href="/event-details?id=${encodeURIComponent(event.id)}" class="d-inline-flex rounded-5 tc-btn-md fs-8 text-center">
                   <span>View Details</span><i data-feather="arrow-right" class="size-12"></i>
                 </a>
               </div>
@@ -383,11 +422,11 @@ document.addEventListener('DOMContentLoaded', function () {
             </div>
             <div class="content">
               <p class="fs-6 mb-1">
-                <a href="/event-details?id=${event.id}" class="text-black">${event.title}</a>
+                <a href="/event-details?id=${encodeURIComponent(event.id)}" class="text-black">${escapeHtml(event.title)}</a>
               </p>
               <span class="event-meta fs-8">
                 <i class="fa fa-clock me-1"></i>
-                ${start.toLocaleDateString('en-GB')} - ${end.toLocaleDateString('en-GB')}${convertedTime}
+                ${escapeHtml(start.toLocaleDateString('en-GB'))} - ${escapeHtml(end.toLocaleDateString('en-GB'))}${escapeHtml(convertedTime)}
               </span>
             </div>
           </div>
@@ -413,7 +452,7 @@ document.addEventListener('DOMContentLoaded', function () {
           <div class="card-items hover-up">
             <div class="d-flex flex-column flex-lg-row align-items-lg-center">
           <div class="thumb-img position-relative mb-3 mb-lg-0">
-            <img class="rounded-2" src="assets/images/home2/img-sec-2-2.png" alt="${event.title}">
+            <img class="rounded-2" src="assets/images/home2/img-sec-2-2.png" alt="${escapeAttr(event.title)}">
             <div class="date fs-8 text-white d-flex flex-column justify-content-center position-absolute">
               <h4 class="text-white mb-0 lh-0">${day}</h4>
               <span class="fs-8">${month}</span>
@@ -421,13 +460,13 @@ document.addEventListener('DOMContentLoaded', function () {
             </div>
           </div>
           <div class="titles ms-lg-4">
-            <div class="cat text-uppercase fs-8 mb-1"><span>${event.category}</span></div>
+            <div class="cat text-uppercase fs-8 mb-1"><span>${escapeHtml(event.category)}</span></div>
             <h5 class="title fs-5 mb-3">
-              <a href="/event-details?id=${event.id}" class="fs-5 text-dark text-hover-primary font-body fw-normal">${event.title}</a>
+              <a href="/event-details?id=${encodeURIComponent(event.id)}" class="fs-5 text-dark text-hover-primary font-body fw-normal">${escapeHtml(event.title)}</a>
             </h5>
-            <p class="time fs-8 mb-1"><i class="size-12" data-feather="clock"></i> <span>${formatEventTime(event)}</span></p>
-            <p class="location fs-8"><i class="size-12" data-feather="map-pin"></i> <span>${event.location}</span></p>
-            <a href="/event-details?id=${event.id}" class="d-inline-flex rounded-5 tc-btn-xs fs-8">
+            <p class="time fs-8 mb-1"><i class="size-12" data-feather="clock"></i> <span>${escapeHtml(formatEventTime(event))}</span></p>
+            <p class="location fs-8"><i class="size-12" data-feather="map-pin"></i> <span>${escapeHtml(event.location)}</span></p>
+            <a href="/event-details?id=${encodeURIComponent(event.id)}" class="d-inline-flex rounded-5 tc-btn-xs fs-8">
               <span>More Info</span> <i data-feather="arrow-right" class="size-12"></i>
             </a>
           </div>

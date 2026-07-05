@@ -235,6 +235,91 @@ const normalizeSlug = (value) =>
     .replace(/\s+/g, '-')
     .replace(/[^a-z0-9-]/g, '');
 
+const normalizeEditableText = (value) =>
+  String(value || '')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/p>\s*<p>/gi, '\n\n')
+    .replace(/<\/?p>/gi, '')
+    .replace(/\r\n?/g, '\n')
+    .trim();
+
+const getTimeZoneOffsetMs = (date, timeZone) => {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  }).formatToParts(date);
+
+  const values = Object.fromEntries(parts.map(part => [part.type, part.value]));
+  const utcLike = Date.UTC(
+    Number(values.year),
+    Number(values.month) - 1,
+    Number(values.day),
+    Number(values.hour),
+    Number(values.minute),
+    Number(values.second)
+  );
+
+  return utcLike - date.getTime();
+};
+
+const zonedDateTimeToUtc = (dateValue, timeValue, timeZone = 'Africa/Harare') => {
+  if (!dateValue || !timeValue) {
+    return null;
+  }
+
+  const [year, month, day] = String(dateValue).split('-').map(Number);
+  const [hour, minute, second = 0] = String(timeValue).split(':').map(Number);
+  if (![year, month, day, hour, minute].every(Number.isFinite)) {
+    return null;
+  }
+
+  try {
+    const baseUtc = new Date(Date.UTC(year, month - 1, day, hour, minute, second || 0));
+    const offset = getTimeZoneOffsetMs(baseUtc, timeZone);
+    const candidate = new Date(baseUtc.getTime() - offset);
+    const correctedOffset = getTimeZoneOffsetMs(candidate, timeZone);
+    return new Date(baseUtc.getTime() - correctedOffset);
+  } catch {
+    return new Date(`${dateValue}T${timeValue}`);
+  }
+};
+
+const getEventEndInstant = (event) => {
+  const explicitEnd = event.endAt || event.end_at;
+  if (explicitEnd) {
+    const end = new Date(explicitEnd);
+    if (!Number.isNaN(end.getTime())) {
+      return end;
+    }
+  }
+
+  const endDate = event.end_date || event.date;
+  return zonedDateTimeToUtc(endDate, '23:59:59', event.timezone || 'Africa/Harare');
+};
+
+const isActiveOrUpcomingEvent = (event, now = new Date()) => {
+  const end = getEventEndInstant(event);
+  return end ? end >= now : true;
+};
+
+const canIncludePastEvents = (req) => {
+  if (req.query.includePast !== 'true' || !req.session?.admin?.accessToken) {
+    return false;
+  }
+
+  try {
+    return Boolean(AuthService.verifyAccessToken(req.session.admin.accessToken));
+  } catch {
+    return false;
+  }
+};
+
 const removeUploadedFile = async (file) => {
   const safeFile = path.basename(String(file || ''));
   if (!safeGalleryFilePattern.test(safeFile)) {
@@ -907,7 +992,7 @@ router.delete('/articles/:id', validateRouteId(), authenticateAdmin, requirePass
 router.get('/events', async (req, res) => {
   try {
     const events = await readOrLoadHot(HOT_CACHE_KEYS.events, () => contentRepository.getAllEvents());
-    res.json(events);
+    res.json(canIncludePastEvents(req) ? events : events.filter(event => isActiveOrUpcomingEvent(event)));
   } catch {
     res.status(500).json({ error: 'Failed to load events' });
   }
@@ -951,7 +1036,7 @@ router.post('/events', authenticateAdmin, requirePasswordChangeComplete, require
     const newEvent = {
       id: uuidv4(),
       title,
-      description,
+      description: normalizeEditableText(description),
       date,
       end_date: end_date || null,
       time: time || null,
@@ -1007,7 +1092,9 @@ router.put('/events/:id', validateRouteId(), authenticateAdmin, requirePasswordC
     const updatePayload = {
       ...existing,
       title: req.body.title || existing.title,
-      description: req.body.description || existing.description,
+      description: Object.prototype.hasOwnProperty.call(req.body, 'description')
+        ? normalizeEditableText(req.body.description) || existing.description
+        : existing.description,
       date: req.body.date || existing.date,
       end_date: Object.prototype.hasOwnProperty.call(req.body, 'end_date') ? req.body.end_date || null : existing.end_date,
       time: Object.prototype.hasOwnProperty.call(req.body, 'time') ? req.body.time || null : existing.time,

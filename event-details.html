@@ -505,6 +505,27 @@ Author: Leona Kokerai - Ownuh
                 }
             }
 
+            function escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text || '';
+                return div.innerHTML;
+            }
+
+            function normalizeEditableText(text) {
+                return String(text || '')
+                    .replace(/<br\s*\/?>/gi, '\n')
+                    .replace(/<\/p>\s*<p>/gi, '\n\n')
+                    .replace(/<\/?p>/gi, '')
+                    .replace(/\r\n?/g, '\n')
+                    .trim();
+            }
+
+            function formatTextWithBreaks(text) {
+                return escapeHtml(normalizeEditableText(text))
+                    .replace(/\n{3,}/g, '\n\n')
+                    .replace(/\n/g, '<br>');
+            }
+
             const urlParams = new URLSearchParams(window.location.search);
             const rawId = urlParams.get('id');
             const requestedId = normalizeId(rawId);
@@ -588,7 +609,7 @@ Author: Leona Kokerai - Ownuh
 
             const descriptionParagraph = document.querySelector('.fw-medium.pb-3 + p');
             if (descriptionParagraph && event.description) {
-                descriptionParagraph.textContent = event.description;
+                descriptionParagraph.innerHTML = formatTextWithBreaks(event.description);
             }
         });
     </script>

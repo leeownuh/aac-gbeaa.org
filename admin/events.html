@@ -764,6 +764,19 @@ document.getElementById('logoutBtn').addEventListener('click', () => {
             return div.innerHTML;
         }
 
+        function normalizeEditableText(text) {
+            return String(text || '')
+                .replace(/<br\s*\/?>/gi, '\n')
+                .replace(/<\/p>\s*<p>/gi, '\n\n')
+                .replace(/<\/?p>/gi, '')
+                .replace(/\r\n?/g, '\n')
+                .trim();
+        }
+
+        function toPlainPreview(text) {
+            return normalizeEditableText(text).replace(/\s+/g, ' ');
+        }
+
         function getSupportedTimeZones() {
             const supportedTimeZones = typeof Intl.supportedValuesOf === 'function'
                 ? Intl.supportedValuesOf('timeZone')
@@ -930,7 +943,7 @@ document.getElementById('logoutBtn').addEventListener('click', () => {
             const timeZone = document.getElementById('timezone').value;
 
             formData.append('title', document.getElementById('title').value);
-            formData.append('description', document.getElementById('description').value);
+            formData.append('description', normalizeEditableText(document.getElementById('description').value));
             formData.append('date', date);
             formData.append('end_date', endDate);
             formData.append('time', formatTimeRangeText(startTime, endTime));
@@ -949,7 +962,7 @@ document.getElementById('logoutBtn').addEventListener('click', () => {
         }
 
         function loadEvents() {
-            fetch('/api/events', { credentials: 'include' })
+            fetch('/api/events?includePast=true', { credentials: 'include' })
                 .then(response => response.json())
                 .then(data => {
                     events = Array.isArray(data) ? data : data.data || [];
@@ -976,7 +989,7 @@ document.getElementById('logoutBtn').addEventListener('click', () => {
                     <img src="${escapeHtml(event.image)}" alt="${escapeHtml(event.title)}" class="event-image" onerror="this.src='assets/images/events/img-event-1.png'">
                     <div class="event-info">
                         <h3>${escapeHtml(event.title)}</h3>
-                        <p>${escapeHtml((event.description || '').substring(0, 150))}${(event.description || '').length > 150 ? '...' : ''}</p>
+                        <p>${escapeHtml(toPlainPreview(event.description).substring(0, 150))}${toPlainPreview(event.description).length > 150 ? '...' : ''}</p>
                         <div class="event-meta">
                             <span>Date: ${escapeHtml(event.date)}${event.end_date ? ' - ' + escapeHtml(event.end_date) : ''}</span>
                             <span>Time: ${escapeHtml(formatAdminEventTime(event))}</span>
@@ -1013,7 +1026,7 @@ document.getElementById('logoutBtn').addEventListener('click', () => {
                 currentEditId = event.id;
                 document.getElementById('eventId').value = event.id;
                 document.getElementById('title').value = event.title || '';
-                document.getElementById('description').value = event.description || '';
+                document.getElementById('description').value = normalizeEditableText(event.description);
                 document.getElementById('date').value = event.date || '';
                 document.getElementById('end_date').value = event.end_date || '';
                 document.getElementById('start_time').value = timeInZone(startAt, timeZone);
