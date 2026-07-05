@@ -236,6 +236,7 @@
     function updateRole(username) {
       const select = document.querySelector(`[data-role-user="${username}"]`);
       if (!select) return;
+      if (!confirm(`Change ${username}'s admin role to "${select.value}"? This changes their permissions immediately.`)) return;
 
       fetch(`/api/admin/users/${encodeURIComponent(username)}/role`, {
         method: 'PUT',
@@ -259,6 +260,7 @@
     function issueTemporaryPassword(username) {
       const validityText = prompt(`Temporary password validity in hours for ${username} (default 12):`, '12');
       const validityHours = Number.parseInt(validityText, 10);
+      if (!confirm(`Issue a new temporary password for ${username}? Their access credentials will change immediately.`)) return;
 
       fetch(`/api/admin/users/${encodeURIComponent(username)}/temporary-password`, {
         method: 'POST',
@@ -281,7 +283,7 @@
     }
 
     function deleteUser(username) {
-      if (!confirm(`Delete account ${username}?`)) return;
+      if (!confirm(`Delete admin account "${username}"? This cannot be undone.`)) return;
 
       fetch(`/api/admin/users/${encodeURIComponent(username)}`, {
         method: 'DELETE',

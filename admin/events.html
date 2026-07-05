@@ -729,6 +729,11 @@
 
             const url = currentEditId ? `/api/events/${currentEditId}` : '/api/events';
             const method = currentEditId ? 'PUT' : 'POST';
+            const eventTitle = document.getElementById('title').value || 'this event';
+
+            if (currentEditId && !confirm(`Save changes to event "${eventTitle}"? This updates the live website.`)) {
+                return;
+            }
 
             fetch(url, {
                 method: method,
@@ -904,6 +909,7 @@ document.getElementById('logoutBtn').addEventListener('click', () => {
             if (!category) return;
             const name = prompt('Edit event category name', category.name);
             if (!name || !name.trim() || name.trim() === category.name) return;
+            if (!confirm(`Rename event category "${category.name}" to "${name.trim()}"? Existing events in this category will be updated.`)) return;
 
             fetch(`/api/event-categories/${encodeURIComponent(slug)}`, {
                 method: 'PUT',
@@ -921,7 +927,7 @@ document.getElementById('logoutBtn').addEventListener('click', () => {
 
         function deleteEventCategory(slug) {
             const category = eventCategories.find(item => item.slug === slug);
-            if (!category || !confirm(`Delete event category "${category.name}"?`)) return;
+            if (!category || !confirm(`Delete event category "${category.name}"? This is only allowed when no events use it.`)) return;
 
             fetch(`/api/event-categories/${encodeURIComponent(slug)}`, {
                 method: 'DELETE',
@@ -1230,7 +1236,9 @@ document.getElementById('logoutBtn').addEventListener('click', () => {
         }
 
         function deleteEvent(id) {
-            if (confirm('Are you sure you want to delete this event?')) {
+            const event = events.find(item => item.id === id);
+            const title = event?.title || 'this event';
+            if (confirm(`Delete event "${title}"? This removes it from the live website.`)) {
                 fetch(`/api/events/${id}`, {
                     method: 'DELETE',
                     credentials: 'include'

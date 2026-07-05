@@ -790,6 +790,7 @@
             if (!category) return;
             const name = prompt("Edit gallery category name", category.name);
             if (!name || !name.trim() || name.trim() === category.name) return;
+            if (!confirm(`Rename gallery category "${category.name}" to "${name.trim()}"? Existing gallery filters will show the new name.`)) return;
 
             fetch(`/api/gallery/categories/${encodeURIComponent(slug)}`, {
                 method: "PUT",
@@ -809,7 +810,7 @@
 
         function deleteGalleryCategory(slug) {
             const category = categories.find(item => item.slug === slug);
-            if (!category || !confirm(`Delete gallery category "${category.name}"?`)) return;
+            if (!category || !confirm(`Delete gallery category "${category.name}"? This is only allowed when no images use it.`)) return;
 
             fetch(`/api/gallery/categories/${encodeURIComponent(slug)}`, {
                 method: "DELETE",
@@ -870,6 +871,10 @@
                 category: document.getElementById("category").value
             };
 
+            if (isEditing && !confirm(`Save changes to gallery image "${editPayload.title}"? This updates the live website.`)) {
+                return;
+            }
+
             submitBtn.disabled = true;
             submitBtn.textContent = isEditing ? "Saving..." : "Uploading...";
 
@@ -905,7 +910,9 @@
         ============================= */
         function deleteImage(file) {
 
-            if (!confirm("Delete image?")) return;
+            const item = gallery.find(entry => entry.file === file);
+            const title = item?.title || file || "this image";
+            if (!confirm(`Delete gallery image "${title}"? This removes it from the live website.`)) return;
 
             fetch(`/api/gallery/${encodeURIComponent(file)}`, {
                 method: "DELETE",

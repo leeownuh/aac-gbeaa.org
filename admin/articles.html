@@ -592,6 +592,7 @@ const category=articleCategories.find(item=>item.slug===slug);
 if(!category) return;
 const name=prompt('Edit article category name',category.name);
 if(!name || !name.trim() || name.trim()===category.name) return;
+if(!confirm(`Rename article category "${category.name}" to "${name.trim()}"? Existing articles in this category will be updated.`)) return;
 
 fetch(`/api/article-categories/${encodeURIComponent(slug)}`,{
 method:'PUT',
@@ -609,7 +610,7 @@ loadArticles();
 
 function deleteArticleCategory(slug){
 const category=articleCategories.find(item=>item.slug===slug);
-if(!category || !confirm(`Delete article category "${category.name}"?`)) return;
+if(!category || !confirm(`Delete article category "${category.name}"? This is only allowed when no articles use it.`)) return;
 
 fetch(`/api/article-categories/${encodeURIComponent(slug)}`,{
 method:'DELETE',
@@ -713,6 +714,10 @@ date:document.getElementById("date").value
 const url=currentEditId?`/api/articles/${currentEditId}`:'/api/articles';
 const method=currentEditId?'PUT':'POST';
 
+if(currentEditId && !confirm(`Save changes to article "${payload.title}"? This updates the live website.`)){
+return;
+}
+
 fetch(url,{
 method,
 headers:{
@@ -735,7 +740,9 @@ alert(data.error);
 
 /* DELETE */
 function deleteArticle(id){
-if(confirm("Delete article?")){
+const article=articles.find(a=>a.id===id);
+const title=article?.title || 'this article';
+if(confirm(`Delete article "${title}"? This removes it from the live website.`)){
 fetch(`/api/articles/${id}`,{
 method:"DELETE",
 credentials:"include"
