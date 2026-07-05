@@ -505,6 +505,18 @@
         let gallery = [];
         let categories = [];
 
+        function getImagePath(item) {
+            if (item.url) {
+                return item.url;
+            }
+
+            if (item.isUpload) {
+                return `/uploads/${encodeURIComponent(item.file || "")}`;
+            }
+
+            return `/assets/images/gallery/${encodeURIComponent(item.category || "")}/${encodeURIComponent(item.file || "")}`;
+        }
+
         /* =============================
         AUTH CHECK
         ============================= */
@@ -575,8 +587,7 @@
 
             container.innerHTML = gallery.map(item => {
 
-                const imgPath =
-                    `/assets/images/gallery/${encodeURIComponent(item.category || "")}/${encodeURIComponent(item.file || "")}`;
+                const imgPath = getImagePath(item);
 
                 return `
         <div class="gallery-item">
@@ -685,8 +696,41 @@
         /* =========================
         UPLOAD GALLERY IMAGE
         ========================= */
-        // NOTE: Server-side Express route snippets were removed from this browser script.
-        // Upload handling is provided by backend API endpoints under /api/gallery.
+        document.getElementById("galleryForm").addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            const form = e.target;
+            const submitBtn = form.querySelector(".submit-btn");
+            const formData = new FormData(form);
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = "Uploading...";
+
+            try {
+                const res = await fetch("/api/gallery", {
+                    method: "POST",
+                    credentials: "include",
+                    body: formData
+                });
+                const data = await res.json().catch(() => ({}));
+
+                if (!res.ok || !data.success) {
+                    throw new Error(data.error || "Upload failed");
+                }
+
+                closeModal();
+                loadGallery();
+
+                if (data.pendingApproval) {
+                    alert(data.message || "Upload submitted for approval");
+                }
+            } catch (err) {
+                alert(err.message || "Upload failed");
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Add Image";
+            }
+        });
 
 /* =============================
         DELETE IMAGE
@@ -721,6 +765,9 @@
         function closeModal() {
             document.getElementById("modal")
                 .classList.remove("active");
+            document.getElementById("galleryForm").reset();
+            document.getElementById("imagePreview").classList.remove("active");
+            document.getElementById("imagePreview").removeAttribute("src");
         }
 
         function viewImage(src) {
@@ -752,6 +799,20 @@
                 .replace(/</g, "&lt;")
                 .replace(/>/g, "&gt;");
         }
+
+        document.getElementById("image").addEventListener("change", function (e) {
+            const file = e.target.files && e.target.files[0];
+            const preview = document.getElementById("imagePreview");
+
+            if (!file) {
+                preview.classList.remove("active");
+                preview.removeAttribute("src");
+                return;
+            }
+
+            preview.src = URL.createObjectURL(file);
+            preview.classList.add("active");
+        });
 
         /* ESC KEY CLOSE */
         document.addEventListener("keydown", e => {

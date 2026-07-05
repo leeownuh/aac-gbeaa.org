@@ -22,7 +22,8 @@ const toV2GalleryItem = (item) => ({
   uploadedBy: item.uploadedBy,
   createdAt: item.createdAt,
   size: item.size,
-  mimeType: item.mimeType
+  mimeType: item.mimeType,
+  url: `/uploads/${encodeURIComponent(item.file)}`
 });
 
 class GalleryController {

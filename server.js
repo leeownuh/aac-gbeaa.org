@@ -235,6 +235,22 @@ const normalizeSlug = (value) =>
     .replace(/\s+/g, '-')
     .replace(/[^a-z0-9-]/g, '');
 
+const removeUploadedFile = async (file) => {
+  const safeFile = path.basename(String(file || ''));
+  if (!safeGalleryFilePattern.test(safeFile)) {
+    return;
+  }
+
+  const filePath = path.join(uploadsDir, safeFile);
+  try {
+    await fs.promises.unlink(filePath);
+  } catch (err) {
+    if (err.code !== 'ENOENT') {
+      throw err;
+    }
+  }
+};
+
 const generateExcerpt = (text, length = 150) => {
   if (!text) return '';
   return text.substring(0, length) + (text.length > length ? '...' : '');
@@ -360,7 +376,18 @@ const applyApprovedChange = async (changeRequest) => {
   }
 
   if (resourceType === 'gallery_image' && operation === 'delete') {
-    return contentRepository.deleteGalleryImagesByFile(payload.file);
+    const deleted = await contentRepository.deleteGalleryImagesByFile(payload.file);
+    if (deleted.some(item => item.isUpload)) {
+      await removeUploadedFile(payload.file);
+    }
+    return deleted;
+  }
+
+  if (resourceType === 'gallery_image' && operation === 'create') {
+    if (payload.category) {
+      await contentRepository.addGalleryCategory(payload.category);
+    }
+    return contentRepository.addGalleryImage(payload.image);
   }
 
   throw new Error('Unsupported change request payload');
@@ -1076,15 +1103,29 @@ router.get('/gallery', async (req, res) => {
   try {
     const categories = await contentRepository.getAllGalleryCategories();
     const images = await contentRepository.getAllGalleryImages();
+    const categoryBySlug = new Map(categories.map(category => [category.slug, category]));
 
     res.json({
       categories,
-      images: images.map(item => ({
-        title: item.title || item.file,
-        category: item.category,
-        file: item.file,
-        date: item.date
-      }))
+      images: images.map(item => {
+        const category = categoryBySlug.get(item.category);
+        const encodedFile = encodeURIComponent(item.file || '');
+        const encodedFolder = encodeURIComponent(category?.folder || item.category || '');
+
+        return {
+          id: item.id,
+          title: item.title || item.file,
+          category: item.category,
+          file: item.file,
+          date: item.date,
+          description: item.caption || '',
+          caption: item.caption || '',
+          isUpload: item.isUpload,
+          url: item.isUpload
+            ? `/uploads/${encodedFile}`
+            : `/assets/images/gallery/${encodedFolder}/${encodedFile}`
+        };
+      })
     });
   } catch {
     res.status(500).json({ error: 'Gallery load failed' });
@@ -1153,6 +1194,91 @@ router.post('/gallery/categories', authenticateAdmin, requirePasswordChangeCompl
   }
 });
 
+router.post('/gallery', authenticateAdmin, requirePasswordChangeComplete, requireContentWriteAccess, upload.single('image'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        error: 'Image file is required'
+      });
+    }
+
+    const categoryInput = req.body.category || 'uploads';
+    const categorySlug = normalizeSlug(categoryInput) || 'uploads';
+    const categories = await contentRepository.getAllGalleryCategories();
+    const existingCategory = categories.find(category => category.slug === categorySlug);
+    const categoryPayload = existingCategory || {
+      name: String(categoryInput).trim() || 'Uploads',
+      slug: categorySlug,
+      folder: categorySlug,
+      filterClass: categorySlug
+    };
+    const now = new Date();
+    const caption = req.body.description || req.body.caption || null;
+    const galleryItem = {
+      id: uuidv4(),
+      title: req.body.title || req.file.originalname,
+      category: categorySlug,
+      file: req.file.filename,
+      date: now.toISOString().split('T')[0],
+      caption,
+      originalName: req.file.originalname,
+      uploadedBy: req.admin.username,
+      createdAt: now.toISOString(),
+      size: req.file.size,
+      mimeType: req.file.mimetype,
+      isUpload: true
+    };
+
+    if (req.admin.role === ADMIN_ROLES.EDITOR) {
+      const queued = await queueChangeRequest(req, {
+        resourceType: 'gallery_image',
+        operation: 'create',
+        resourceId: galleryItem.id,
+        payload: {
+          image: galleryItem,
+          category: existingCategory ? null : categoryPayload
+        }
+      });
+
+      return res.status(202).json({
+        success: true,
+        pendingApproval: true,
+        changeRequestId: queued.id,
+        message: 'Gallery upload request submitted for moderator approval'
+      });
+    }
+
+    if (!existingCategory) {
+      await contentRepository.addGalleryCategory(categoryPayload);
+    }
+
+    const saved = await contentRepository.addGalleryImage(galleryItem);
+    await auditAction(req, 'upload_gallery_image', 'gallery_image', saved.id, {
+      file: saved.file,
+      category: saved.category
+    });
+
+    res.status(201).json({
+      success: true,
+      image: {
+        ...saved,
+        description: saved.caption || '',
+        url: `/uploads/${encodeURIComponent(saved.file)}`
+      }
+    });
+  } catch (err) {
+    if (req.file?.filename) {
+      await removeUploadedFile(req.file.filename).catch(() => {});
+    }
+
+    res.status(500).json({
+      success: false,
+      error: 'Failed to upload gallery image'
+    });
+  }
+});
+
 router.get('/gallery/count', async (req, res) => {
   try {
     const count = await contentRepository.countGalleryImages();
@@ -1180,7 +1306,11 @@ router.delete('/gallery/:file', validateGalleryFile, authenticateAdmin, requireP
       });
     }
 
-    await contentRepository.deleteGalleryImagesByFile(req.params.file);
+    const deleted = await contentRepository.deleteGalleryImagesByFile(req.params.file);
+    if (deleted.some(item => item.isUpload)) {
+      await removeUploadedFile(req.params.file);
+    }
+
     await auditAction(req, 'delete_gallery_image', 'gallery_image', req.params.file);
     res.json({ success: true });
   } catch {

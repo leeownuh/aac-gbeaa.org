@@ -10,6 +10,23 @@ document.addEventListener("DOMContentLoaded", function () {
     let allImages = [];
     let categories = [];
 
+    function getImagePath(img) {
+        if (img.url) {
+            return img.url;
+        }
+
+        if (img.isUpload) {
+            return `/uploads/${encodeURIComponent(img.file || "")}`;
+        }
+
+        const category = categories.find(c => c.slug === img.category);
+        if (!category) {
+            return "";
+        }
+
+        return `/assets/images/gallery/${encodeURIComponent(category.folder || "")}/${encodeURIComponent(img.file || "")}`;
+    }
+
     const fetchGalleryData = async () => {
         const sources = ["/api/gallery", "/data/gallery.json", "data/gallery.json"];
         for (const source of sources) {
@@ -103,11 +120,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
         paginatedItems.forEach(img => {
 
-            const category = categories.find(c => c.slug === img.category);
-            if (!category) {
+            const imagePath = getImagePath(img);
+            if (!imagePath) {
                 return;
             }
-            const imagePath = `/assets/images/gallery/${category.folder}/${img.file}`;
 
             galleryContainer.innerHTML += `
                 <div class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4">

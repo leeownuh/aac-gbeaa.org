@@ -7,8 +7,8 @@ const { upload, uploadErrorHandler } = require('../middleware/upload');
 const { validateGallery, validateId, validateFileName } = require('../middleware/validate');
 
 router.get('/', galleryController.getAllGallery);
-router.get('/:id', validateId, galleryController.getGalleryItem);
 router.get('/image/:filename', validateFileName, galleryController.serveImage);
+router.get('/:id', validateId, galleryController.getGalleryItem);
 
 router.post(
   '/',
