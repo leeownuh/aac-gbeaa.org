@@ -209,7 +209,7 @@ const getPermissionSet = (role) => ({
   canViewContent: true,
   canEditContent: role === ADMIN_ROLES.SUPER || role === ADMIN_ROLES.EDITOR,
   canManageUsers: role === ADMIN_ROLES.SUPER,
-  canApproveChanges: role === ADMIN_ROLES.MODERATOR,
+  canApproveChanges: role === ADMIN_ROLES.SUPER || role === ADMIN_ROLES.MODERATOR,
   canViewChangeQueue: role === ADMIN_ROLES.SUPER || role === ADMIN_ROLES.MODERATOR,
   canViewAuditLogs: role === ADMIN_ROLES.SUPER || role === ADMIN_ROLES.MODERATOR
 });
