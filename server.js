@@ -191,7 +191,7 @@ const requireAdminRole = (...roles) => (req, res, next) => {
 const requireContentWriteAccess = requireAdminRole(ADMIN_ROLES.SUPER, ADMIN_ROLES.EDITOR);
 const requireSuperAdmin = requireAdminRole(ADMIN_ROLES.SUPER);
 const requireApprovalViewAccess = requireAdminRole(ADMIN_ROLES.SUPER, ADMIN_ROLES.MODERATOR);
-const requireModeratorApproval = requireAdminRole(ADMIN_ROLES.MODERATOR);
+const requireModeratorApproval = requireAdminRole(ADMIN_ROLES.SUPER, ADMIN_ROLES.MODERATOR);
 
 const requirePasswordChangeComplete = (req, res, next) => {
   if (req.admin?.requiresPasswordChange) {
