@@ -475,6 +475,13 @@ const applyApprovedChange = async (changeRequest) => {
     return contentRepository.addGalleryImage(payload.image);
   }
 
+  if (resourceType === 'gallery_image' && operation === 'update') {
+    if (payload.category) {
+      await contentRepository.addGalleryCategory(payload.category);
+    }
+    return contentRepository.updateGalleryImage(payload.id, payload.image);
+  }
+
   throw new Error('Unsupported change request payload');
 };
 
@@ -1362,6 +1369,88 @@ router.post('/gallery', authenticateAdmin, requirePasswordChangeComplete, requir
     res.status(500).json({
       success: false,
       error: 'Failed to upload gallery image'
+    });
+  }
+});
+
+router.put('/gallery/:id', validateRouteId(), authenticateAdmin, requirePasswordChangeComplete, requireContentWriteAccess, async (req, res) => {
+  try {
+    const existing = await contentRepository.getGalleryImageById(req.params.id);
+    if (!existing) {
+      return res.status(404).json({
+        success: false,
+        error: 'Gallery image not found'
+      });
+    }
+
+    const categoryInput = existing.isUpload
+      ? req.body.category || existing.category || 'uploads'
+      : existing.category || 'uploads';
+    const categorySlug = normalizeSlug(categoryInput) || existing.category || 'uploads';
+    const categories = await contentRepository.getAllGalleryCategories();
+    const existingCategory = categories.find(category => category.slug === categorySlug);
+    const categoryPayload = existingCategory || {
+      name: String(categoryInput).trim() || categorySlug,
+      slug: categorySlug,
+      folder: categorySlug,
+      filterClass: categorySlug
+    };
+
+    const updatePayload = {
+      title: req.body.title || existing.title || existing.file,
+      category: categorySlug,
+      caption: Object.prototype.hasOwnProperty.call(req.body, 'description')
+        ? req.body.description || null
+        : Object.prototype.hasOwnProperty.call(req.body, 'caption')
+          ? req.body.caption || null
+          : existing.caption || null,
+      date: req.body.date || existing.date || null
+    };
+
+    if (req.admin.role === ADMIN_ROLES.EDITOR) {
+      const queued = await queueChangeRequest(req, {
+        resourceType: 'gallery_image',
+        operation: 'update',
+        resourceId: req.params.id,
+        payload: {
+          id: req.params.id,
+          image: updatePayload,
+          category: existingCategory ? null : categoryPayload
+        }
+      });
+
+      return res.status(202).json({
+        success: true,
+        pendingApproval: true,
+        changeRequestId: queued.id,
+        message: 'Gallery image update request submitted for moderator approval'
+      });
+    }
+
+    if (!existingCategory) {
+      await contentRepository.addGalleryCategory(categoryPayload);
+    }
+
+    const updated = await contentRepository.updateGalleryImage(req.params.id, updatePayload);
+    await auditAction(req, 'update_gallery_image', 'gallery_image', req.params.id, {
+      file: existing.file,
+      category: updated.category
+    });
+
+    res.json({
+      success: true,
+      image: {
+        ...updated,
+        description: updated.caption || '',
+        url: updated.isUpload
+          ? `/uploads/${encodeURIComponent(updated.file)}`
+          : null
+      }
+    });
+  } catch {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to update gallery image'
     });
   }
 });

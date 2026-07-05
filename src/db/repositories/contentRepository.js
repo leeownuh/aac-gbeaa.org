@@ -359,6 +359,27 @@ const addGalleryImage = async (item) => {
   return mapGalleryImageRow(result.rows[0]);
 };
 
+const updateGalleryImage = async (id, item) => {
+  const result = await query(
+    `UPDATE gallery_images
+     SET title = $2,
+         category_slug = $3,
+         caption = $4,
+         date_text = $5
+     WHERE id = $1
+     RETURNING *`,
+    [
+      id,
+      item.title || null,
+      item.category,
+      item.caption || null,
+      item.date || null
+    ]
+  );
+
+  return result.rows[0] ? mapGalleryImageRow(result.rows[0]) : null;
+};
+
 const deleteGalleryImageById = async (id) => {
   const result = await query(
     `DELETE FROM gallery_images
@@ -424,6 +445,7 @@ module.exports = {
   getGalleryImageById,
   getUploadedGalleryImageByFile,
   addGalleryImage,
+  updateGalleryImage,
   deleteGalleryImageById,
   deleteGalleryImagesByFile,
   countGalleryImages,

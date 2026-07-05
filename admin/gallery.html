@@ -209,6 +209,16 @@
             transition: background 0.2s;
         }
 
+        .edit-btn {
+            background: #2563eb;
+            color: white;
+            margin-right: 8px;
+        }
+
+        .edit-btn:hover {
+            background: #1d4ed8;
+        }
+
         .delete-btn {
             background: #a8149e;
             color: white;
@@ -464,6 +474,8 @@
             </div>
 
             <form id="galleryForm">
+                <input type="hidden" id="galleryImageId" name="id">
+
                 <div class="form-group">
                     <label for="title">Title *</label>
                     <input type="text" id="title" name="title" required>
@@ -504,6 +516,7 @@
 
         let gallery = [];
         let categories = [];
+        let currentEditId = null;
 
         function getImagePath(item) {
             if (item.url) {
@@ -623,6 +636,13 @@
                 </div>
 
                 <button
+                class="action-btn edit-btn"
+                data-id="${escapeAttr(item.id || "")}"
+                onclick="editImage(this.dataset.id)">
+                    Edit
+                </button>
+
+                <button
                 class="delete-btn"
                 data-file="${escapeAttr(item.file || "")}"
                 onclick="deleteImage(this.dataset.file)">
@@ -709,21 +729,28 @@
 
             const form = e.target;
             const submitBtn = form.querySelector(".submit-btn");
+            const isEditing = Boolean(currentEditId);
             const formData = new FormData(form);
+            const editPayload = {
+                title: document.getElementById("title").value,
+                description: document.getElementById("description").value,
+                category: document.getElementById("category").value
+            };
 
             submitBtn.disabled = true;
-            submitBtn.textContent = "Uploading...";
+            submitBtn.textContent = isEditing ? "Saving..." : "Uploading...";
 
             try {
-                const res = await fetch("/api/gallery", {
-                    method: "POST",
+                const res = await fetch(isEditing ? `/api/gallery/${encodeURIComponent(currentEditId)}` : "/api/gallery", {
+                    method: isEditing ? "PUT" : "POST",
                     credentials: "include",
-                    body: formData
+                    headers: isEditing ? { "Content-Type": "application/json" } : undefined,
+                    body: isEditing ? JSON.stringify(editPayload) : formData
                 });
                 const data = await res.json().catch(() => ({}));
 
                 if (!res.ok || !data.success) {
-                    throw new Error(data.error || "Upload failed");
+                    throw new Error(data.error || (isEditing ? "Save failed" : "Upload failed"));
                 }
 
                 closeModal();
@@ -733,10 +760,10 @@
                     alert(data.message || "Upload submitted for approval");
                 }
             } catch (err) {
-                alert(err.message || "Upload failed");
+                alert(err.message || (isEditing ? "Save failed" : "Upload failed"));
             } finally {
                 submitBtn.disabled = false;
-                submitBtn.textContent = "Add Image";
+                submitBtn.textContent = isEditing && currentEditId ? "Save Changes" : "Add Image";
             }
         });
 
@@ -765,17 +792,53 @@
         /* =============================
         MODALS
         ============================= */
+        function resetModalState() {
+            currentEditId = null;
+            document.querySelector(".modal-header h2").textContent = "Add Image to Gallery";
+            document.querySelector(".submit-btn").textContent = "Add Image";
+            document.querySelector("label[for='image']").textContent = "Image *";
+            document.getElementById("image").required = true;
+            document.getElementById("galleryForm").reset();
+            document.getElementById("imagePreview").classList.remove("active");
+            document.getElementById("imagePreview").removeAttribute("src");
+        }
+
         function openModal() {
+            resetModalState();
             document.getElementById("modal")
                 .classList.add("active");
+        }
+
+        function editImage(id) {
+            const item = gallery.find(entry => entry.id === id);
+            if (!item) {
+                alert("Image not found");
+                return;
+            }
+
+            const imgPath = getImagePath(item);
+            currentEditId = id;
+            document.querySelector(".modal-header h2").textContent = "Edit Gallery Image";
+            document.querySelector(".submit-btn").textContent = "Save Changes";
+            document.querySelector("label[for='image']").textContent = "Replace image";
+            document.getElementById("galleryImageId").value = id;
+            document.getElementById("title").value = item.title || "";
+            document.getElementById("description").value = item.description || item.caption || "";
+            document.getElementById("category").value = item.category || "";
+            document.getElementById("image").required = false;
+
+            const preview = document.getElementById("imagePreview");
+            preview.src = imgPath;
+            preview.alt = getImageAltText(item);
+            preview.classList.add("active");
+
+            document.getElementById("modal").classList.add("active");
         }
 
         function closeModal() {
             document.getElementById("modal")
                 .classList.remove("active");
-            document.getElementById("galleryForm").reset();
-            document.getElementById("imagePreview").classList.remove("active");
-            document.getElementById("imagePreview").removeAttribute("src");
+            resetModalState();
         }
 
         function viewImage(src, altText = "Church gallery image") {
