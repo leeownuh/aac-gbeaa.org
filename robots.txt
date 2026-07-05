@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /data/private/
+
+Sitemap: https://www.aac-gbeaaa.org/sitemap.xml
