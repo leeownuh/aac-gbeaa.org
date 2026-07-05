@@ -517,6 +517,10 @@
             return `/assets/images/gallery/${encodeURIComponent(item.category || "")}/${encodeURIComponent(item.file || "")}`;
         }
 
+        function getImageAltText(item) {
+            return item.title || item.description || item.caption || item.category || "Church gallery image";
+        }
+
         /* =============================
         AUTH CHECK
         ============================= */
@@ -588,14 +592,18 @@
             container.innerHTML = gallery.map(item => {
 
                 const imgPath = getImagePath(item);
+                const imgAlt = getImageAltText(item);
 
                 return `
         <div class="gallery-item">
 
             <img
             src="${imgPath}"
+            alt="${escapeAttr(imgAlt)}"
             class="gallery-image"
-            onclick="viewImage('${imgPath}')"
+            data-src="${escapeAttr(imgPath)}"
+            data-alt="${escapeAttr(imgAlt)}"
+            onclick="viewImage(this.dataset.src, this.dataset.alt)"
             onerror="this.src='/assets/images/gallery/gallery-1.jpg'"
             >
 
@@ -770,8 +778,9 @@
             document.getElementById("imagePreview").removeAttribute("src");
         }
 
-        function viewImage(src) {
+        function viewImage(src, altText = "Church gallery image") {
             document.getElementById("modalImage").src = src;
+            document.getElementById("modalImage").alt = altText;
             document.getElementById("imageModal")
                 .classList.add("active");
         }

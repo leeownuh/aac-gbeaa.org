@@ -27,6 +27,12 @@ document.addEventListener("DOMContentLoaded", function () {
         return `/assets/images/gallery/${encodeURIComponent(category.folder || "")}/${encodeURIComponent(img.file || "")}`;
     }
 
+    function getImageAltText(img) {
+        const category = categories.find(c => c.slug === img.category);
+        const fallbackCategory = category?.name || img.category;
+        return img.title || img.description || img.caption || fallbackCategory || "Church gallery image";
+    }
+
     const fetchGalleryData = async () => {
         const sources = ["/api/gallery", "/data/gallery.json", "data/gallery.json"];
         for (const source of sources) {
@@ -124,6 +130,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (!imagePath) {
                 return;
             }
+            const imageAlt = getImageAltText(img);
 
             galleryContainer.innerHTML += `
                 <div class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4">
@@ -133,7 +140,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                 <img class="w-100 rounded"
                                      style="height:280px; object-fit:cover;"
                                      src="${imagePath}"
-                                     alt="${img.title}">
+                                     alt="${escapeHtml(imageAlt)}">
                             </a>
                         </div>
                     </div>
@@ -239,6 +246,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 <span class="page-link size-48">...</span>
             </li>
         `;
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement("div");
+        div.textContent = text || "";
+        return div.innerHTML;
     }
 
 });
