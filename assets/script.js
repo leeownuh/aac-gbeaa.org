@@ -4,6 +4,8 @@
 
     var Blessed_Template    =   {
 
+        _preloader_hidden: false,
+
         /**
          *  Image Loader
          *  ------------
@@ -836,9 +838,10 @@
              *  Preloader ID exists ?
              *  ---------------------
              */
-            if(  $('#preloader').length  ){
+            if(  $('#preloader').length && ! this._preloader_hidden  ){
 
-                $( '#preloader' ).delay(0).fadeOut();
+                this._preloader_hidden = true;
+                $( '#preloader' ).stop(true, true).fadeOut(200);
             }
         },
 
@@ -1140,6 +1143,12 @@
          *  -----------
          */
         document_ready: function(){
+
+            /**
+             *  Reveal page as soon as the DOM is ready.
+             *  Waiting for window.load keeps the preloader visible until every image finishes.
+             */
+            this.preloader();
 
             /**
              *  Image Loader
