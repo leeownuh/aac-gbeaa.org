@@ -32,6 +32,9 @@ const mapEventRow = (row) => ({
   date: row.date_text,
   end_date: row.end_date_text,
   time: row.time_text,
+  startAt: toIsoValue(row.start_at),
+  endAt: toIsoValue(row.end_at),
+  timezone: row.timezone,
   location: row.location,
   category: row.category,
   details_url: row.details_url,
@@ -176,12 +179,14 @@ const getEventById = async (id) => {
 const createEvent = async (event) => {
   const result = await query(
     `INSERT INTO events (
-      id, title, description, date_text, end_date_text, time_text, location, category,
-      details_url, image, created_by, published, created_at, updated_at
+      id, title, description, date_text, end_date_text, time_text, start_at, end_at,
+      timezone, location, category, details_url, image, created_by, published, created_at,
+      updated_at
     )
     VALUES (
-      $1, $2, $3, $4, $5, $6, $7, $8,
-      $9, $10, $11, $12, COALESCE($13::timestamptz, NOW()), COALESCE($14::timestamptz, NOW())
+      $1, $2, $3, $4, $5, $6, $7::timestamptz, $8::timestamptz,
+      $9, $10, $11, $12, $13, $14, $15, COALESCE($16::timestamptz, NOW()),
+      COALESCE($17::timestamptz, NOW())
     )
     RETURNING *`,
     [
@@ -191,6 +196,9 @@ const createEvent = async (event) => {
       event.date,
       event.end_date || null,
       event.time || null,
+      event.startAt || event.start_at || null,
+      event.endAt || event.end_at || null,
+      event.timezone || null,
       event.location,
       event.category || null,
       event.details_url || null,
@@ -212,13 +220,16 @@ const updateEvent = async (id, event) => {
          date_text = $4,
          end_date_text = $5,
          time_text = $6,
-         location = $7,
-         category = $8,
-         details_url = $9,
-         image = $10,
-         created_by = $11,
-         published = $12,
-         updated_at = COALESCE($13::timestamptz, NOW())
+         start_at = $7::timestamptz,
+         end_at = $8::timestamptz,
+         timezone = $9,
+         location = $10,
+         category = $11,
+         details_url = $12,
+         image = $13,
+         created_by = $14,
+         published = $15,
+         updated_at = COALESCE($16::timestamptz, NOW())
      WHERE id = $1
      RETURNING *`,
     [
@@ -228,6 +239,9 @@ const updateEvent = async (id, event) => {
       event.date,
       event.end_date || null,
       event.time || null,
+      event.startAt || event.start_at || null,
+      event.endAt || event.end_at || null,
+      event.timezone || null,
       event.location,
       event.category || null,
       event.details_url || null,

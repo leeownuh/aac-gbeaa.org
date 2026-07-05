@@ -71,6 +71,9 @@ const schemaStatements = [
     date_text TEXT NOT NULL,
     end_date_text TEXT,
     time_text TEXT,
+    start_at TIMESTAMPTZ,
+    end_at TIMESTAMPTZ,
+    timezone TEXT,
     location TEXT NOT NULL,
     category TEXT,
     details_url TEXT,
@@ -80,6 +83,12 @@ const schemaStatements = [
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
   )`,
+  `ALTER TABLE events
+    ADD COLUMN IF NOT EXISTS start_at TIMESTAMPTZ`,
+  `ALTER TABLE events
+    ADD COLUMN IF NOT EXISTS end_at TIMESTAMPTZ`,
+  `ALTER TABLE events
+    ADD COLUMN IF NOT EXISTS timezone TEXT`,
   `CREATE TABLE IF NOT EXISTS gallery_categories (
     slug TEXT PRIMARY KEY,
     name TEXT NOT NULL,

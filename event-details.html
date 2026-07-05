@@ -407,6 +407,92 @@ Author: Leona Kokerai - Ownuh
     <script>
         document.addEventListener('DOMContentLoaded', async function () {
             const normalizeId = (value) => String(value || '').trim().toLowerCase();
+            const selectedTimeZone = localStorage.getItem('preferredEventTimeZone') ||
+                Intl.DateTimeFormat().resolvedOptions().timeZone ||
+                'UTC';
+            const defaultEventTimeZone = 'Africa/Harare';
+
+            function getTimeZoneOffsetMs(date, timeZone) {
+                const parts = new Intl.DateTimeFormat('en-US', {
+                    timeZone,
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: false
+                }).formatToParts(date);
+
+                const values = Object.fromEntries(parts.map(part => [part.type, part.value]));
+                const utcLike = Date.UTC(
+                    Number(values.year),
+                    Number(values.month) - 1,
+                    Number(values.day),
+                    Number(values.hour),
+                    Number(values.minute),
+                    Number(values.second)
+                );
+
+                return utcLike - date.getTime();
+            }
+
+            function zonedDateTimeToUtc(dateValue, timeValue, timeZone) {
+                if (!dateValue || !timeValue || !timeZone) return '';
+
+                const [year, month, day] = dateValue.split('-').map(Number);
+                const [hour, minute] = timeValue.split(':').map(Number);
+                const baseUtc = new Date(Date.UTC(year, month - 1, day, hour, minute, 0));
+                const offset = getTimeZoneOffsetMs(baseUtc, timeZone);
+                const candidate = new Date(baseUtc.getTime() - offset);
+                const correctedOffset = getTimeZoneOffsetMs(candidate, timeZone);
+
+                return new Date(baseUtc.getTime() - correctedOffset).toISOString();
+            }
+
+            function toTimeInputValue(hour, minute, meridiem) {
+                let normalizedHour = Number(hour);
+                const normalizedMeridiem = meridiem.toUpperCase();
+
+                if (normalizedMeridiem === 'PM' && normalizedHour !== 12) normalizedHour += 12;
+                if (normalizedMeridiem === 'AM' && normalizedHour === 12) normalizedHour = 0;
+
+                return `${String(normalizedHour).padStart(2, '0')}:${minute}`;
+            }
+
+            function parseLegacyEventTimes(event) {
+                const match = String(event.time || '').match(/(\d{1,2}):(\d{2})\s*([AP]M)(?:\s*-\s*(\d{1,2}):(\d{2})\s*([AP]M))?/i);
+                if (!match || !event.date) return { startAt: '', endAt: '' };
+
+                const timeZone = event.timezone || defaultEventTimeZone;
+                const startTime = toTimeInputValue(match[1], match[2], match[3]);
+                const endTime = match[4] ? toTimeInputValue(match[4], match[5], match[6]) : '';
+
+                return {
+                    startAt: zonedDateTimeToUtc(event.date, startTime, timeZone),
+                    endAt: endTime ? zonedDateTimeToUtc(event.end_date || event.date, endTime, timeZone) : ''
+                };
+            }
+
+            function formatEventTime(event) {
+                const legacyTimes = parseLegacyEventTimes(event);
+                const startAt = event.start_at || event.startAt || legacyTimes.startAt;
+                const endAt = event.end_at || event.endAt || legacyTimes.endAt;
+                if (!startAt) return event.time || '';
+
+                const options = {
+                    timeZone: selectedTimeZone,
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true,
+                    timeZoneName: 'short'
+                };
+                const start = new Intl.DateTimeFormat(undefined, options).format(new Date(startAt));
+                const end = endAt ? new Intl.DateTimeFormat(undefined, options).format(new Date(endAt)) : '';
+
+                return end ? `${start} - ${end}` : start;
+            }
+
             const urlParams = new URLSearchParams(window.location.search);
             const rawId = urlParams.get('id');
             const requestedId = normalizeId(rawId);
@@ -462,7 +548,7 @@ Author: Leona Kokerai - Ownuh
             }
 
             document.getElementById('post-title').textContent = event.title || 'Event';
-            document.getElementById('event-date').textContent = `${event.date || ''} | ${event.time || ''}`.trim();
+            document.getElementById('event-date').textContent = `${event.date || ''} | ${formatEventTime(event)}`.trim();
 
             const tagButton = document.querySelector('.btn-blur');
             if (tagButton) {

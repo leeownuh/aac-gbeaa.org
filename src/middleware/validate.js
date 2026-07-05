@@ -72,12 +72,49 @@ const validateEvent = [
       }
       return true;
     }),
+
+  body('end_date')
+    .optional({ nullable: true, checkFalsy: true })
+    .isISO8601()
+    .withMessage('End date must be a valid ISO date'),
+
+  body('time')
+    .optional({ nullable: true, checkFalsy: true })
+    .isString()
+    .trim()
+    .isLength({ max: 100 })
+    .withMessage('Time must not exceed 100 characters'),
+
+  body('start_at')
+    .optional({ nullable: true, checkFalsy: true })
+    .isISO8601()
+    .withMessage('Start time must be a valid ISO date-time'),
+
+  body('end_at')
+    .optional({ nullable: true, checkFalsy: true })
+    .isISO8601()
+    .withMessage('End time must be a valid ISO date-time'),
+
+  body('timezone')
+    .optional({ nullable: true, checkFalsy: true })
+    .isString()
+    .trim()
+    .isLength({ max: 100 })
+    .matches(/^[A-Za-z_+-]+\/[A-Za-z0-9_+-]+(?:\/[A-Za-z0-9_+-]+)?$|^UTC$/)
+    .withMessage('Timezone must be a valid IANA timezone name'),
   
   body('location')
     .isString()
     .trim()
     .isLength({ min: 1, max: 500 })
     .withMessage('Location is required and must not exceed 500 characters'),
+
+  body('category')
+    .optional({ nullable: true, checkFalsy: true })
+    .isString()
+    .trim()
+    .isLength({ max: 100 })
+    .withMessage('Category must not exceed 100 characters'),
   
   handleValidationErrors
 ];

@@ -54,7 +54,20 @@ class EventController {
 
   async createEvent(req, res) {
     try {
-      const { title, description, date, location } = req.body;
+      const {
+        title,
+        description,
+        date,
+        end_date,
+        time,
+        start_at,
+        end_at,
+        timezone,
+        location,
+        category,
+        details_url,
+        image
+      } = req.body;
       const userId = req.user.userId;
       const username = req.user.username;
 
@@ -70,7 +83,15 @@ class EventController {
         title,
         description,
         date,
+        end_date: end_date || null,
+        time: time || null,
+        start_at: start_at || null,
+        end_at: end_at || null,
+        timezone: timezone || null,
         location,
+        category: category || null,
+        details_url: details_url || null,
+        image: image || null,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         createdBy: userId,

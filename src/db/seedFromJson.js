@@ -164,6 +164,9 @@ const seedEvents = async () => {
       const dateText = item.date ? String(item.date) : new Date().toISOString().slice(0, 10);
       const endDateText = item.end_date ? String(item.end_date) : null;
       const timeText = item.time ? String(item.time) : null;
+      const startAt = parseDateTime(item.startAt || item.start_at);
+      const endAt = parseDateTime(item.endAt || item.end_at);
+      const timezone = item.timezone ? String(item.timezone) : null;
       const location = String(item.location || '');
       const category = item.category ? String(item.category) : null;
       const detailsUrl = item.details_url ? String(item.details_url) : null;
@@ -175,12 +178,14 @@ const seedEvents = async () => {
 
       await client.query(
         `INSERT INTO events (
-          id, title, description, date_text, end_date_text, time_text, location,
-          category, details_url, image, created_by, published, created_at, updated_at
+          id, title, description, date_text, end_date_text, time_text, start_at,
+          end_at, timezone, location, category, details_url, image, created_by,
+          published, created_at, updated_at
         )
         VALUES (
-          $1, $2, $3, $4, $5, $6, $7,
-          $8, $9, $10, $11, $12, COALESCE($13::timestamptz, NOW()), COALESCE($14::timestamptz, NOW())
+          $1, $2, $3, $4, $5, $6, $7::timestamptz,
+          $8::timestamptz, $9, $10, $11, $12, $13, $14,
+          $15, COALESCE($16::timestamptz, NOW()), COALESCE($17::timestamptz, NOW())
         )
         ON CONFLICT (id) DO NOTHING`,
         [
@@ -190,6 +195,9 @@ const seedEvents = async () => {
           dateText,
           endDateText,
           timeText,
+          startAt,
+          endAt,
+          timezone,
           location,
           category,
           detailsUrl,

@@ -11,6 +11,133 @@ document.addEventListener('DOMContentLoaded', function () {
   let events = [];
   let currentPage = 1;
   let currentCategory = null;
+  let sliderInstance = null;
+  const defaultEventTimeZone = 'Africa/Harare';
+  const browserTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+  const timeZoneOptions = [
+    browserTimeZone,
+    'Africa/Harare',
+    'Africa/Johannesburg',
+    'Africa/Lagos',
+    'Africa/Nairobi',
+    'Europe/London',
+    'Europe/Paris',
+    'Asia/Kolkata',
+    'America/New_York',
+    'America/Chicago',
+    'America/Los_Angeles',
+    'UTC',
+  ].filter((value, index, list) => value && list.indexOf(value) === index);
+  let selectedTimeZone = localStorage.getItem('preferredEventTimeZone') || browserTimeZone;
+
+  function getTimeZoneOffsetMs(date, timeZone) {
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZone,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+    }).formatToParts(date);
+
+    const values = Object.fromEntries(parts.map(part => [part.type, part.value]));
+    const utcLike = Date.UTC(
+      Number(values.year),
+      Number(values.month) - 1,
+      Number(values.day),
+      Number(values.hour),
+      Number(values.minute),
+      Number(values.second)
+    );
+
+    return utcLike - date.getTime();
+  }
+
+  function zonedDateTimeToUtc(dateValue, timeValue, timeZone) {
+    if (!dateValue || !timeValue || !timeZone) return '';
+
+    const [year, month, day] = dateValue.split('-').map(Number);
+    const [hour, minute] = timeValue.split(':').map(Number);
+    const baseUtc = new Date(Date.UTC(year, month - 1, day, hour, minute, 0));
+    const offset = getTimeZoneOffsetMs(baseUtc, timeZone);
+    const candidate = new Date(baseUtc.getTime() - offset);
+    const correctedOffset = getTimeZoneOffsetMs(candidate, timeZone);
+
+    return new Date(baseUtc.getTime() - correctedOffset).toISOString();
+  }
+
+  function toTimeInputValue(hour, minute, meridiem) {
+    let normalizedHour = Number(hour);
+    const normalizedMeridiem = meridiem.toUpperCase();
+
+    if (normalizedMeridiem === 'PM' && normalizedHour !== 12) normalizedHour += 12;
+    if (normalizedMeridiem === 'AM' && normalizedHour === 12) normalizedHour = 0;
+
+    return `${String(normalizedHour).padStart(2, '0')}:${minute}`;
+  }
+
+  function parseLegacyEventTimes(event) {
+    const match = String(event.time || '').match(/(\d{1,2}):(\d{2})\s*([AP]M)(?:\s*-\s*(\d{1,2}):(\d{2})\s*([AP]M))?/i);
+    if (!match || !event.date) return { startAt: '', endAt: '' };
+
+    const timeZone = event.timezone || defaultEventTimeZone;
+    const startTime = toTimeInputValue(match[1], match[2], match[3]);
+    const endTime = match[4] ? toTimeInputValue(match[4], match[5], match[6]) : '';
+
+    return {
+      startAt: zonedDateTimeToUtc(event.date, startTime, timeZone),
+      endAt: endTime ? zonedDateTimeToUtc(event.end_date || event.date, endTime, timeZone) : '',
+    };
+  }
+
+  function formatEventTime(event) {
+    const legacyTimes = parseLegacyEventTimes(event);
+    const startAt = event.start_at || event.startAt || legacyTimes.startAt;
+    const endAt = event.end_at || event.endAt || legacyTimes.endAt;
+    if (!startAt) return event.time || '';
+
+    const options = {
+      timeZone: selectedTimeZone,
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+      timeZoneName: 'short',
+    };
+    const start = new Intl.DateTimeFormat(undefined, options).format(new Date(startAt));
+    const end = endAt ? new Intl.DateTimeFormat(undefined, options).format(new Date(endAt)) : '';
+
+    return end ? `${start} - ${end}` : start;
+  }
+
+  function renderTimeZoneSelector() {
+    if (document.getElementById('event-timezone-control')) return;
+
+    const anchor = container || holyCommunionContainer || sliderContainer;
+    if (!anchor || !anchor.parentElement) return;
+
+    const wrapper = document.createElement('div');
+    wrapper.id = 'event-timezone-control';
+    wrapper.className = 'event-timezone-control d-flex flex-wrap justify-content-end align-items-center gap-2 mb-4';
+    wrapper.innerHTML = `
+      <label for="event-timezone-select" class="fs-8 mb-0">Event times shown in</label>
+      <select id="event-timezone-select" class="form-select form-select-sm w-auto">
+        ${timeZoneOptions.map(timeZone => `
+          <option value="${timeZone}" ${timeZone === selectedTimeZone ? 'selected' : ''}>${timeZone}</option>
+        `).join('')}
+      </select>
+    `;
+
+    anchor.parentElement.insertBefore(wrapper, anchor);
+    wrapper.querySelector('select').addEventListener('change', event => {
+      selectedTimeZone = event.target.value;
+      localStorage.setItem('preferredEventTimeZone', selectedTimeZone);
+      renderEvents(currentCategory);
+      renderHolyCommunion();
+      renderSlider();
+    });
+  }
 
   const normalizeEventsPayload = (payload) => {
     if (Array.isArray(payload)) {
@@ -51,6 +178,7 @@ document.addEventListener('DOMContentLoaded', function () {
     .then(data => {
       events = data.sort((a, b) => new Date(a.date) - new Date(b.date));
       localStorage.setItem('events', JSON.stringify(events));
+      renderTimeZoneSelector();
       renderEvents();
       renderHolyCommunion();
       renderSlider();
@@ -142,7 +270,7 @@ document.addEventListener('DOMContentLoaded', function () {
             <p class="content-p pb-2">${event.description}</p>
             <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between">
               <div class="times mb-2">
-                <p class="time fs-8 mb-1"><i data-feather="clock" class="size-12"></i> <span>${event.time}</span></p>
+                <p class="time fs-8 mb-1"><i data-feather="clock" class="size-12"></i> <span>${formatEventTime(event)}</span></p>
                 <p class="location fs-8"><i data-feather="map-pin" class="size-12"></i> <span>${event.location}</span></p>
               </div>
               <div class="button mb-2">
@@ -187,6 +315,7 @@ document.addEventListener('DOMContentLoaded', function () {
     holyCommunionContainer.innerHTML = holyEvents.map(event => {
       const start = new Date(event.date);
       const end = event.end_date ? new Date(event.end_date) : start;
+      const convertedTime = (event.start_at || event.startAt) ? ` | ${formatEventTime(event)}` : '';
 
       return `
         <li class="pt-3 pb-3">
@@ -202,7 +331,7 @@ document.addEventListener('DOMContentLoaded', function () {
               </p>
               <span class="event-meta fs-8">
                 <i class="fa fa-clock me-1"></i>
-                ${start.toLocaleDateString('en-GB')} - ${end.toLocaleDateString('en-GB')}
+                ${start.toLocaleDateString('en-GB')} - ${end.toLocaleDateString('en-GB')}${convertedTime}
               </span>
             </div>
           </div>
@@ -240,7 +369,7 @@ document.addEventListener('DOMContentLoaded', function () {
             <h5 class="title fs-5 mb-3">
               <a href="/event-details?id=${event.id}" class="fs-5 text-dark text-hover-primary font-body fw-normal">${event.title}</a>
             </h5>
-            <p class="time fs-8 mb-1"><i class="size-12" data-feather="clock"></i> <span>${event.time}</span></p>
+            <p class="time fs-8 mb-1"><i class="size-12" data-feather="clock"></i> <span>${formatEventTime(event)}</span></p>
             <p class="location fs-8"><i class="size-12" data-feather="map-pin"></i> <span>${event.location}</span></p>
             <a href="/event-details?id=${event.id}" class="d-inline-flex rounded-5 tc-btn-xs fs-8">
               <span>More Info</span> <i data-feather="arrow-right" class="size-12"></i>
@@ -254,17 +383,23 @@ document.addEventListener('DOMContentLoaded', function () {
       `;
     }).join('');
 
-    new Swiper('.blessed-event-slider', {
-      slidesPerView: 1,
-      spaceBetween: 20,
-      loop: true,
-      pagination: { el: '.blessed-event-slider-pagination', clickable: true },
-      navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
-      breakpoints: {
-        768: { slidesPerView: 2 },
-        992: { slidesPerView: 3 },
-      },
-    });
+    if (typeof Swiper !== 'undefined') {
+      if (sliderInstance && typeof sliderInstance.destroy === 'function') {
+        sliderInstance.destroy(true, true);
+      }
+
+      sliderInstance = new Swiper('.blessed-event-slider', {
+        slidesPerView: 1,
+        spaceBetween: 20,
+        loop: true,
+        pagination: { el: '.blessed-event-slider-pagination', clickable: true },
+        navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
+        breakpoints: {
+          768: { slidesPerView: 2 },
+          992: { slidesPerView: 3 },
+        },
+      });
+    }
 
     if (typeof feather !== 'undefined') feather.replace();
   }

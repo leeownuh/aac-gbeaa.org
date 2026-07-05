@@ -907,6 +907,9 @@ router.post('/events', authenticateAdmin, requirePasswordChangeComplete, require
       date,
       end_date,
       time,
+      start_at,
+      end_at,
+      timezone,
       location,
       category,
       details_url
@@ -925,6 +928,9 @@ router.post('/events', authenticateAdmin, requirePasswordChangeComplete, require
       date,
       end_date: end_date || null,
       time: time || null,
+      startAt: start_at || null,
+      endAt: end_at || null,
+      timezone: timezone || null,
       location,
       category: category || null,
       details_url: details_url || null,
@@ -976,8 +982,11 @@ router.put('/events/:id', validateRouteId(), authenticateAdmin, requirePasswordC
       title: req.body.title || existing.title,
       description: req.body.description || existing.description,
       date: req.body.date || existing.date,
-      end_date: req.body.end_date || existing.end_date,
-      time: req.body.time || existing.time,
+      end_date: Object.prototype.hasOwnProperty.call(req.body, 'end_date') ? req.body.end_date || null : existing.end_date,
+      time: Object.prototype.hasOwnProperty.call(req.body, 'time') ? req.body.time || null : existing.time,
+      startAt: Object.prototype.hasOwnProperty.call(req.body, 'start_at') ? req.body.start_at || null : existing.startAt || null,
+      endAt: Object.prototype.hasOwnProperty.call(req.body, 'end_at') ? req.body.end_at || null : existing.endAt || null,
+      timezone: Object.prototype.hasOwnProperty.call(req.body, 'timezone') ? req.body.timezone || null : existing.timezone || null,
       location: req.body.location || existing.location,
       image: req.file
         ? `/uploads/${req.file.filename}`
