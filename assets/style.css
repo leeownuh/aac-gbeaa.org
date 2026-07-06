@@ -1428,6 +1428,16 @@ textarea {
 .transparent-header.header-style-2 .tc-header__top .tc-header__top-right .text-dark {
   color: var(--tc-color-neutral-0) !important;
 }
+.transparent-header.header-style-2 .tc-header__top .tc-header__top-right {
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+.transparent-header.header-style-2 .tc-header__top .tc-header__top-right li,
+.transparent-header.header-style-2 .tc-header__top .tc-header__top-right li a,
+.transparent-header.header-style-2 .tc-header__top .tc-header__top-right li i,
+.transparent-header.header-style-2 .tc-header__top .tc-header__top-right li span {
+  color: var(--tc-color-neutral-0) !important;
+}
 .transparent-header.header-style-2 .tc-header__top .tc-btn-xs {
   color: var(--tc-color-neutral-0);
   border: 1px solid var(--tc-color-brand1-700);
