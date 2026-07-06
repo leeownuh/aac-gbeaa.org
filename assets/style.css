@@ -1430,7 +1430,14 @@ textarea {
 }
 .transparent-header.header-style-2 .tc-header__top .tc-header__top-right {
   flex-wrap: nowrap;
+  gap: 18px;
   white-space: nowrap;
+}
+.transparent-header.header-style-2 .tc-header__top .tc-header__top-right li {
+  min-width: 0;
+}
+.transparent-header.header-style-2 .tc-header__top .tc-header__top-right li a {
+  overflow-wrap: anywhere;
 }
 .transparent-header.header-style-2 .tc-header__top .tc-header__top-right li,
 .transparent-header.header-style-2 .tc-header__top .tc-header__top-right li a,
