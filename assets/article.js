@@ -30,6 +30,20 @@ function getArticleImage(post) {
   return post?.imageUrl || post?.image || fallbackArticleImage;
 }
 
+function formatArticleContent(content) {
+  const normalized = String(content || "").replace(/\r\n?/g, "\n").trim();
+  if (!normalized) return "";
+
+  const paragraphSeparator = /\n\s*\n/.test(normalized) ? /\n\s*\n/ : /\n+/;
+
+  return normalized
+    .split(paragraphSeparator)
+    .map(paragraph => paragraph.trim())
+    .filter(Boolean)
+    .map(paragraph => `<p>${escapeHtml(paragraph)}</p>`)
+    .join("");
+}
+
 const fetchArticles = async () => {
   const sources = ["/api/articles", "/data/article.json", "data/article.json"];
   for (const source of sources) {
@@ -228,7 +242,12 @@ async function loadPostDetails() {
   document.getElementById("post-title").textContent = post.title || "";
   document.getElementById("post-author").textContent = post.author || "";
   document.getElementById("post-date").textContent = post.date || "";
-  document.getElementById("post-excerpt").textContent = post.excerpt || "";
+
+  const excerptElement = document.getElementById("post-excerpt");
+  if (excerptElement) {
+    excerptElement.textContent = "";
+    excerptElement.style.display = "none";
+  }
 
   const articleImage = document.getElementById("post-image");
   if (articleImage) {
@@ -240,12 +259,7 @@ async function loadPostDetails() {
     };
   }
 
-  const formattedContent = String(post.content || "")
-    .split("\n\n")
-    .map(p => `<p>${escapeHtml(p)}</p>`)
-    .join("");
-
-  document.getElementById("post-content").innerHTML = formattedContent;
+  document.getElementById("post-content").innerHTML = formatArticleContent(post.content);
 
   const index = posts.findIndex(p => normalizeId(p.id) === postId);
   const prevPost = posts[index - 1];
