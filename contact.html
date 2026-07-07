@@ -76,6 +76,84 @@ Author: Leona Kokerai - Ownuh
 
     <!-- Custom - CSS here -->
     <link rel="stylesheet" type="text/css" href="assets/style.css?v=20260705-social-mobile">
+    <style>
+        .leadership-table {
+            border: 1px solid rgba(5, 20, 73, 0.12);
+            border-radius: 18px;
+            overflow: hidden;
+            background: #fff;
+            box-shadow: 0 12px 35px rgba(5, 20, 73, 0.08);
+        }
+
+        .leadership-table__header,
+        .leadership-table__row {
+            display: grid;
+            grid-template-columns: 1.1fr 1.4fr 1fr;
+            gap: 18px;
+            align-items: center;
+            padding: 16px 20px;
+        }
+
+        .leadership-table__header {
+            background: rgba(5, 20, 73, 0.92);
+            color: #fff;
+            font-weight: 700;
+        }
+
+        .leadership-table__row:nth-child(odd) {
+            background: rgba(5, 20, 73, 0.035);
+        }
+
+        .leadership-table__role {
+            color: var(--tc-theme-primary);
+            font-weight: 700;
+        }
+
+        .leadership-table__name {
+            color: var(--tc-color-neutral-900);
+            font-weight: 600;
+        }
+
+        .leadership-table__phone a {
+            color: var(--tc-color-neutral-900);
+            font-weight: 600;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+
+        @media (max-width: 767.98px) {
+            .leadership-table {
+                border: none;
+                box-shadow: none;
+                background: transparent;
+            }
+
+            .leadership-table__header {
+                display: none;
+            }
+
+            .leadership-table__row {
+                display: block;
+                margin-bottom: 14px;
+                padding: 18px;
+                border: 1px solid rgba(5, 20, 73, 0.12);
+                border-radius: 14px;
+                background: #fff !important;
+                box-shadow: 0 10px 26px rgba(5, 20, 73, 0.08);
+            }
+
+            .leadership-table__role,
+            .leadership-table__name,
+            .leadership-table__phone {
+                display: block;
+            }
+
+            .leadership-table__role,
+            .leadership-table__name {
+                margin-bottom: 6px;
+            }
+        }
+    </style>
 
 </head>
 <!-- end head -->
@@ -324,9 +402,9 @@ Author: Leona Kokerai - Ownuh
         <div class="row">
             <div class="col-12 mb-4">
                 <div class="section-title tg-heading-subheading animation-style3">
-                    <p class="sub-title fs-5">Locations</p>
+                    <p class="sub-title fs-5">Know your leaders</p>
                     <h5 class="title tg-element-title ds-5 fw-normal">
-                        Province of GBEAA (Great Britain, Europe, America, Asia and Australia)
+                        Great Britain, Europe, America, Asia and Australia
                     </h5>
                 </div>
             </div>
@@ -334,26 +412,34 @@ Author: Leona Kokerai - Ownuh
             <!-- Provincial Leadership -->
             <div class="col-12 mb-4">
                 <div class="contact__info">
-                    
-                    <ul class="list-wrap">
-                        <li class="mb-3">
-                           <h8 class="title tg-element-title ds-5 fw-normal">
-                        Provincial Leadership
-                    </h8>
-                        </li>
-                        <li class="mb-3">
-                            <strong>Bishop BB Musarurwa:</strong> <a href="tel:+447770120876">+44 7770 120876</a>
-                        </li>
-                        <li class="mb-3">
-                            <strong>Bishop A Tafireyi:</strong> <a href="tel:+447946370483">+44 7946 370483</a>
-                        </li>
-                        <li class="mb-3">
-                            <strong>Chairman:</strong> <a href="tel:+353871486780">Reverend A Chimimba - +353 871486780</a>
-                        </li>
-                        <li class="mb-3">
-                            <strong>Secretary:</strong> <a href="tel:+971559917762">Reverend A Mukwasi - +971 559917762</a>
-                        </li>
-                    </ul>
+                    <h5 class="title tg-element-title ds-5 fw-normal mb-4">Provincial Leadership</h5>
+                    <div class="leadership-table" role="table" aria-label="Provincial Leadership contacts">
+                        <div class="leadership-table__header" role="row">
+                            <span role="columnheader">Role</span>
+                            <span role="columnheader">Name</span>
+                            <span role="columnheader">Phone</span>
+                        </div>
+                        <div class="leadership-table__row" role="row">
+                            <span class="leadership-table__role" role="cell">Bishop</span>
+                            <span class="leadership-table__name" role="cell">BB Musarurwa</span>
+                            <span class="leadership-table__phone" role="cell"><a href="tel:+447770120876">+44 7770 120876</a></span>
+                        </div>
+                        <div class="leadership-table__row" role="row">
+                            <span class="leadership-table__role" role="cell">Bishop</span>
+                            <span class="leadership-table__name" role="cell">A Tafireyi</span>
+                            <span class="leadership-table__phone" role="cell"><a href="tel:+447946370483">+44 7946 370483</a></span>
+                        </div>
+                        <div class="leadership-table__row" role="row">
+                            <span class="leadership-table__role" role="cell">Chairman</span>
+                            <span class="leadership-table__name" role="cell">Reverend A Chimimba</span>
+                            <span class="leadership-table__phone" role="cell"><a href="tel:+353871486780">+353 871 486780</a></span>
+                        </div>
+                        <div class="leadership-table__row" role="row">
+                            <span class="leadership-table__role" role="cell">Secretary</span>
+                            <span class="leadership-table__name" role="cell">Reverend A Mukwasi</span>
+                            <span class="leadership-table__phone" role="cell"><a href="tel:+971559917762">+971 55 991 7762</a></span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -421,7 +507,7 @@ Author: Leona Kokerai - Ownuh
                         </div>
                         <div class="col-lg-5">
                             <div class="copyright-text">
-                                <p>© 2026 <a class="text-primary" href="/">The African Apostolic Church</a> |
+                                <p>ï¿½ 2026 <a class="text-primary" href="/">The African Apostolic Church</a> |
                                     All Rights
                                     Reserved
                                 </p>
