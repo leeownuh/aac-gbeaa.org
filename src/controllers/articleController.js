@@ -58,6 +58,7 @@ class ArticleController {
     try {
       const { title, content, author, category, tags, imageUrl } = req.body;
       const userId = req.user.userId;
+      const uploadedImageUrl = req.file ? `/uploads/${req.file.filename}` : null;
 
       const article = {
         id: uuidv4(),
@@ -66,7 +67,7 @@ class ArticleController {
         author,
         category,
         tags: Array.isArray(tags) ? tags : [],
-        imageUrl: imageUrl || null,
+        imageUrl: uploadedImageUrl || imageUrl || null,
         excerpt: generateExcerpt(content),
         published: false,
         date: new Date().toISOString().slice(0, 10),
@@ -109,6 +110,7 @@ class ArticleController {
       const { id } = req.params;
       const updates = req.body;
       const existing = await contentRepository.getArticleById(id);
+      const uploadedImageUrl = req.file ? `/uploads/${req.file.filename}` : null;
 
       if (!existing) {
         return res.status(404).json({
@@ -121,6 +123,7 @@ class ArticleController {
         ...existing,
         ...updates,
         id: existing.id,
+        imageUrl: uploadedImageUrl || updates.imageUrl || existing.imageUrl || null,
         excerpt: updates.excerpt || generateExcerpt(updates.content || existing.content),
         createdAt: existing.createdAt,
         updatedAt: new Date().toISOString()

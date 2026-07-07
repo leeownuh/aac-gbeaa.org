@@ -6,6 +6,7 @@ let filteredPosts = [];
 
 const container = document.getElementById("blog-container");
 const paginationContainer = document.getElementById("pagination");
+const fallbackArticleImage = "assets/images/home2/hero-2-bg2-optimized.jpg";
 
 const normalizeId = (value) => String(value || "").trim().toLowerCase();
 
@@ -23,6 +24,10 @@ function normalizeArticlesPayload(payload) {
   if (Array.isArray(payload)) return payload;
   if (payload && Array.isArray(payload.data)) return payload.data;
   return [];
+}
+
+function getArticleImage(post) {
+  return post?.imageUrl || post?.image || fallbackArticleImage;
 }
 
 const fetchArticles = async () => {
@@ -89,6 +94,9 @@ function renderPosts(page = currentPage) {
     container.insertAdjacentHTML("beforeend", `
       <div class="col-lg-4 col-md-6 col-12 mb-4">
         <div class="card-blog-1 rounded-2 overflow-hidden bg-white shadow-1 hover-up">
+          <a href="/blog-details?id=${id}" class="article-card-image d-block">
+            <img src="${escapeAttr(getArticleImage(post))}" alt="${escapeAttr(post.title)}" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='${fallbackArticleImage}';">
+          </a>
           <div class="card-body p-4">
             <h5 class="font-body text-dark fs-5 lh-base">
               <a href="/blog-details?id=${id}">${escapeHtml(post.title)}</a>
@@ -158,6 +166,9 @@ function renderBlogPosts() {
     return `
       <div class="col-lg-4 col-md-6 col-12">
         <div class="card-blog-1 mb-4 mb-lg-0 rounded-2 overflow-hidden bg-white shadow-1 hover-up">
+          <a href="/blog-details?id=${id}" class="article-card-image d-block">
+            <img src="${escapeAttr(getArticleImage(post))}" alt="${escapeAttr(post.title)}" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='${fallbackArticleImage}';">
+          </a>
           <div class="card-body p-4">
             <h5 class="font-body text-dark fs-5 lh-base">
               <a href="/blog-details?id=${id}">${escapeHtml(post.title)}</a>
@@ -218,6 +229,16 @@ async function loadPostDetails() {
   document.getElementById("post-author").textContent = post.author || "";
   document.getElementById("post-date").textContent = post.date || "";
   document.getElementById("post-excerpt").textContent = post.excerpt || "";
+
+  const articleImage = document.getElementById("post-image");
+  if (articleImage) {
+    articleImage.src = getArticleImage(post);
+    articleImage.alt = post.title || "Article image";
+    articleImage.onerror = () => {
+      articleImage.onerror = null;
+      articleImage.src = fallbackArticleImage;
+    };
+  }
 
   const formattedContent = String(post.content || "")
     .split("\n\n")

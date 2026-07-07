@@ -1011,7 +1011,7 @@ router.get('/articles/:id', validateRouteId(), async (req, res) => {
   }
 });
 
-router.post('/articles', authenticateAdmin, requirePasswordChangeComplete, requireContentWriteAccess, async (req, res) => {
+router.post('/articles', authenticateAdmin, requirePasswordChangeComplete, requireContentWriteAccess, upload.single('image'), async (req, res) => {
   try {
     const { title, content, author, date, category } = req.body;
 
@@ -1031,7 +1031,7 @@ router.post('/articles', authenticateAdmin, requirePasswordChangeComplete, requi
       date: date || new Date().toISOString().split('T')[0],
       category: category || 'General',
       tags: [],
-      imageUrl: null,
+      imageUrl: req.file ? `/uploads/${req.file.filename}` : req.body.imageUrl || null,
       published: false,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
@@ -1065,7 +1065,7 @@ router.post('/articles', authenticateAdmin, requirePasswordChangeComplete, requi
   }
 });
 
-router.put('/articles/:id', validateRouteId(), authenticateAdmin, requirePasswordChangeComplete, requireContentWriteAccess, async (req, res) => {
+router.put('/articles/:id', validateRouteId(), authenticateAdmin, requirePasswordChangeComplete, requireContentWriteAccess, upload.single('image'), async (req, res) => {
   try {
     const existing = await contentRepository.getArticleById(req.params.id);
     if (!existing) {
@@ -1080,6 +1080,9 @@ router.put('/articles/:id', validateRouteId(), authenticateAdmin, requirePasswor
       date: req.body.date || existing.date,
       category: req.body.category || existing.category,
       excerpt: req.body.excerpt || generateExcerpt(req.body.content || existing.content),
+      imageUrl: req.file
+        ? `/uploads/${req.file.filename}`
+        : req.body.imageUrl || existing.imageUrl || null,
       updatedAt: new Date().toISOString()
     };
 

@@ -64,6 +64,8 @@ const schemaStatements = [
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
   )`,
+  `ALTER TABLE articles
+    ADD COLUMN IF NOT EXISTS image_url TEXT`,
   `CREATE TABLE IF NOT EXISTS article_categories (
     slug TEXT PRIMARY KEY,
     name TEXT NOT NULL UNIQUE,

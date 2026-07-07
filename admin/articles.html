@@ -141,6 +141,16 @@
             flex: 1;
         }
 
+        .article-thumb {
+            width: 96px;
+            height: 72px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-right: 16px;
+            background: #eef1ff;
+            flex: 0 0 auto;
+        }
+
         .article-info h3 {
             color: #333;
             font-size: 18px;
@@ -490,6 +500,13 @@
 <input type="date" id="date">
 </div>
 
+<div class="form-group">
+<label for="image">Cover image</label>
+<input type="file" id="image" name="image" accept="image/*">
+<input type="hidden" id="imageUrl">
+<img id="imagePreview" class="image-preview" alt="Article cover preview">
+</div>
+
 <div class="form-actions">
 <button type="button" class="cancel-btn" onclick="closeModal()">Cancel</button>
 <button class="submit-btn">Save Article</button>
@@ -646,6 +663,8 @@ return;
 container.innerHTML=articles.map(article=>`
 <div class="article-item">
 
+${article.imageUrl ? `<img class="article-thumb" src="${escapeAttr(article.imageUrl)}" alt="${escapeAttr(article.title)}" onerror="this.style.display='none'">` : ""}
+
 <div class="article-info">
 <h3>${escapeHtml(article.title)}</h3>
 <p>${escapeHtml(article.content.substring(0,150))}...</p>
@@ -674,6 +693,10 @@ const modal=document.getElementById("modal");
 const title=document.getElementById("modalTitle");
 
 document.getElementById("articleForm").reset();
+document.getElementById("imageUrl").value="";
+const imagePreview=document.getElementById("imagePreview");
+imagePreview.classList.remove("active");
+imagePreview.removeAttribute("src");
 populateArticleCategorySelect(article ? article.category : undefined);
 
 if(article){
@@ -685,6 +708,11 @@ document.getElementById("content").value=article.content;
 document.getElementById("author").value=article.author;
 populateArticleCategorySelect(article.category);
 document.getElementById("date").value=article.date;
+document.getElementById("imageUrl").value=article.imageUrl || "";
+if(article.imageUrl){
+imagePreview.src=article.imageUrl;
+imagePreview.classList.add("active");
+}
 
 }else{
 title.textContent="Add Article";
@@ -703,28 +731,30 @@ document.getElementById("modal").classList.remove("active");
 document.getElementById("articleForm").addEventListener("submit",e=>{
 e.preventDefault();
 
-const payload={
-title:document.getElementById("title").value,
-content:document.getElementById("content").value,
-author:document.getElementById("author").value,
-category:document.getElementById("category").value,
-date:document.getElementById("date").value
-};
+const title=document.getElementById("title").value;
+const formData=new FormData();
+formData.append("title",title);
+formData.append("content",document.getElementById("content").value);
+formData.append("author",document.getElementById("author").value);
+formData.append("category",document.getElementById("category").value);
+formData.append("date",document.getElementById("date").value);
+formData.append("imageUrl",document.getElementById("imageUrl").value);
+const imageInput=document.getElementById("image");
+if(imageInput.files[0]){
+formData.append("image",imageInput.files[0]);
+}
 
 const url=currentEditId?`/api/articles/${currentEditId}`:'/api/articles';
 const method=currentEditId?'PUT':'POST';
 
-if(currentEditId && !confirm(`Save changes to article "${payload.title}"? This updates the live website.`)){
+if(currentEditId && !confirm(`Save changes to article "${title}"? This updates the live website.`)){
 return;
 }
 
 fetch(url,{
 method,
-headers:{
-"Content-Type":"application/json"
-},
 credentials:'include',
-body:JSON.stringify(payload)
+body:formData
 })
 .then(r=>r.json())
 .then(data=>{
@@ -736,6 +766,18 @@ alert(data.error);
 }
 });
 
+});
+
+document.getElementById("image").addEventListener("change",function(e){
+const file=e.target.files[0];
+const preview=document.getElementById("imagePreview");
+if(file){
+preview.src=URL.createObjectURL(file);
+preview.classList.add("active");
+}else{
+preview.classList.remove("active");
+preview.removeAttribute("src");
+}
 });
 
 /* DELETE */

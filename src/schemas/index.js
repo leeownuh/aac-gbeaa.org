@@ -33,7 +33,7 @@ const articleSchema = {
     published: { type: 'boolean' },
     createdAt: { type: 'string', format: 'date-time' },
     updatedAt: { type: 'string', format: 'date-time' },
-    imageUrl: { type: 'string' }
+    imageUrl: { type: ['string', 'null'] }
   },
   required: ['id', 'title', 'content', 'author', 'createdAt']
 };

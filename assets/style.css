@@ -3049,6 +3049,46 @@ textarea {
   z-index: 1;
 }
 
+.article-card-image {
+  background: var(--tc-color-gray-3);
+  height: 230px;
+  overflow: hidden;
+}
+
+.article-card-image img {
+  display: block;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.35s ease;
+  width: 100%;
+}
+
+.card-blog-1:hover .article-card-image img {
+  transform: scale(1.04);
+}
+
+.article-detail-image-wrap {
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.article-detail-image {
+  display: block;
+  max-height: 520px;
+  object-fit: cover;
+  width: 100%;
+}
+
+@media (max-width: 767.98px) {
+  .article-card-image {
+    height: 210px;
+  }
+
+  .article-detail-image {
+    max-height: 360px;
+  }
+}
+
 .banner-area.hero-2 .banner-content > * {
   opacity: 0;
   transform: translateY(-18px);
