@@ -3049,6 +3049,47 @@ textarea {
   z-index: 1;
 }
 
+.banner-area.hero-2 .banner-content > * {
+  opacity: 0;
+  transform: translateY(-18px);
+}
+
+body.page-ready .banner-area.hero-2 .banner-content > * {
+  animation: heroRevealDown 640ms ease-out both;
+}
+
+body.page-ready .banner-area.hero-2 .banner-content > *:nth-child(2) {
+  animation-delay: 80ms;
+}
+
+body.page-ready .banner-area.hero-2 .banner-content > *:nth-child(3) {
+  animation-delay: 150ms;
+}
+
+body.page-ready .banner-area.hero-2 .banner-content > *:nth-child(4) {
+  animation-delay: 220ms;
+}
+
+@keyframes heroRevealDown {
+  from {
+    opacity: 0;
+    transform: translateY(-18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .banner-area.hero-2 .banner-content > * {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
 @media (max-width: 767.98px) {
   .banner-area.hero-2 {
     background-position: 75% bottom !important;

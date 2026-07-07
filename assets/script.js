@@ -841,7 +841,11 @@
             if(  $('#preloader').length && ! this._preloader_hidden  ){
 
                 this._preloader_hidden = true;
-                $( '#preloader' ).stop(true, true).fadeOut(200);
+                $( '#preloader' ).stop(true, true).fadeOut(200, function(){
+                    $( 'body' ).addClass( 'page-ready' );
+                });
+            } else {
+                $( 'body' ).addClass( 'page-ready' );
             }
         },
 
