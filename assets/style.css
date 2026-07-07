@@ -3028,6 +3028,9 @@ textarea {
   background-position: left center !important;
   background-repeat: no-repeat;
 }
+.banner-area.hero-2 {
+  background-position: 75% center !important;
+}
 .banner-area::before {
   content: "";
   position: absolute;
@@ -3044,6 +3047,64 @@ textarea {
 .banner-area .container {
   position: relative;
   z-index: 1;
+}
+
+@media (max-width: 767.98px) {
+  .banner-area.hero-2 {
+    background-position: 62% bottom !important;
+    background-repeat: no-repeat;
+    background-size: cover;
+    min-height: 980px;
+    padding: 150px 0 300px;
+  }
+
+  .banner-area.hero-2::before {
+    background: linear-gradient(
+      180deg,
+      rgba(0, 22, 72, 0.7) 0%,
+      rgba(0, 45, 105, 0.45) 48%,
+      rgba(0, 25, 70, 0.08) 100%
+    );
+  }
+
+  .banner-area.hero-2 .banner-content {
+    margin-bottom: 0;
+    text-align: left;
+  }
+
+  .banner-area.hero-2 .banner-content .title {
+    text-transform: none;
+  }
+
+  .banner-area.hero-2 .banner-content p {
+    width: 100%;
+  }
+
+  .banner-area.hero-2 .banner-content p br {
+    display: none;
+  }
+
+  .banner-area.hero-2 .banner-content .d-flex {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .banner-area.hero-2 .banner-content .btn-cirle {
+    width: 100%;
+  }
+
+  .banner-area.hero-2 .banner-social,
+  .banner-area.hero-2 .banner-scroll {
+    display: none;
+  }
+}
+
+@media (max-width: 420px) {
+  .banner-area.hero-2 {
+    background-position: 62% bottom !important;
+    min-height: 900px;
+    padding: 130px 0 255px;
+  }
 }
 /*=============================
     05. Slider
