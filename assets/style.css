@@ -3029,7 +3029,7 @@ textarea {
   background-repeat: no-repeat;
 }
 .banner-area.hero-2 {
-  background-position: 75% center !important;
+  background-position: 62% center !important;
 }
 .banner-area::before {
   content: "";
@@ -3051,7 +3051,7 @@ textarea {
 
 @media (max-width: 767.98px) {
   .banner-area.hero-2 {
-    background-position: 62% bottom !important;
+    background-position: 75% bottom !important;
     background-repeat: no-repeat;
     background-size: cover;
     min-height: 980px;
@@ -3101,7 +3101,7 @@ textarea {
 
 @media (max-width: 420px) {
   .banner-area.hero-2 {
-    background-position: 62% bottom !important;
+    background-position: 75% bottom !important;
     min-height: 900px;
     padding: 130px 0 255px;
   }
