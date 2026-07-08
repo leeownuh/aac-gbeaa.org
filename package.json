@@ -13,6 +13,9 @@
     "test": "jest --coverage",
     "test:watch": "jest --watch",
     "backup": "node scripts/backup.js",
+    "backup:ec2": "bash scripts/ec2-backup.sh",
+    "restore:ec2": "bash scripts/ec2-restore.sh",
+    "monitor:ec2": "bash scripts/ec2-monitor.sh",
     "lint": "eslint src/**/*.js"
   },
   "dependencies": {
