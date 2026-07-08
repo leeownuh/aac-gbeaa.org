@@ -12943,7 +12943,14 @@ blockquote p {
   }
   .page-header {
     padding: 130px 0 40px 0;
-    background-position: 74% center;
+    background-size: cover;
+    background-position: 62% center;
+  }
+}
+
+@media screen and (max-width: 380px) {
+  .page-header {
+    background-position: 58% center;
   }
 }
 @media screen and (max-width: 475px) {
