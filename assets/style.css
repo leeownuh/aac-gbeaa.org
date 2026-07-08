@@ -12189,7 +12189,9 @@ blockquote p {
 .page-header {
   padding: 220px 0 70px 0;
   color: #fff;
-  background-size: cover;
+  background-size: 135% auto;
+  background-position: 58% center;
+  background-repeat: no-repeat;
 }
 .page-header .breadcrumb {
   margin-bottom: 0;
@@ -12712,6 +12714,8 @@ blockquote p {
 @media screen and (max-width: 1024px){
   .page-header {
     padding: 150px 0 70px 0;
+    background-size: 145% auto;
+    background-position: 60% center;
   }
 }
 
@@ -12836,6 +12840,8 @@ blockquote p {
   }
   .page-header {
     padding: 150px 0 70px 0;
+    background-size: cover;
+    background-position: 72% center;
   }
   .contact__form-wrap {
     padding-right: 0 !important;
@@ -12937,6 +12943,7 @@ blockquote p {
   }
   .page-header {
     padding: 130px 0 40px 0;
+    background-position: 74% center;
   }
 }
 @media screen and (max-width: 475px) {
