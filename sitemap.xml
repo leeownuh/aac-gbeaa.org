@@ -36,23 +36,23 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.aac-gbeaaa.org/contact1</loc>
+    <loc>https://www.aac-gbeaaa.org/aac-america-europe</loc>
     <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
+    <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.aac-gbeaaa.org/contact2</loc>
+    <loc>https://www.aac-gbeaaa.org/aac-asia-australia</loc>
     <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
+    <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.aac-gbeaaa.org/contact3</loc>
+    <loc>https://www.aac-gbeaaa.org/aac-uae-dubai</loc>
     <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
+    <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.aac-gbeaaa.org/contact4</loc>
+    <loc>https://www.aac-gbeaaa.org/aac-great-britain</loc>
     <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
+    <priority>0.6</priority>
   </url>
 </urlset>
