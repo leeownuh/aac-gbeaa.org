@@ -3161,11 +3161,15 @@ textarea {
 
 @media (max-width: 767.98px) {
   .banner-area.hero-2 {
-    background-position: 75% bottom !important;
+    background-position: right bottom !important;
     background-repeat: no-repeat;
     background-size: cover;
     min-height: 980px;
     padding: 150px 0 300px;
+  }
+
+  .banner-area.hero-2 .hero-slide-bg {
+    background-position: right bottom !important;
   }
 
   .banner-area.hero-2::before {
@@ -3211,7 +3215,7 @@ textarea {
 
 @media (max-width: 420px) {
   .banner-area.hero-2 {
-    background-position: 75% bottom !important;
+    background-position: right bottom !important;
     min-height: 900px;
     padding: 130px 0 255px;
   }
@@ -10840,10 +10844,6 @@ blockquote p {
 @keyframes apostles-language-scroll {
   from {
     transform: translate3d(0, 0, 0);
-  }
-
-  .banner-area.hero-2 .hero-slide-bg {
-    background-position: 75% bottom;
   }
 
   to {
