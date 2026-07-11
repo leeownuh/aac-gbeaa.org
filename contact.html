@@ -76,7 +76,7 @@ Author: Leona Kokerai - Ownuh
     <link rel="stylesheet" type="text/css" href="assets/library/aos/aos.css">
 
     <!-- Custom - CSS here -->
-    <link rel="stylesheet" type="text/css" href="assets/style.css?v=20260708-page-header-s8">
+    <link rel="stylesheet" type="text/css" href="assets/style.css?v=20260710-contact-form">
     <style>
         .leadership-table {
             border: 1px solid rgba(5, 20, 73, 0.12);
@@ -153,6 +153,56 @@ Author: Leona Kokerai - Ownuh
             .leadership-table__name {
                 margin-bottom: 6px;
             }
+        }
+
+        .regional-contact-strip {
+            align-items: center;
+            background: rgba(5, 20, 73, 0.04);
+            border: 1px solid rgba(5, 20, 73, 0.1);
+            border-radius: 18px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px 14px;
+            justify-content: space-between;
+            padding: 18px 20px;
+        }
+
+        .regional-contact-strip p {
+            color: var(--tc-color-neutral-900);
+            margin: 0;
+        }
+
+        .regional-contact-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .regional-contact-links a {
+            border: 1px solid rgba(5, 20, 73, 0.14);
+            border-radius: 999px;
+            color: var(--tc-color-neutral-900);
+            font-size: 0.92rem;
+            font-weight: 700;
+            padding: 8px 13px;
+            text-decoration: none;
+            background: #fff;
+            box-shadow: 0 8px 20px rgba(5, 20, 73, 0.07);
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+        }
+
+        .regional-contact-links a::after {
+            content: "  →";
+            color: var(--tc-theme-primary);
+            font-weight: 800;
+        }
+
+        .regional-contact-links a:hover,
+        .regional-contact-links a:focus-visible {
+            border-color: var(--tc-theme-primary);
+            color: var(--tc-theme-primary);
+            box-shadow: 0 12px 26px rgba(5, 20, 73, 0.12);
+            transform: translateY(-2px);
         }
     </style>
 
@@ -443,13 +493,51 @@ Author: Leona Kokerai - Ownuh
                 </div>
             </div>
 
-            <!-- Location Links -->
+            <!-- Contact Form -->
+            <div class="col-12 mb-4">
+                <div class="contact__form-wrap bg-white rounded-4 shadow-1 p-4 p-lg-5">
+                    <h5 class="title tg-element-title ds-5 fw-normal mb-2">Send Us a Message</h5>
+                    <p class="fs-6 text-dark mb-4">Share your name, location, contact number, and message. We will receive it by email.</p>
+                    <form id="main-contact-form" novalidate>
+                        <input type="text" name="website" class="d-none" tabindex="-1" autocomplete="off" aria-hidden="true">
+                        <div class="row">
+                            <div class="col-lg-4 col-md-6 col-12">
+                                <div class="form-grp">
+                                    <input type="text" name="name" placeholder="Your name" maxlength="120" required>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-6 col-12">
+                                <div class="form-grp">
+                                    <input type="text" name="location" placeholder="Your location" maxlength="160" required>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-12 col-12">
+                                <div class="form-grp">
+                                    <input type="tel" name="contactNumber" placeholder="Contact number" maxlength="80" required>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-grp">
+                                    <textarea name="message" placeholder="Your message" maxlength="4000" required></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn text-white rounded-5 mt-2">Send Message</button>
+                        <p id="main-contact-form-status" class="ajax-response mt-3 mb-0" role="status" aria-live="polite"></p>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Regional Contact Links -->
             <div class="col-12">
-                <div class="d-flex flex-wrap gap-3">
-                    <a href="/aac-america-europe" class="btn rounded-5 btn-tag-outline">Click for America & Europe</a>
-                    <a href="/aac-asia-australia" class="btn rounded-5 btn-tag-outline">Click for Asia & Australia</a>
-                    <a href="/aac-uae-dubai" class="btn rounded-5 btn-tag-outline">Click for Dubai</a>
-                    <a href="/aac-great-britain" class="btn rounded-5 btn-tag-outline">Click for Great Britain</a>
+                <div class="regional-contact-strip">
+                    <p class="fs-6 fw-semibold">Looking for a regional representative?</p>
+                    <div class="regional-contact-links" aria-label="Regional contact pages">
+                        <a href="/aac-america-europe">America & Europe</a>
+                        <a href="/aac-asia-australia">Asia & Australia</a>
+                        <a href="/aac-uae-dubai">Dubai, UAE</a>
+                        <a href="/aac-great-britain">Great Britain</a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -565,6 +653,50 @@ Author: Leona Kokerai - Ownuh
         <!--  Custom Script
         ===================================== -->
         <script src="assets/script.js"></script>
+        <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                const form = document.getElementById("main-contact-form");
+                const status = document.getElementById("main-contact-form-status");
+
+                if (!form || !status) return;
+
+                form.addEventListener("submit", async (event) => {
+                    event.preventDefault();
+                    status.className = "ajax-response mt-3 mb-0";
+                    status.textContent = "Sending your message...";
+
+                    const submitButton = form.querySelector('button[type="submit"]');
+                    if (submitButton) submitButton.disabled = true;
+
+                    const formData = new FormData(form);
+                    const payload = Object.fromEntries(formData.entries());
+
+                    try {
+                        const response = await fetch("/api/contact-form", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify(payload)
+                        });
+
+                        const result = await response.json().catch(() => ({}));
+                        if (!response.ok || !result.success) {
+                            throw new Error(result.error || "Message could not be sent right now.");
+                        }
+
+                        form.reset();
+                        status.classList.add("success");
+                        status.textContent = result.message || "Thank you. Your message has been sent.";
+                    } catch (error) {
+                        status.classList.add("error");
+                        status.textContent = error.message || "Message could not be sent right now.";
+                    } finally {
+                        if (submitButton) submitButton.disabled = false;
+                    }
+                });
+            });
+        </script>
 
     </body>
     <!-- body end -->

@@ -142,6 +142,15 @@ const config = {
     enabled: process.env.HOT_CACHE_ENABLED !== 'false',
     hotTtlMs: toInt(process.env.HOT_CACHE_TTL_MS, 30000)
   },
+  mail: {
+    smtpHost: process.env.SMTP_HOST || '',
+    smtpPort: toInt(process.env.SMTP_PORT, 587),
+    smtpSecure: process.env.SMTP_SECURE === 'true',
+    smtpUser: process.env.SMTP_USER || '',
+    smtpPass: process.env.SMTP_PASS || '',
+    from: process.env.CONTACT_FORM_FROM || process.env.SMTP_FROM || '',
+    to: process.env.CONTACT_FORM_TO || 'contact@aac-gbeaaa.com'
+  },
   security: {
     maxLoginAttempts: 5,
     lockoutDuration: 30 * 60 * 1000,

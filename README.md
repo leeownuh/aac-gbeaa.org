@@ -102,6 +102,15 @@ Performance / Scale:
 - `REDIS_URL` (optional, only needed for multi-replica session sharing)
 - `REDIS_SESSION_PREFIX` (default `aac:sess:`)
 
+Contact form email:
+- `SMTP_HOST` (for AWS SES SMTP, use `email-smtp.<region>.amazonaws.com`)
+- `SMTP_PORT` (default `587`)
+- `SMTP_SECURE` (`false` for port `587`, `true` for port `465`)
+- `SMTP_USER`
+- `SMTP_PASS`
+- `CONTACT_FORM_FROM` (must be a verified SES sender/domain)
+- `CONTACT_FORM_TO` (default `contact@aac-gbeaaa.com`)
+
 ## Performance Setup (Implemented)
 
 1. Nginx gzip compression is enabled for `text/css`, `application/javascript`, `application/json`, and related text content.

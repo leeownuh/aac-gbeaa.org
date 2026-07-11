@@ -61,6 +61,13 @@ services:
       PASSWORD_MAX_AGE_DAYS: ${PASSWORD_MAX_AGE_DAYS:-90}
       TEMP_PASSWORD_MIN_HOURS: ${TEMP_PASSWORD_MIN_HOURS:-1}
       TEMP_PASSWORD_MAX_HOURS: ${TEMP_PASSWORD_MAX_HOURS:-24}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_SECURE: ${SMTP_SECURE:-false}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      CONTACT_FORM_FROM: ${CONTACT_FORM_FROM:-}
+      CONTACT_FORM_TO: ${CONTACT_FORM_TO:-contact@aac-gbeaaa.com}
     volumes:
       - app_data:/mnt/data
     healthcheck:

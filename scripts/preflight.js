@@ -73,6 +73,12 @@ if (!process.env.REDIS_URL) {
   warnings.push('REDIS_URL is not set. This is acceptable for one app instance, but not for multi-instance scaling.');
 }
 
+const smtpKeys = ['SMTP_HOST', 'SMTP_USER', 'SMTP_PASS', 'CONTACT_FORM_FROM', 'CONTACT_FORM_TO'];
+const missingSmtpKeys = smtpKeys.filter((key) => !process.env[key]);
+if (missingSmtpKeys.length) {
+  warnings.push(`Contact form email is not fully configured. Missing: ${missingSmtpKeys.join(', ')}`);
+}
+
 if (String(process.env.WEB_PORT) !== '80') {
   warnings.push('WEB_PORT is not 80. That is fine before TLS/proxy setup, but production usually exposes 80/443.');
 }

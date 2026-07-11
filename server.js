@@ -6,11 +6,12 @@ const session = require('express-session');
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
 const config = require('./src/config');
-const { loginLimiter } = require('./src/middleware/rateLimiter');
+const { loginLimiter, contactFormLimiter } = require('./src/middleware/rateLimiter');
 const contentRepository = require('./src/db/repositories/contentRepository');
 const changeRequestRepository = require('./src/db/repositories/changeRequestRepository');
 const ResponseCache = require('./src/utils/responseCache');
 const { buildSessionOptions } = require('./src/services/sessionStore');
+const { sendContactFormEmail } = require('./src/services/contactEmailService');
 
 const router = express.Router();
 const uploadsDir = path.resolve(config.paths.uploads);
@@ -243,6 +244,49 @@ const normalizeEditableText = (value) =>
     .replace(/<\/?p>/gi, '')
     .replace(/\r\n?/g, '\n')
     .trim();
+
+const normalizeContactField = (value, maxLength) =>
+  String(value || '')
+    .replace(/\r\n?/g, '\n')
+    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, '')
+    .trim()
+    .slice(0, maxLength);
+
+const validateContactForm = (body) => {
+  const name = normalizeContactField(body.name, 120);
+  const location = normalizeContactField(body.location, 160);
+  const contactNumber = normalizeContactField(body.contactNumber, 80);
+  const message = normalizeContactField(body.message, 4000);
+
+  if (String(body.website || '').trim()) {
+    return { error: 'Invalid submission' };
+  }
+
+  if (name.length < 2) {
+    return { error: 'Please enter your name' };
+  }
+
+  if (location.length < 2) {
+    return { error: 'Please enter your location' };
+  }
+
+  if (contactNumber.length < 5) {
+    return { error: 'Please enter a valid contact number' };
+  }
+
+  if (message.length < 10) {
+    return { error: 'Please enter a message of at least 10 characters' };
+  }
+
+  return {
+    data: {
+      name,
+      location,
+      contactNumber,
+      message
+    }
+  };
+};
 
 const getTimeZoneOffsetMs = (date, timeZone) => {
   const parts = new Intl.DateTimeFormat('en-US', {
@@ -506,6 +550,29 @@ const applyApprovedChange = async (changeRequest) => {
 
   throw new Error('Unsupported change request payload');
 };
+
+router.post('/contact-form', contactFormLimiter, async (req, res) => {
+  const validation = validateContactForm(req.body || {});
+
+  if (validation.error) {
+    return res.status(400).json({ success: false, error: validation.error });
+  }
+
+  try {
+    await sendContactFormEmail(validation.data);
+    return res.json({
+      success: true,
+      message: 'Thank you. Your message has been sent.'
+    });
+  } catch (error) {
+    const status = error.code === 'MAIL_NOT_CONFIGURED' ? 503 : 500;
+    console.error('Contact form email failed:', error.message);
+    return res.status(status).json({
+      success: false,
+      error: 'Message could not be sent right now. Please try again later.'
+    });
+  }
+});
 
 // ==================== AUTH ROUTES ====================
 

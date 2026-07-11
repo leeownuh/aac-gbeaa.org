@@ -31,6 +31,15 @@ const uploadLimiter = rateLimit({
   legacyHeaders: false
 });
 
+const contactFormLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  message: { error: 'Too many contact form submissions, please try again later' },
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => req.ip
+});
+
 const apiLimiter = rateLimit({
   windowMs: config.rateLimit.windowMs,
   max: config.rateLimit.maxRequests,
@@ -43,5 +52,6 @@ module.exports = {
   loginLimiter,
   adminLimiter,
   uploadLimiter,
+  contactFormLimiter,
   apiLimiter
 };
