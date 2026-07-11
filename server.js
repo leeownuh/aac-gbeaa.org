@@ -252,6 +252,35 @@ const normalizeContactField = (value, maxLength) =>
     .trim()
     .slice(0, maxLength);
 
+const normalizeHeroField = (value, maxLength) =>
+  String(value || '')
+    .replace(/[\u0000-\u001F\u007F]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, maxLength);
+
+const normalizeHeroSlidePayload = (body, file, existing = {}) => {
+  const imageUrl = file
+    ? `/uploads/${file.filename}`
+    : normalizeHeroField(body.imageUrl || existing.imageUrl, 400);
+
+  return {
+    id: existing.id || uuidv4(),
+    title: normalizeHeroField(body.title || existing.title, 140),
+    altText: normalizeHeroField(body.altText || body.alt_text || existing.altText, 180),
+    imageUrl,
+    sortOrder: Number.isFinite(Number(body.sortOrder ?? body.sort_order))
+      ? Number(body.sortOrder ?? body.sort_order)
+      : Number(existing.sortOrder || 0),
+    published: body.published === undefined
+      ? existing.published !== false
+      : ['true', '1', 'on', 'yes'].includes(String(body.published).toLowerCase()),
+    createdBy: existing.createdBy || null,
+    createdAt: existing.createdAt || new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  };
+};
+
 const validateContactForm = (body) => {
   const name = normalizeContactField(body.name, 120);
   const location = normalizeContactField(body.location, 160);
@@ -393,6 +422,7 @@ const hotCache = new ResponseCache({
 const HOT_CACHE_KEYS = Object.freeze({
   events: 'hot:events:list',
   articles: 'hot:articles:list',
+  heroSlides: 'hot:hero_slides:list',
   principles: 'hot:principles:why_we_do'
 });
 
@@ -513,6 +543,26 @@ const applyApprovedChange = async (changeRequest) => {
     if (operation === 'delete') {
       const deleted = await contentRepository.deleteEvent(payload.id);
       invalidateHotKey(HOT_CACHE_KEYS.events);
+      return deleted;
+    }
+  }
+
+  if (resourceType === 'hero_slide') {
+    if (operation === 'create') {
+      const saved = await contentRepository.createHeroSlide(payload.slide);
+      invalidateHotKey(HOT_CACHE_KEYS.heroSlides);
+      return saved;
+    }
+
+    if (operation === 'update') {
+      const saved = await contentRepository.updateHeroSlide(payload.id, payload.slide);
+      invalidateHotKey(HOT_CACHE_KEYS.heroSlides);
+      return saved;
+    }
+
+    if (operation === 'delete') {
+      const deleted = await contentRepository.deleteHeroSlide(payload.id);
+      invalidateHotKey(HOT_CACHE_KEYS.heroSlides);
       return deleted;
     }
   }
@@ -1051,6 +1101,141 @@ router.delete('/event-categories/:slug', validateRouteId('slug'), authenticateAd
     res.json({ success: true, category });
   } catch (err) {
     handleCategoryError(res, err, 'Failed to delete event category');
+  }
+});
+
+// ==================== HERO SLIDES ROUTES ====================
+
+router.get('/hero-slides', async (req, res) => {
+  try {
+    const slides = await readOrLoadHot(
+      HOT_CACHE_KEYS.heroSlides,
+      () => contentRepository.getAllHeroSlides({ publishedOnly: true })
+    );
+    res.json({ success: true, slides });
+  } catch {
+    res.status(500).json({ success: false, error: 'Failed to load hero slides' });
+  }
+});
+
+router.get('/admin/hero-slides', authenticateAdmin, requirePasswordChangeComplete, requireContentWriteAccess, async (req, res) => {
+  try {
+    const slides = await contentRepository.getAllHeroSlides();
+    res.json({ success: true, slides });
+  } catch {
+    res.status(500).json({ success: false, error: 'Failed to load hero slides' });
+  }
+});
+
+router.post('/hero-slides', authenticateAdmin, requirePasswordChangeComplete, requireContentWriteAccess, upload.single('image'), async (req, res) => {
+  try {
+    const slide = normalizeHeroSlidePayload(req.body || {}, req.file);
+    slide.createdBy = req.admin.username;
+
+    if (!slide.imageUrl) {
+      return res.status(400).json({ success: false, error: 'Hero image is required' });
+    }
+
+    if (req.admin.role === ADMIN_ROLES.EDITOR) {
+      const queued = await queueChangeRequest(req, {
+        resourceType: 'hero_slide',
+        operation: 'create',
+        payload: { slide }
+      });
+
+      return res.status(202).json({
+        success: true,
+        pendingApproval: true,
+        changeRequestId: queued.id,
+        message: 'Hero slide create request submitted for moderator approval'
+      });
+    }
+
+    const saved = await contentRepository.createHeroSlide(slide);
+    invalidateHotKey(HOT_CACHE_KEYS.heroSlides);
+    await auditAction(req, 'create_hero_slide', 'hero_slide', saved.id);
+    res.status(201).json({ success: true, slide: saved });
+  } catch {
+    if (req.file) {
+      await removeUploadedFile(req.file.filename).catch(() => {});
+    }
+    res.status(500).json({ success: false, error: 'Failed to create hero slide' });
+  }
+});
+
+router.put('/hero-slides/:id', validateRouteId(), authenticateAdmin, requirePasswordChangeComplete, requireContentWriteAccess, upload.single('image'), async (req, res) => {
+  try {
+    const existing = await contentRepository.getHeroSlideById(req.params.id);
+    if (!existing) {
+      return res.status(404).json({ success: false, error: 'Hero slide not found' });
+    }
+
+    const slide = normalizeHeroSlidePayload(req.body || {}, req.file, existing);
+
+    if (!slide.imageUrl) {
+      return res.status(400).json({ success: false, error: 'Hero image is required' });
+    }
+
+    if (req.admin.role === ADMIN_ROLES.EDITOR) {
+      const queued = await queueChangeRequest(req, {
+        resourceType: 'hero_slide',
+        operation: 'update',
+        resourceId: req.params.id,
+        payload: {
+          id: req.params.id,
+          slide
+        }
+      });
+
+      return res.status(202).json({
+        success: true,
+        pendingApproval: true,
+        changeRequestId: queued.id,
+        message: 'Hero slide update request submitted for moderator approval'
+      });
+    }
+
+    const updated = await contentRepository.updateHeroSlide(req.params.id, slide);
+    invalidateHotKey(HOT_CACHE_KEYS.heroSlides);
+    await auditAction(req, 'update_hero_slide', 'hero_slide', req.params.id);
+    res.json({ success: true, slide: updated });
+  } catch {
+    if (req.file) {
+      await removeUploadedFile(req.file.filename).catch(() => {});
+    }
+    res.status(500).json({ success: false, error: 'Failed to update hero slide' });
+  }
+});
+
+router.delete('/hero-slides/:id', validateRouteId(), authenticateAdmin, requirePasswordChangeComplete, requireContentWriteAccess, async (req, res) => {
+  try {
+    const existing = await contentRepository.getHeroSlideById(req.params.id);
+    if (!existing) {
+      return res.status(404).json({ success: false, error: 'Hero slide not found' });
+    }
+
+    if (req.admin.role === ADMIN_ROLES.EDITOR) {
+      const queued = await queueChangeRequest(req, {
+        resourceType: 'hero_slide',
+        operation: 'delete',
+        resourceId: req.params.id,
+        payload: { id: req.params.id }
+      });
+
+      return res.status(202).json({
+        success: true,
+        pendingApproval: true,
+        changeRequestId: queued.id,
+        message: 'Hero slide delete request submitted for moderator approval'
+      });
+    }
+
+    const deleted = await contentRepository.deleteHeroSlide(req.params.id);
+    invalidateHotKey(HOT_CACHE_KEYS.heroSlides);
+    await auditAction(req, 'delete_hero_slide', 'hero_slide', req.params.id);
+    res.json({ success: true, slide: deleted });
+  } catch {
+    res.status(500).json({ success: false, error: 'Failed to delete hero slide' });
   }
 });
 

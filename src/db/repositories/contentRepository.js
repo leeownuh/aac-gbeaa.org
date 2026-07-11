@@ -25,6 +25,18 @@ const mapArticleRow = (row) => ({
   updatedAt: toIsoValue(row.updated_at)
 });
 
+const mapHeroSlideRow = (row) => ({
+  id: row.id,
+  title: row.title,
+  altText: row.alt_text,
+  imageUrl: row.image_url,
+  sortOrder: row.sort_order,
+  published: row.published,
+  createdBy: row.created_by,
+  createdAt: toIsoValue(row.created_at),
+  updatedAt: toIsoValue(row.updated_at)
+});
+
 const mapEventRow = (row) => ({
   id: row.id,
   title: row.title,
@@ -329,6 +341,85 @@ const deleteArticle = async (id) => {
     [id]
   );
   return result.rowCount > 0;
+};
+
+const getAllHeroSlides = async ({ publishedOnly = false } = {}) => {
+  const result = await query(
+    `SELECT *
+     FROM hero_slides
+     WHERE ($1::boolean = FALSE OR published = TRUE)
+     ORDER BY sort_order ASC, created_at DESC`,
+    [Boolean(publishedOnly)]
+  );
+  return result.rows.map(mapHeroSlideRow);
+};
+
+const getHeroSlideById = async (id) => {
+  const result = await query(
+    `SELECT *
+     FROM hero_slides
+     WHERE id = $1`,
+    [id]
+  );
+  return result.rows[0] ? mapHeroSlideRow(result.rows[0]) : null;
+};
+
+const createHeroSlide = async (slide) => {
+  const result = await query(
+    `INSERT INTO hero_slides (
+      id, title, alt_text, image_url, sort_order, published, created_by, created_at, updated_at
+    )
+    VALUES (
+      $1, $2, $3, $4, $5, $6, $7, COALESCE($8::timestamptz, NOW()), COALESCE($9::timestamptz, NOW())
+    )
+    RETURNING *`,
+    [
+      slide.id,
+      slide.title || null,
+      slide.altText || slide.alt_text || null,
+      slide.imageUrl || slide.image_url,
+      Number.isFinite(Number(slide.sortOrder)) ? Number(slide.sortOrder) : 0,
+      slide.published !== false,
+      slide.createdBy || slide.created_by || null,
+      slide.createdAt || null,
+      slide.updatedAt || null
+    ]
+  );
+  return mapHeroSlideRow(result.rows[0]);
+};
+
+const updateHeroSlide = async (id, slide) => {
+  const result = await query(
+    `UPDATE hero_slides
+     SET title = $2,
+         alt_text = $3,
+         image_url = $4,
+         sort_order = $5,
+         published = $6,
+         updated_at = COALESCE($7::timestamptz, NOW())
+     WHERE id = $1
+     RETURNING *`,
+    [
+      id,
+      slide.title || null,
+      slide.altText || slide.alt_text || null,
+      slide.imageUrl || slide.image_url,
+      Number.isFinite(Number(slide.sortOrder)) ? Number(slide.sortOrder) : 0,
+      slide.published !== false,
+      slide.updatedAt || null
+    ]
+  );
+  return result.rows[0] ? mapHeroSlideRow(result.rows[0]) : null;
+};
+
+const deleteHeroSlide = async (id) => {
+  const result = await query(
+    `DELETE FROM hero_slides
+     WHERE id = $1
+     RETURNING *`,
+    [id]
+  );
+  return result.rows[0] ? mapHeroSlideRow(result.rows[0]) : null;
 };
 
 const getAllEvents = async () => {
@@ -663,6 +754,11 @@ module.exports = {
   createArticle,
   updateArticle,
   deleteArticle,
+  getAllHeroSlides,
+  getHeroSlideById,
+  createHeroSlide,
+  updateHeroSlide,
+  deleteHeroSlide,
   getAllEvents,
   getEventById,
   createEvent,

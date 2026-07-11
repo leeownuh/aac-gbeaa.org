@@ -63,6 +63,7 @@
         <li><a href="/admin/articles">Articles</a></li>
         <li><a href="/admin/events">Events</a></li>
         <li><a href="/admin/gallery">Gallery</a></li>
+        <li><a href="/admin/hero-slides">Hero Slides</a></li>
         <li><a href="/admin/approvals">Moderation Queue</a></li>
         <li><a href="/admin/audit-logs" id="auditNavLink" style="display:none">Audit Logs</a></li>
         <li><a href="/admin/accounts" id="accountsNavLink" style="display:none">Account Management</a></li>
@@ -93,6 +94,10 @@
             <h3>Gallery Images</h3>
             <div class="number" id="galleryCount">0</div>
           </div>
+          <div class="card stat-card gallery">
+            <h3>Hero Slides</h3>
+            <div class="number" id="heroSlidesCount">0</div>
+          </div>
         </div>
 
         <div class="card">
@@ -101,6 +106,7 @@
             <a href="/admin/articles" class="btn btn-primary content-action">Add New Article</a>
             <a href="/admin/events" class="btn btn-primary content-action">Add New Event</a>
             <a href="/admin/gallery" class="btn btn-primary content-action">Upload Image</a>
+            <a href="/admin/hero-slides" class="btn btn-primary content-action">Manage Hero Slides</a>
             <a href="/admin/accounts" class="btn btn-primary" id="manageUsersAction" style="display:none">Manage Accounts</a>
             <a href="/" class="btn btn-secondary">View Website</a>
           </div>
@@ -155,12 +161,14 @@
       Promise.all([
         fetch('/api/articles', { credentials: 'include' }).then(r => r.json()),
         fetch('/api/events', { credentials: 'include' }).then(r => r.json()),
-        fetch('/api/gallery', { credentials: 'include' }).then(r => r.json())
+        fetch('/api/gallery', { credentials: 'include' }).then(r => r.json()),
+        fetch('/api/hero-slides', { credentials: 'include' }).then(r => r.json())
       ])
-        .then(([articles, events, gallery]) => {
+        .then(([articles, events, gallery, heroSlides]) => {
           document.getElementById('articlesCount').textContent = articles.length;
           document.getElementById('eventsCount').textContent = events.length;
           document.getElementById('galleryCount').textContent = (gallery.images || []).length;
+          document.getElementById('heroSlidesCount').textContent = (heroSlides.slides || []).length;
           document.getElementById('loading').style.display = 'none';
           document.getElementById('dashboardContent').style.display = 'block';
         })

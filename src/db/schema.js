@@ -66,6 +66,19 @@ const schemaStatements = [
   )`,
   `ALTER TABLE articles
     ADD COLUMN IF NOT EXISTS image_url TEXT`,
+  `CREATE TABLE IF NOT EXISTS hero_slides (
+    id TEXT PRIMARY KEY,
+    title TEXT,
+    alt_text TEXT,
+    image_url TEXT NOT NULL,
+    sort_order INTEGER NOT NULL DEFAULT 0,
+    published BOOLEAN NOT NULL DEFAULT TRUE,
+    created_by TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  )`,
+  `CREATE INDEX IF NOT EXISTS idx_hero_slides_public_order
+    ON hero_slides (published, sort_order, created_at DESC)`,
   `CREATE TABLE IF NOT EXISTS article_categories (
     slug TEXT PRIMARY KEY,
     name TEXT NOT NULL UNIQUE,
