@@ -31,7 +31,8 @@ Author: Leona Kokerai - Ownuh
     <!-- Specific Meta
         ================================================== -->
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <meta name="description" content="Contact information for The African Apostolic Church GBEAAA Province representatives serving Asia and Australia.">
+    <meta name="description"
+        content="Contact information for The African Apostolic Church GBEAAA Province representatives serving Asia and Australia.">
     <meta name="keywords"
         content="paul, mwazha, church, apostolic, zimbabwe, india, dubai, christian, gbeaaa, uk, poland, ireland, china">
     <meta name="author" content="wp-organic">
@@ -45,13 +46,15 @@ Author: Leona Kokerai - Ownuh
     <link rel="canonical" href="https://www.aac-gbeaaa.org/aac-asia-australia">
     <meta property="og:site_name" content="The African Apostolic Church GBEAAA Province">
     <meta property="og:title" content="Contact The African Apostolic Church | Asia and Australia">
-    <meta property="og:description" content="Contact information for The African Apostolic Church GBEAAA Province representatives serving Asia and Australia.">
+    <meta property="og:description"
+        content="Contact information for The African Apostolic Church GBEAAA Province representatives serving Asia and Australia.">
     <meta property="og:url" content="https://www.aac-gbeaaa.org/aac-asia-australia">
     <meta property="og:type" content="website">
     <meta property="og:image" content="https://www.aac-gbeaaa.org/assets/images/logo/logo-1.png">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Contact The African Apostolic Church | Asia and Australia">
-    <meta name="twitter:description" content="Contact information for The African Apostolic Church GBEAAA Province representatives serving Asia and Australia.">
+    <meta name="twitter:description"
+        content="Contact information for The African Apostolic Church GBEAAA Province representatives serving Asia and Australia.">
     <meta name="robots" content="noindex,follow">
     <!-- Favicons
         ================================================== -->
@@ -106,9 +109,10 @@ Author: Leona Kokerai - Ownuh
                 <div class="row align-items-center">
                     <div class="col-lg-5 col-md-12 justify-content-md-center">
                         <div class="position-relative overflow-hidden top-news">
-                            <div class="swiper-1-vertical"> <div class="swiper-wrapper" id="event-swiper">
-  <!-- Slides will be injected here -->
-</div>
+                            <div class="swiper-1-vertical">
+                                <div class="swiper-wrapper" id="event-swiper">
+                                    <!-- Slides will be injected here -->
+                                </div>
 
                             </div>
                         </div>
@@ -128,21 +132,21 @@ Author: Leona Kokerai - Ownuh
                 </div>
             </div>
         </div>
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const swiperContainer = document.getElementById("event-swiper");
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const swiperContainer = document.getElementById("event-swiper");
 
-    fetch("/api/events").catch(() => fetch("data/events.json"))
-      .then(res => res.json())
-      .then(events => {
-        const today = new Date().toISOString().split("T")[0];
+                fetch("/api/events").catch(() => fetch("data/events.json"))
+                    .then(res => res.json())
+                    .then(events => {
+                        const today = new Date().toISOString().split("T")[0];
 
-        const upcomingEvents = events.filter(event => event.date >= today);
+                        const upcomingEvents = events.filter(event => event.date >= today);
 
-        upcomingEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
+                        upcomingEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
 
-        upcomingEvents.forEach(event => {
-          const slide = `
+                        upcomingEvents.forEach(event => {
+                            const slide = `
             <div class="swiper-slide">
               <div class="d-flex fs-7 fw-normal align-items-center justify-content-md-center justify-content-lg-start mb-md-2 mb-lg-0">
                 <span class="me-2 has-dot">
@@ -155,30 +159,30 @@ Author: Leona Kokerai - Ownuh
               </div>
             </div>
           `;
-          swiperContainer.insertAdjacentHTML("beforeend", slide);
-        });
+                            swiperContainer.insertAdjacentHTML("beforeend", slide);
+                        });
 
-        // Initialize Swiper (only after DOM is ready and content is injected)
-        if (typeof Swiper !== "undefined") {
-          new Swiper(".swiper-1-vertical", {
-            direction: 'vertical',
-            loop: true,
-            autoplay: {
-              delay: 4000,
-              disableOnInteraction: false,
-            },
-            slidesPerView: 1,
-          });
-        }
+                        // Initialize Swiper (only after DOM is ready and content is injected)
+                        if (typeof Swiper !== "undefined") {
+                            new Swiper(".swiper-1-vertical", {
+                                direction: 'vertical',
+                                loop: true,
+                                autoplay: {
+                                    delay: 4000,
+                                    disableOnInteraction: false,
+                                },
+                                slidesPerView: 1,
+                            });
+                        }
 
-        if (typeof feather !== "undefined") {
-          feather.replace();
-        }
-      })
-      .catch(err => {
-        console.error("Failed to load events:", err);
-      });
-  });</script>
+                        if (typeof feather !== "undefined") {
+                            feather.replace();
+                        }
+                    })
+                    .catch(err => {
+                        console.error("Failed to load events:", err);
+                    });
+            });</script>
 
         <!-- While User Scroll to Dispaly Sticky Header
             =============================================== -->
@@ -203,18 +207,18 @@ Author: Leona Kokerai - Ownuh
                                         <li><a href="/events-list">Events</a></li>
                                         <li><a href="/blog">Blog</a></li>
                                         <li><a href="/gallery">Gallery</a></li>
-                                       <li class="menu-item-has-children"><a href="/contact">Contact</a>
-                                           <ul class="sub-menu">
+                                        <li class="menu-item-has-children"><a href="/contact">Contact</a>
+                                            <ul class="sub-menu">
                                                 <li><a href="/aac-america-europe">America & Europe</a></li>
                                                 <li><a href="/aac-asia-australia">Asia & Australia</a></li>
                                                 <li><a href="/aac-uae-dubai">Dubai</a></li>
                                                 <li><a href="/aac-great-britain">Great Britain</a></li>
                                             </ul>
-                                        </li> 
-                                        
+                                        </li>
+
                                     </ul>
                                 </div>
-                               
+
                                 <div
                                     class="mobile-nav-toggler d-block d-xxl-none d-xl-none d-flex justify-content-center align-items-center justify-content-end">
                                     <i data-feather="menu"></i>
@@ -229,7 +233,7 @@ Author: Leona Kokerai - Ownuh
                                     <a href="/"><img src="assets/images/logo/logo-1.png"
                                             alt="The African Apostolic Church - VaApostora VeAfrica"></a>
                                 </div>
-                               
+
                                 <div class="tgmobile__menu-outer">
                                 </div>
                                 <div class="tgmobile__menu-bottom">
@@ -239,14 +243,21 @@ Author: Leona Kokerai - Ownuh
                                         </ul>
                                     </div>
                                     <div class="social-links">
-                                       <ul class="tiny-footer-menu float-end d-none d-xxl-block d-xl-block d-lg-block">
-                                <li><a href="https://www.facebook.com/profile.php?id=61573376475673"><i class="fab fa-facebook-f"></i></a></li>
-                                <li><a href="https://www.instagram.com/the_aac_gbeaaa_official?igsh=YjhlZWJzbGc1bmdm"><i class="fab fa-instagram"></i></a></li>
-                                <li><a href="https://x.com/MyBackup768079"><i class="fab fa-twitter"></i></a></li>
-                                <li><a href="https://www.youtube.com/@china_kereke"><i class="fab fa-youtube"></i></a></li>
-                                <li><a href="https://www.tiktok.com/@the.african.apost20?_r=1&_t=ZS-94ALmkmZHoC"><i class="fab fa-tiktok"></i></a></li>
-            
-                            </ul>
+                                        <ul class="tiny-footer-menu float-end d-none d-xxl-block d-xl-block d-lg-block">
+                                            <li><a href="https://www.facebook.com/profile.php?id=61573376475673"><i
+                                                        class="fab fa-facebook-f"></i></a></li>
+                                            <li><a
+                                                    href="https://www.instagram.com/the_aac_gbeaaa_official?igsh=YjhlZWJzbGc1bmdm"><i
+                                                        class="fab fa-instagram"></i></a></li>
+                                            <li><a href="https://x.com/MyBackup768079"><i
+                                                        class="fab fa-twitter"></i></a></li>
+                                            <li><a href="https://www.youtube.com/@china_kereke"><i
+                                                        class="fab fa-youtube"></i></a></li>
+                                            <li><a
+                                                    href="https://www.tiktok.com/@the.african.apost20?_r=1&_t=ZS-94ALmkmZHoC"><i
+                                                        class="fab fa-tiktok"></i></a></li>
+
+                                        </ul>
                                     </div>
                                 </div>
                             </nav>
@@ -258,7 +269,7 @@ Author: Leona Kokerai - Ownuh
             </div>
         </div>
 
-        
+
 
         <!-- Quick Contact Us Sidebar
             ============================= -->
@@ -292,7 +303,8 @@ Author: Leona Kokerai - Ownuh
                 <a href="https://www.facebook.com/profile.php?id=61573376475673"><i class="fab fa-facebook-f"></i></a>
                 <a href="javascript:"><i class="fab fa-twitter"></i></a>
                 <a href="javascript:"><i class="fab fa-google-plus-g"></i></a>
-                <a href="https://www.instagram.com/the_aac_gbeaaa_official?igsh=YjhlZWJzbGc1bmdm"><i class="fab fa-instagram"></i></a>
+                <a href="https://www.instagram.com/the_aac_gbeaaa_official?igsh=YjhlZWJzbGc1bmdm"><i
+                        class="fab fa-instagram"></i></a>
             </div>
         </div>
         <div class="offCanvas__overly"></div>
@@ -324,7 +336,7 @@ Author: Leona Kokerai - Ownuh
             <div class="container">
                 <div class="row align-items-center">
                     <!-- Contacts Column -->
-                    <div class="col-lg-6">
+                    <div class="col-lg-9">
                         <div class="contact__content">
                             <div class="section-title tg-heading-subheading animation-style3 mb-4">
                                 <p class="sub-title fs-5">Contact</p>
@@ -333,103 +345,114 @@ Author: Leona Kokerai - Ownuh
 
                             <div class="contact__info underlined-bottom d-inline-flex">
                                 <ul class="list-wrap">
+                                    <div class="row align-items-center"> 
+                                        <li class="mb-4">
+                                                <div class="icon-1">
+                                                    <a href="tel:+263773299788"><i class="size-32"
+                                                            data-feather="phone-call"></i></a>
+                                                </div>
+                                                <div class="content">
+                                                    <p class="title fs-7">Reverend</p>
+                                                    <a class="fs-5 text-dark" href="tel:+263773299788">Rev. Moyo - +263
+                                                        773
+                                                        299
+                                                        788</a>
+                                                </div>
+                                            </li>
 
-                                    <!-- Leadership Contacts -->
-                                    <li class="mb-4">
-                                        <div class="icon-1">
-                                            <a href="tel:+263773299788"><i class="size-32"
-                                                    data-feather="phone-call"></i></a>
-                                        </div>
-                                        <div class="content">
-                                            <p class="title fs-7">Reverend</p>
-                                            <a class="fs-5 text-dark" href="tel:+263773299788">Rev. Moyo - +263 773 299
-                                                788</a>
-                                        </div>
-                                    </li>
+                                            <li class="mb-4">
+                                                <div class="icon-1">
+                                                    <a href="tel:+27653183839"><i class="size-32"
+                                                            data-feather="phone-call"></i></a>
+                                                </div>
+                                                <div class="content">
+                                                    <p class="title fs-7">Chairman</p>
+                                                    <a class="fs-5 text-dark" href="tel:+27653183839">Ev. Taonameso -
+                                                        +27
+                                                        653
+                                                        183 839</a>
+                                                </div>
+                                            </li>
+                                        <div class="col-lg-3"> <!-- Leadership Contacts -->
+                                           
 
-                                    <li class="mb-4">
-                                        <div class="icon-1">
-                                            <a href="tel:+27653183839"><i class="size-32"
-                                                    data-feather="phone-call"></i></a>
-                                        </div>
-                                        <div class="content">
-                                            <p class="title fs-7">Chairman</p>
-                                            <a class="fs-5 text-dark" href="tel:+27653183839">Ev. Taonameso - +27 653
-                                                183 839</a>
-                                        </div>
-                                    </li>
+                                            <!-- China Contacts -->
+                                            <li class="mb-4">
+                                                <div class="icon-1">
+                                                    <i class="size-32" data-feather="map-pin"></i>
+                                                </div>
+                                                <div class="content">
+                                                    <p class="title fs-7">China</p>
+                                                </div>
+                                            </li>
 
-                                    <li class="mb-4">
-                                        <div class="icon-1">
-                                            <a href="tel:+263783288586"><i class="size-32"
-                                                    data-feather="phone-call"></i></a>
-                                        </div>
-                                        <div class="content">
-                                            <p class="title fs-7">Secretary</p>
-                                            <a class="fs-5 text-dark" href="tel:+918360966076">Ev. Mupungi - +91 8360
-                                                966 076</a>
-                                        </div>
-                                    </li>
-                                    </li>
 
-                                    <li class="mb-4">
-                                        <div class="icon-1">
-                                            <a href="tel:+918360966076"><i class="size-32"
-                                                    data-feather="phone-call"></i></a>
+                                            <li class="mb-4">
+                                                <div class="icon-1"><a href="tel:+27653183839"><i class="size-32"
+                                                            data-feather="phone"></i></a></div>
+                                                <div class="content"><a class="fs-5 text-dark"
+                                                        href="tel:+27653183839">Ev.
+                                                        Taonameso - +27 653 183 839</a></div>
+                                            </li>
                                         </div>
-                                          <div class="content">
-                                            <p class="title fs-7">Vice Chairman</p>
-                                            <a class="fs-5 text-dark" href="tel:+263783288586">Ev. Mamvura - +263 783
-                                                288 586</a>
-                                        </div>
-                                    </li>
+
+                                        <div class="col-lg-3"> <!-- India Contacts -->
+                                            <li class="mb-4">
+                                                <div class="icon-1">
+                                                    <i class="size-32" data-feather="map-pin"></i>
+                                                </div>
+                                                <div class="content">
+                                                    <p class="title fs-7">India</p>
+                                                </div>
+                                            </li>
                                        
+                                            <li class="mb-4">
+                                                <div class="icon-1"><a href="tel:+918360966076"><i class="size-32"
+                                                            data-feather="phone"></i></a></div>
+                                                <div class="content"><a class="fs-5 text-dark"
+                                                        href="tel:+918360966076">Ev.
+                                                        Mupungi - +91 8360 966 076</a></div>
+                                            </li>
 
-                                    <!-- China Contacts -->
-                                    <li class="mb-4">
-                                        <div class="icon-1">
-                                            <i class="size-32" data-feather="map-pin"></i>
+ </div>
+
+<div class="col-lg-3">
+
+                                            <!-- Australia Contacts -->
+                                            <li class="mb-4">
+                                                <div class="icon-1">
+                                                    <i class="size-32" data-feather="map-pin"></i>
+                                                </div>
+                                                <div class="content">
+                                                    <p class="title fs-7">Australia</p>
+                                                </div>
+                                            </li>
+
+
+
+                                            <li class="mb-4">
+                                                <div class="icon-1"><a href="tel:+61490364941"><i class="size-32"
+                                                            data-feather="phone"></i></a></div>
+                                                <div class="content"><a class="fs-5 text-dark"
+                                                        href="tel:+61490364941">Preacher
+                                                        Jonah - +61 490 364 941</a></div>
+                                            </li>
                                         </div>
-                                        <div class="content">
-                                            <p class="title fs-7">China</p>
-                                        </div>
-                                    </li>
+                                    </div>
 
-                                    <li class="mb-4">
-                                        <div class="icon-1"><a href="tel:+263773299788"><i class="size-32"
-                                                    data-feather="phone"></i></a></div>
-                                        <div class="content"><a class="fs-5 text-dark" href="tel:+263773299788">Rev.
-                                                Moyo - +263 773 299 788</a></div>
-                                    </li>
-
-                                    <li class="mb-4">
-                                        <div class="icon-1"><a href="tel:+27653183839"><i class="size-32"
-                                                    data-feather="phone"></i></a></div>
-                                        <div class="content"><a class="fs-5 text-dark" href="tel:+27653183839">Ev.
-                                                Taonameso - +27 653 183 839</a></div>
-                                    </li>
-
-                                    <li class="mb-4">
-                                        <div class="icon-1"><a href="tel:+263783288586"><i class="size-32"
-                                                    data-feather="phone"></i></a></div>
-                                        <div class="content"><a class="fs-5 text-dark" href="tel:+263783288586">Ev.
-                                                Mamvura - +263 783 288 586</a></div>
-                                    </li>
-
-                                    
 
                                 </ul>
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-6">
+
+                    <div class="col-lg-3">
                         <div class="contact__content">
-                           
 
                             <div class="contact__info underlined-bottom d-inline-flex">
                                 <ul class="list-wrap">
 
-                                    
+
                                     <li class="mb-4 regional-service-list-item">
                                         <div class="regional-service-card">
                                             <span class="regional-service-card__eyebrow">Online Fellowship</span>
@@ -453,69 +476,17 @@ Author: Leona Kokerai - Ownuh
                                         </div>
                                     </li>
 
-                                    <li class="mb-4">
-                                        <div class="icon-1">
-                                            <i class="size-32" data-feather="map-pin"></i>
-                                        </div>
-                                        <div class="content">
-                                            <p class="title fs-7">India</p>
-                                        </div>
-                                    </li>
 
-                                    <li class="mb-4">
-                                        <div class="icon-1"><a href="tel:+263773299788"><i class="size-32"
-                                                    data-feather="phone"></i></a></div>
-                                        <div class="content"><a class="fs-5 text-dark" href="tel:+263773299788">Rev.
-                                                Moyo - +263 773 299 788</a></div>
-                                    </li>
 
-                                    <li class="mb-4">
-                                        <div class="icon-1"><a href="tel:+918360966076"><i class="size-32"
-                                                    data-feather="phone"></i></a></div>
-                                        <div class="content"><a class="fs-5 text-dark" href="tel:+918360966076">Ev.
-                                                Mupungi - +91 8360 966 076</a></div>
-                                    </li>
-
-                                    <li class="mb-4">
-                                        <div class="icon-1"><a href="tel:+918699097287"><i class="size-32"
-                                                    data-feather="phone"></i></a></div>
-                                        <div class="content"><a class="fs-5 text-dark" href="tel:+918699097287">Sec.
-                                                Chipindu - +91 8699 097 287</a></div>
-                                    </li>
-
-                                    <!-- Australia Contacts -->
-                                    <li class="mb-4">
-                                        <div class="icon-1">
-                                            <i class="size-32" data-feather="map-pin"></i>
-                                        </div>
-                                        <div class="content">
-                                            <p class="title fs-7">Australia</p>
-                                        </div>
-                                    </li>
-
-                                    <li class="mb-4">
-                                        <div class="icon-1"><a href="tel:+263773299788"><i class="size-32"
-                                                    data-feather="phone"></i></a></div>
-                                        <div class="content"><a class="fs-5 text-dark" href="tel:+263773299788">Rev.
-                                                Moyo - +263 773 299 788</a></div>
-                                    </li>
-
-                                    <li class="mb-4">
-                                        <div class="icon-1"><a href="tel:+61490364941"><i class="size-32"
-                                                    data-feather="phone"></i></a></div>
-                                        <div class="content"><a class="fs-5 text-dark" href="tel:+61490364941">Preacher
-                                                Jonah - +61 490 364 941</a></div>
-                                    </li>
-                                    
                                 </ul>
-                               
+
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            
+
         </section>
 
     </main>
@@ -540,7 +511,7 @@ Author: Leona Kokerai - Ownuh
                         </div>
 
                         <div class="col-lg-3 col-12 mb-3 mb-xxl-0 mb-xl-0 mb-lg-0">
-                           <ul class="tiny-footer-menu float-end d-none d-xxl-block d-xl-block d-lg-block">
+                            <ul class="tiny-footer-menu float-end d-none d-xxl-block d-xl-block d-lg-block">
                                 <li><a href="/about-us" class="fs-7 text-100 text-hover-primary">About Us</a></li>
                                 <li><a href="/events-list" class="fs-7 text-100 text-hover-primary">Events</a>
                                 </li>
@@ -551,12 +522,16 @@ Author: Leona Kokerai - Ownuh
                         </div>
                         <div class="col-lg-4 footer-social ">
                             <ul class="tiny-footer-menu float-end d-none d-xxl-block d-xl-block d-lg-block">
-                                <li><a href="https://www.facebook.com/profile.php?id=61573376475673"><i class="fab fa-facebook-f"></i></a></li>
-                                <li><a href="https://www.instagram.com/the_aac_gbeaaa_official?igsh=YjhlZWJzbGc1bmdm"><i class="fab fa-instagram"></i></a></li>
+                                <li><a href="https://www.facebook.com/profile.php?id=61573376475673"><i
+                                            class="fab fa-facebook-f"></i></a></li>
+                                <li><a href="https://www.instagram.com/the_aac_gbeaaa_official?igsh=YjhlZWJzbGc1bmdm"><i
+                                            class="fab fa-instagram"></i></a></li>
                                 <li><a href="https://x.com/MyBackup768079"><i class="fab fa-twitter"></i></a></li>
-                                <li><a href="https://www.youtube.com/@china_kereke"><i class="fab fa-youtube"></i></a></li>
-                                <li><a href="https://www.tiktok.com/@the.african.apost20?_r=1&_t=ZS-94ALmkmZHoC"><i class="fab fa-tiktok"></i></a></li>
-            
+                                <li><a href="https://www.youtube.com/@china_kereke"><i class="fab fa-youtube"></i></a>
+                                </li>
+                                <li><a href="https://www.tiktok.com/@the.african.apost20?_r=1&_t=ZS-94ALmkmZHoC"><i
+                                            class="fab fa-tiktok"></i></a></li>
+
                             </ul>
                         </div>
                     </div>

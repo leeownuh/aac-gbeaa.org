@@ -31,7 +31,8 @@ Author: Leona Kokerai - Ownuh
     <!-- Specific Meta
         ================================================== -->
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <meta name="description" content="Contact information for The African Apostolic Church GBEAAA Province representatives serving Great Britain.">
+    <meta name="description"
+        content="Contact information for The African Apostolic Church GBEAAA Province representatives serving Great Britain.">
     <meta name="keywords"
         content="paul, mwazha, church, apostolic, zimbabwe, india, dubai, christian, gbeaaa, uk, poland, ireland, china">
     <meta name="author" content="wp-organic">
@@ -45,13 +46,15 @@ Author: Leona Kokerai - Ownuh
     <link rel="canonical" href="https://www.aac-gbeaaa.org/aac-great-britain">
     <meta property="og:site_name" content="The African Apostolic Church GBEAAA Province">
     <meta property="og:title" content="Contact The African Apostolic Church | Great Britain">
-    <meta property="og:description" content="Contact information for The African Apostolic Church GBEAAA Province representatives serving Great Britain.">
+    <meta property="og:description"
+        content="Contact information for The African Apostolic Church GBEAAA Province representatives serving Great Britain.">
     <meta property="og:url" content="https://www.aac-gbeaaa.org/aac-great-britain">
     <meta property="og:type" content="website">
     <meta property="og:image" content="https://www.aac-gbeaaa.org/assets/images/logo/logo-1.png">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Contact The African Apostolic Church | Great Britain">
-    <meta name="twitter:description" content="Contact information for The African Apostolic Church GBEAAA Province representatives serving Great Britain.">
+    <meta name="twitter:description"
+        content="Contact information for The African Apostolic Church GBEAAA Province representatives serving Great Britain.">
     <meta name="robots" content="noindex,follow">
     <!-- Favicons
         ================================================== -->
@@ -106,9 +109,10 @@ Author: Leona Kokerai - Ownuh
                 <div class="row align-items-center">
                     <div class="col-lg-5 col-md-12 justify-content-md-center">
                         <div class="position-relative overflow-hidden top-news">
-                            <div class="swiper-1-vertical"> <div class="swiper-wrapper" id="event-swiper">
-  <!-- Slides will be injected here -->
-</div>
+                            <div class="swiper-1-vertical">
+                                <div class="swiper-wrapper" id="event-swiper">
+                                    <!-- Slides will be injected here -->
+                                </div>
 
                             </div>
                         </div>
@@ -128,21 +132,21 @@ Author: Leona Kokerai - Ownuh
                 </div>
             </div>
         </div>
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const swiperContainer = document.getElementById("event-swiper");
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const swiperContainer = document.getElementById("event-swiper");
 
-    fetch("/api/events").catch(() => fetch("data/events.json"))
-      .then(res => res.json())
-      .then(events => {
-        const today = new Date().toISOString().split("T")[0];
+                fetch("/api/events").catch(() => fetch("data/events.json"))
+                    .then(res => res.json())
+                    .then(events => {
+                        const today = new Date().toISOString().split("T")[0];
 
-        const upcomingEvents = events.filter(event => event.date >= today);
+                        const upcomingEvents = events.filter(event => event.date >= today);
 
-        upcomingEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
+                        upcomingEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
 
-        upcomingEvents.forEach(event => {
-          const slide = `
+                        upcomingEvents.forEach(event => {
+                            const slide = `
             <div class="swiper-slide">
               <div class="d-flex fs-7 fw-normal align-items-center justify-content-md-center justify-content-lg-start mb-md-2 mb-lg-0">
                 <span class="me-2 has-dot">
@@ -155,30 +159,30 @@ Author: Leona Kokerai - Ownuh
               </div>
             </div>
           `;
-          swiperContainer.insertAdjacentHTML("beforeend", slide);
-        });
+                            swiperContainer.insertAdjacentHTML("beforeend", slide);
+                        });
 
-        // Initialize Swiper (only after DOM is ready and content is injected)
-        if (typeof Swiper !== "undefined") {
-          new Swiper(".swiper-1-vertical", {
-            direction: 'vertical',
-            loop: true,
-            autoplay: {
-              delay: 4000,
-              disableOnInteraction: false,
-            },
-            slidesPerView: 1,
-          });
-        }
+                        // Initialize Swiper (only after DOM is ready and content is injected)
+                        if (typeof Swiper !== "undefined") {
+                            new Swiper(".swiper-1-vertical", {
+                                direction: 'vertical',
+                                loop: true,
+                                autoplay: {
+                                    delay: 4000,
+                                    disableOnInteraction: false,
+                                },
+                                slidesPerView: 1,
+                            });
+                        }
 
-        if (typeof feather !== "undefined") {
-          feather.replace();
-        }
-      })
-      .catch(err => {
-        console.error("Failed to load events:", err);
-      });
-  });</script>
+                        if (typeof feather !== "undefined") {
+                            feather.replace();
+                        }
+                    })
+                    .catch(err => {
+                        console.error("Failed to load events:", err);
+                    });
+            });</script>
 
         <!-- While User Scroll to Dispaly Sticky Header
             =============================================== -->
@@ -203,18 +207,18 @@ Author: Leona Kokerai - Ownuh
                                         <li><a href="/events-list">Events</a></li>
                                         <li><a href="/blog">Blog</a></li>
                                         <li><a href="/gallery">Gallery</a></li>
-                                       <li class="menu-item-has-children"><a href="/contact">Contact</a>
-                                           <ul class="sub-menu">
+                                        <li class="menu-item-has-children"><a href="/contact">Contact</a>
+                                            <ul class="sub-menu">
                                                 <li><a href="/aac-america-europe">America & Europe</a></li>
                                                 <li><a href="/aac-asia-australia">Asia & Australia</a></li>
                                                 <li><a href="/aac-uae-dubai">Dubai</a></li>
                                                 <li><a href="/aac-great-britain">Great Britain</a></li>
                                             </ul>
-                                        </li> 
-                                        
+                                        </li>
+
                                     </ul>
                                 </div>
-                               
+
                                 <div
                                     class="mobile-nav-toggler d-block d-xxl-none d-xl-none d-flex justify-content-center align-items-center justify-content-end">
                                     <i data-feather="menu"></i>
@@ -229,7 +233,7 @@ Author: Leona Kokerai - Ownuh
                                     <a href="/"><img src="assets/images/logo/logo-1.png"
                                             alt="The African Apostolic Church - VaApostora VeAfrica"></a>
                                 </div>
-                               
+
                                 <div class="tgmobile__menu-outer">
                                 </div>
                                 <div class="tgmobile__menu-bottom">
@@ -239,14 +243,21 @@ Author: Leona Kokerai - Ownuh
                                         </ul>
                                     </div>
                                     <div class="social-links">
-                                       <ul class="tiny-footer-menu float-end d-none d-xxl-block d-xl-block d-lg-block">
-                                <li><a href="https://www.facebook.com/profile.php?id=61573376475673"><i class="fab fa-facebook-f"></i></a></li>
-                                <li><a href="https://www.instagram.com/the_aac_gbeaaa_official?igsh=YjhlZWJzbGc1bmdm"><i class="fab fa-instagram"></i></a></li>
-                                <li><a href="https://x.com/MyBackup768079"><i class="fab fa-twitter"></i></a></li>
-                                <li><a href="https://www.youtube.com/@china_kereke"><i class="fab fa-youtube"></i></a></li>
-                                <li><a href="https://www.tiktok.com/@the.african.apost20?_r=1&_t=ZS-94ALmkmZHoC"><i class="fab fa-tiktok"></i></a></li>
-            
-                            </ul>
+                                        <ul class="tiny-footer-menu float-end d-none d-xxl-block d-xl-block d-lg-block">
+                                            <li><a href="https://www.facebook.com/profile.php?id=61573376475673"><i
+                                                        class="fab fa-facebook-f"></i></a></li>
+                                            <li><a
+                                                    href="https://www.instagram.com/the_aac_gbeaaa_official?igsh=YjhlZWJzbGc1bmdm"><i
+                                                        class="fab fa-instagram"></i></a></li>
+                                            <li><a href="https://x.com/MyBackup768079"><i
+                                                        class="fab fa-twitter"></i></a></li>
+                                            <li><a href="https://www.youtube.com/@china_kereke"><i
+                                                        class="fab fa-youtube"></i></a></li>
+                                            <li><a
+                                                    href="https://www.tiktok.com/@the.african.apost20?_r=1&_t=ZS-94ALmkmZHoC"><i
+                                                        class="fab fa-tiktok"></i></a></li>
+
+                                        </ul>
                                     </div>
                                 </div>
                             </nav>
@@ -258,7 +269,7 @@ Author: Leona Kokerai - Ownuh
             </div>
         </div>
 
-        
+
 
         <!-- Quick Contact Us Sidebar
             ============================= -->
@@ -292,7 +303,8 @@ Author: Leona Kokerai - Ownuh
                 <a href="https://www.facebook.com/profile.php?id=61573376475673"><i class="fab fa-facebook-f"></i></a>
                 <a href="javascript:"><i class="fab fa-twitter"></i></a>
                 <a href="javascript:"><i class="fab fa-google-plus-g"></i></a>
-                <a href="https://www.instagram.com/the_aac_gbeaaa_official?igsh=YjhlZWJzbGc1bmdm"><i class="fab fa-instagram"></i></a>
+                <a href="https://www.instagram.com/the_aac_gbeaaa_official?igsh=YjhlZWJzbGc1bmdm"><i
+                        class="fab fa-instagram"></i></a>
             </div>
         </div>
         <div class="offCanvas__overly"></div>
@@ -325,7 +337,7 @@ Author: Leona Kokerai - Ownuh
             <div class="container">
                 <div class="row">
                     <!-- District Leadership -->
-                    <div class="col-lg-6 mb-5">
+                    <div class="col-lg-12 mb-5">
                         <div class="contact__content">
                             <div class="section-title mb-4">
                                 <p class="sub-title fs-5">Contact</p>
@@ -352,153 +364,152 @@ Author: Leona Kokerai - Ownuh
                                             195658</a>
                                     </div>
                                 </li>
-                                <!-- Secretary -->
-                                <li class="mb-3 d-flex">
-                                    <div class="icon-1"><a href="tel:+447757710527"><i class="size-32"
-                                                data-feather="phone-call"></i></a></div>
-                                    <div class="content ms-3">
-                                        <p class="title fs-7">Secretary</p>
-                                        <a class="fs-5 text-dark" href="tel:+447757710527">Secretary Tafireyi - +44 7757
-                                            710527</a>
-                                    </div>
-                                </li>
                             </ul>
                         </div>
-                    </div>
-                    <div class="col-lg-6 mb-4">
-                        <div class="contact__content">
-                            <div class="col-lg-6">
-                                <div class="regional-service-card">
-                                    <span class="regional-service-card__eyebrow">Regional Worship</span>
-                                    <h5 class="fw-medium">Weekly Prayers</h5>
-                                    <p>Join the regional fellowship for weekly worship and Sabbath services.</p>
-                                    <div class="regional-service-schedule mb-0">
-                                        <div class="regional-service-schedule__row">
-                                            <strong>Saturday (Sabbath)</strong>
-                                            <span>Sabbath services</span>
-                                        </div>
-                                    </div>
+                        <div class="row"><!-- Bicester -->
+                            <div class="col-lg-3 mb-5">
+                                <div class="contact__content">
+                                    <h5 class="fw-medium mb-3">Bicester</h5>
+                                    <ul class="list-wrap">
+                                        <li><strong>Rev. Chitsa:</strong> <a href="tel:+447550081167">+44 7550
+                                                081167</a></li>
+                                        <li><strong>Ev. Mungoni:</strong> <a href="tel:+447488304322">+44 7488
+                                                304322</a></li>
+                                    </ul>
+                                    <p class="mt-3"><strong>Service Address:</strong><br>
+                                        Bicester East Community Centre<br>
+                                        Keble Road, Oxford, OX26 4TP<br>
+                                    </p>
+
                                 </div>
-                                <img src="assets/images/contact/contact4.png"
-                                    alt="Dubai Church - The African Apostolic Church"
-                                    class="img-fluid rounded shadow-sm">
                             </div>
 
-                        </div>
-                    </div>
-                    <!-- Bicester -->
-                    <div class="col-lg-6 mb-5">
-                        <div class="contact__content">
-                            <h5 class="fw-medium mb-3">Bicester</h5>
-                            <ul class="list-wrap">
-                                <li><strong>Rev. Chitsa:</strong> <a href="tel:+447550081167">+44 7550 081167</a></li>
-                                <li><strong>Ev. Mungoni:</strong> <a href="tel:+447488304322">+44 7488 304322</a></li>
-                                <li><strong>Sec. Dube:</strong> <a href="tel:+447902145084">+44 7902 145084</a></li>
-                            </ul>
-                            <p class="mt-3"><strong>Service Address:</strong><br>
-                                Bicester East Community Centre<br>
-                                Keble Road, Oxford, OX26 4TP<br>
-                                <strong>Start time:</strong> 10:30am BST
-                            </p>
+                            <!-- Leicester -->
+                            <div class="col-lg-3 mb-5">
+                                <div class="contact__content">
+                                    <h5 class="fw-medium mb-3">Leicester</h5>
+                                    <ul class="list-wrap">
+                                        <li><strong>Rev. Matsikidze:</strong> <a href="tel:+447492110525">+44 7492
+                                                110525</a>
+                                        </li>
+                                        <li><strong>Ev. Muchareenyi:</strong> <a href="tel:+447909391281">+44 7909
+                                                391281</a>
+                                        </li>
+                                    </ul>
+                                    <p class="mt-3"><strong>Service Address:</strong><br>
+                                        Leicester Location B<br>
+                                    </p>
+                                </div>
+                            </div>
 
+                            <!-- Nottingham -->
+                            <div class="col-lg-3 mb-5">
+                                <div class="contact__content">
+                                    <h5 class="fw-medium mb-3">Nottingham</h5>
+                                    <ul class="list-wrap">
+                                        <li><strong>Rev. Savadye:</strong> <a href="tel:+447308195658">+44 7308
+                                                195658</a></li>
+                                        <li><strong>Ev. Mukupe:</strong> <a href="tel:+447562915202">+44 7562 915202</a>
+                                        </li>
+                                    </ul>
+                                    <p class="mt-3"><strong>Service Address:</strong><br>
+                                        Polly Bowls Club<br>
+                                        10 Unwin Road, Sutton-in-Ashfield<br>
+                                        NG17 4HN<br>
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Preston -->
+                            <div class="col-lg-3 mb-5">
+                                <div class="contact__content">
+                                    <h5 class="fw-medium mb-3">Preston</h5>
+                                    <ul class="list-wrap">
+                                        <li><strong>Rev. Savadye:</strong> <a href="tel:+447308195658">+44 7308
+                                                195658</a></li>
+                                        <li><strong>Ev. Muzimba:</strong> <a href="tel:+447943320691">+44 7943
+                                                320691</a></li>
+                                    </ul>
+                                    <p class="mt-3"><strong>Service Address:</strong><br>
+                                        Penwortham Community Centre<br>
+                                        Kingsford Drive, Penwortham<br>
+                                        PR1 9EQ<br>
+
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6 mb-4">
+                            <div class="contact__content">
+                                    <div class="regional-service-card">
+                                        <span class="regional-service-card__eyebrow">Regional Worship</span>
+                                        <h5 class="fw-medium">Weekly Prayers</h5>
+                                        <p>Join the regional fellowship for weekly worship and Sabbath services.</p>
+                                        <div class="regional-service-schedule mb-0">
+                                            <div class="regional-service-schedule__row">
+                                                <strong>Saturday (Sabbath)</strong>Sabbath services <br>
+                                                <span>Start time:</strong> 10:00am BST</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 mb-4">
+                            <!-- Map Section  ================ -->
+                            <!-- Categories / Filters -->
+                            <div class="d-flex flex-wrap gap-2 mb-4">
+                                <a href="javascript:" class="btn rounded-5 btn-tag-outline active" data-place="all">
+                                    <span>View All</span>
+                                </a>
+                                <a href="javascript:" class="btn rounded-5 btn-tag-outline" data-place="Bicester">
+                                    <span>Bicester</span>
+                                </a>
+                                <a href="javascript:" class="btn rounded-5 btn-tag-outline" data-place="Preston">
+                                    <span>Preston</span>
+                                </a>
+                                <a href="javascript:" class="btn rounded-5 btn-tag-outline" data-place="Nottingham">
+                                    <span>Nottingham</span>
+                                </a>
+                            </div>
+
+                            <!-- Maps -->
+                            <div id="maps-container">
+                                <div class="map-item" data-place="Bicester">
+                                    <iframe
+                                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1230.8309219334653!2d-1.1450404!3d51.903634950000004!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4876e765c0c8a8e9%3A0xa8885e5bca9fd1bc!2sBicester%20East%20Community%20Center%2C%20Bicester%2C%20UK!5e0!3m2!1sen!2sin!4v1757096734418!5m2!1sen!2sin"
+                                        width="100%" height="350" style="border:0;" allowfullscreen=""
+                                        loading="lazy"></iframe>
+                                </div>
+
+                                <div class="map-item" data-place="Nottingham" style="display:none;">
+                                    <iframe
+                                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2393.9463973429065!2d-1.2444702240729393!3d53.12910779095667!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x487996771c2afa95%3A0x18f1f6fd623f8c99!2sPolly%20Bowls%20Club!5e0!3m2!1sen!2sin!4v1757096852601!5m2!1sen!2sin"
+                                        width="100%" height="350" style="border:0;" allowfullscreen=""
+                                        loading="lazy"></iframe>
+                                </div>
+
+                                <div class="map-item" data-place="Preston" style="display:none;">
+                                    <iframe
+                                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d18877.41059887352!2d-2.743180180802789!3d53.74183931544398!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x487b729dc293b927%3A0x57bd6b924de7b9b5!2sPenwortham%20Town%20Council%20and%20Community%20Centre!5e0!3m2!1sen!2sin!4v1757096936139!5m2!1sen!2sin"
+                                        width="100%" height="350" style="border:0;" allowfullscreen=""
+                                        loading="lazy"></iframe>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Leicester -->
-                    <div class="col-lg-6 mb-5">
-                        <div class="contact__content">
-                            <h5 class="fw-medium mb-3">Leicester</h5>
-                            <ul class="list-wrap">
-                                <li><strong>Rev. Matsikidze:</strong> <a href="tel:+447492110525">+44 7492 110525</a>
-                                </li>
-                                <li><strong>Ev. Muchareenyi:</strong> <a href="tel:+447909391281">+44 7909 391281</a>
-                                </li>
-                            </ul>
-                            <p class="mt-3"><strong>Service Address:</strong><br>
-                                Leicester Location B<br>
-                                <strong>Start time:</strong> 10:30am BST
-                            </p>
-                        </div>
-                    </div>
-
-                    <!-- Nottingham -->
-                    <div class="col-lg-6 mb-5">
-                        <div class="contact__content">
-                            <h5 class="fw-medium mb-3">Nottingham</h5>
-                            <ul class="list-wrap">
-                                <li><strong>Rev. Savadye:</strong> <a href="tel:+447308195658">+44 7308 195658</a></li>
-                                <li><strong>Ev. Mukupe:</strong> <a href="tel:+447562915202">+44 7562 915202</a></li>
-                                <li><strong>Sec. Tafireyi:</strong> <a href="tel:+447757710527">+44 7757 710527</a></li>
-                            </ul>
-                            <p class="mt-3"><strong>Service Address:</strong><br>
-                                Polly Bowls Club<br>
-                                10 Unwin Road, Sutton-in-Ashfield<br>
-                                NG17 4HN<br>
-                                <strong>Start time:</strong> 10:30am BST
-                            </p>
-                        </div>
-                    </div>
-
-                    <!-- Preston -->
-                    <div class="col-lg-6 mb-5">
-                        <div class="contact__content">
-                            <h5 class="fw-medium mb-3">Preston</h5>
-                            <ul class="list-wrap">
-                                <li><strong>Rev. Savadye:</strong> <a href="tel:+447308195658">+44 7308 195658</a></li>
-                                <li><strong>Ev. Muzimba:</strong> <a href="tel:+447943320691">+44 7943 320691</a></li>
-                                <li><strong>Pr. Kunzwa:</strong> <a href="tel:+447450837321">+44 7450 837321</a></li>
-                            </ul>
-                            <p class="mt-3"><strong>Service Address:</strong><br>
-                                Penwortham Community Centre<br>
-                                Kingsford Drive, Penwortham<br>
-                                PR1 9EQ<br>
-                                <strong>Start time:</strong> 10:00am BST
-                            </p>
-                        </div>
-                    </div>
                 </div>
             </div>
         </section>
-
-
-        <!-- Map Section
-            ================ -->
-        <!-- Categories / Filters -->
-        <div class="d-flex flex-wrap gap-2 mb-4">
-            <a href="javascript:" class="btn rounded-5 btn-tag-outline active" data-place="all">
-                <span>View All</span>
-            </a>
-            <a href="javascript:" class="btn rounded-5 btn-tag-outline" data-place="Bicester">
-                <span>Bicester</span>
-            </a>
-            <a href="javascript:" class="btn rounded-5 btn-tag-outline" data-place="Leicester">
-                <span>Leicester</span>
-            </a>
-            <a href="javascript:" class="btn rounded-5 btn-tag-outline" data-place="Nottingham">
-                <span>Nottingham</span>
-            </a>
         </div>
 
-        <!-- Maps -->
-        <div id="maps-container">
-            <div class="map-item" data-place="Bicester">
-                <iframe
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1230.8309219334653!2d-1.1450404!3d51.903634950000004!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4876e765c0c8a8e9%3A0xa8885e5bca9fd1bc!2sBicester%20East%20Community%20Center%2C%20Bicester%2C%20UK!5e0!3m2!1sen!2sin!4v1757096734418!5m2!1sen!2sin"
-                    width="100%" height="350" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
-            </div>
 
-            <div class="map-item" data-place="Leicester" style="display:none;">
-                <iframe
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2393.9463973429065!2d-1.2444702240729393!3d53.12910779095667!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x487996771c2afa95%3A0x18f1f6fd623f8c99!2sPolly%20Bowls%20Club!5e0!3m2!1sen!2sin!4v1757096852601!5m2!1sen!2sin"
-                    width="100%" height="350" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
-            </div>
 
-            <div class="map-item" data-place="Nottingham" style="display:none;">
-                <iframe
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d18877.41059887352!2d-2.743180180802789!3d53.74183931544398!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x487b729dc293b927%3A0x57bd6b924de7b9b5!2sPenwortham%20Town%20Council%20and%20Community%20Centre!5e0!3m2!1sen!2sin!4v1757096936139!5m2!1sen!2sin"
-                    width="100%" height="350" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
-            </div>
-        </div>
+
+
         <script>
             const filterButtons = document.querySelectorAll('.btn-tag-outline');
             const mapItems = document.querySelectorAll('.map-item');
